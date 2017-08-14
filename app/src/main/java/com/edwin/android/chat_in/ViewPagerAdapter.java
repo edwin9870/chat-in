@@ -14,6 +14,7 @@ import java.util.List;
  */
 
 public class ViewPagerAdapter extends FragmentPagerAdapter {
+    public static final String TAG = ViewPagerAdapter.class.getSimpleName();
     private final List<Fragment> mFragmentList = new ArrayList<>();
     private final List<String> mFragmentTitleList = new ArrayList<>();
 
@@ -23,12 +24,14 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        Log.d(ViewPagerAdapter.class.getSimpleName(), "fragment list position: " + position);
+        Log.d(TAG, "fragment list position: " + position);
         return mFragmentList.get(position);
     }
 
     @Override
     public int getCount() {
+
+        Log.d(TAG, "size: " + mFragmentList.size());
         return mFragmentList.size();
     }
 
