@@ -51,9 +51,7 @@ public class MainViewFragment extends Fragment {
 
         Log.d(TAG, "mToolbar: " + mToolbar);
         ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
-//        mMainViewCollapsingToolbar.setExpandedTitleColor(getResourceColor(getActivity(), android.R.color.transparent));
-
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Holaaa");
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(getString(R.string.app_name).toUpperCase());
 
         return view;
     }
