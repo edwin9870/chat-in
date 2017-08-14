@@ -1,4 +1,4 @@
-package com.edwin.android.chat_in;
+package com.edwin.android.chat_in.contact;
 
 import android.app.Fragment;
 import android.content.Context;
@@ -7,14 +7,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.edwin.android.chat_in.R;
 
-public class ChatFragment extends Fragment {
 
-    public ChatFragment() {
+public class ContactFragment extends Fragment {
+
+
+    public ContactFragment() {
         // Required empty public constructor
     }
-    public static ChatFragment newInstance() {
-        ChatFragment fragment = new ChatFragment();
+
+    public static ContactFragment newInstance() {
+        ContactFragment fragment = new ContactFragment();
         return fragment;
     }
 
@@ -27,8 +31,9 @@ public class ChatFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_chat, container, false);
+        return inflater.inflate(R.layout.fragment_contact, container, false);
     }
+
 
     @Override
     public void onAttach(Context context) {

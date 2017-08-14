@@ -1,4 +1,4 @@
-package com.edwin.android.chat_in;
+package com.edwin.android.chat_in.mainview;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -6,6 +6,9 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+import com.edwin.android.chat_in.contact.ContactFragment;
+import com.edwin.android.chat_in.R;
+import com.edwin.android.chat_in.chat.ChatFragment;
 import com.edwin.android.chat_in.views.WrapContentViewPager;
 
 import butterknife.BindView;

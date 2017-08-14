@@ -1,4 +1,4 @@
-package com.edwin.android.chat_in;
+package com.edwin.android.chat_in.mainview;
 
 
 import android.app.Fragment;

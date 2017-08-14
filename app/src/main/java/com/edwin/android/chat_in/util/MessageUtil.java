@@ -13,7 +13,7 @@ import java.util.List;
 
 public class MessageUtil {
 
-    public List<Contact> getContacts() {
+    public static List<Contact> getContacts() {
         List<Contact> contacts = new ArrayList<>();
 
         Contact contact = new Contact();
