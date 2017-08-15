@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.edwin.android.chat_in.R;
+import com.edwin.android.chat_in.contact.ContactListener;
 import com.edwin.android.chat_in.entity.Contact;
 import com.edwin.android.chat_in.util.MessageUtil;
 import com.edwin.android.chat_in.util.ResourceUtil;
@@ -21,12 +22,12 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
 
-public class ChatFragment extends Fragment implements ChatAdapter.ContactListener {
+public class ChatFragment extends Fragment implements ContactListener {
 
     @BindView(R.id.recycler_view_chat)
     RecyclerView mRecyclerView;
-    Unbinder unbinder;
-    private ChatAdapter chatAdapter;
+    Unbinder mUnbinder;
+    private ChatAdapter mChatAdapter;
 
     public ChatFragment() {
         // Required empty public constructor
@@ -46,19 +47,19 @@ public class ChatFragment extends Fragment implements ChatAdapter.ContactListene
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chat, container, false);
-        unbinder = ButterKnife.bind(this, view);
-        chatAdapter = new ChatAdapter(this);
+        mUnbinder = ButterKnife.bind(this, view);
+        mChatAdapter = new ChatAdapter(this);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false);
 
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.setHasFixedSize(false);
-        mRecyclerView.setAdapter(chatAdapter);
+        mRecyclerView.setAdapter(mChatAdapter);
         mRecyclerView.addItemDecoration(new SpacesItemDecoration(ResourceUtil.dpToPx(this
                 .getActivity(), getResources().getInteger(R.integer.space_between_conversation))));
 
-        chatAdapter.setContacts(MessageUtil.getContacts());
+        mChatAdapter.setContacts(MessageUtil.getContacts());
 
         return view;
     }
@@ -81,6 +82,6 @@ public class ChatFragment extends Fragment implements ChatAdapter.ContactListene
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        unbinder.unbind();
+        mUnbinder.unbind();
     }
 }

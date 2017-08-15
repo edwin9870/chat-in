@@ -60,10 +60,11 @@
             app:paddingEnd="@dimen/text_view_contact_message_padding_right"
             tools:text="Hola, Como estas?Hola, Como estas?Hola, Como estas?Hola, Como estas?Hola, Como estas?"/>
 
+
         <View
             android:layout_width="match_parent"
             android:layout_height="0.5dp"
-            android:background="#BF95989A"/>
+            android:background="@color/line"/>
 
     </LinearLayout>
 

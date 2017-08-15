@@ -3,15 +3,30 @@ package com.edwin.android.chat_in.contact;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.edwin.android.chat_in.R;
+import com.edwin.android.chat_in.entity.Contact;
+import com.edwin.android.chat_in.util.MessageUtil;
+import com.edwin.android.chat_in.util.ResourceUtil;
+import com.edwin.android.chat_in.views.SpacesItemDecoration;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 
 
-public class ContactFragment extends Fragment {
+public class ContactFragment extends Fragment implements ContactListener {
 
+
+    @BindView(R.id.recycler_view_contact)
+    RecyclerView mRecyclerView;
+    Unbinder mUnbinder;
+    private ContactAdapter mAdapter;
 
     public ContactFragment() {
         // Required empty public constructor
@@ -31,7 +46,23 @@ public class ContactFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_contact, container, false);
+        View view = inflater.inflate(R.layout.fragment_contact, container, false);
+        mUnbinder = ButterKnife.bind(this, view);
+        mAdapter = new ContactAdapter(this);
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(),
+                LinearLayoutManager.VERTICAL, false);
+
+        mRecyclerView.setLayoutManager(linearLayoutManager);
+        mRecyclerView.setHasFixedSize(false);
+        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.addItemDecoration(new SpacesItemDecoration(ResourceUtil.dpToPx(this
+                .getActivity(), getResources().getInteger(R.integer.space_between_conversation))));
+
+        mAdapter.setContacts(MessageUtil.getContacts());
+
+
+        return view;
     }
 
 
@@ -43,5 +74,16 @@ public class ContactFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mUnbinder.unbind();
+    }
+
+    @Override
+    public void onClickContact(Contact contact) {
+
     }
 }
