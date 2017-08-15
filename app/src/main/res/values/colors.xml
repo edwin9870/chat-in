@@ -6,4 +6,6 @@
     <color name="colorAccent">#2E2626</color>
 
     <color name="line">#BF95989A</color>
+
+    <color name="colorMessageReceived">#bababa</color>
 </resources>

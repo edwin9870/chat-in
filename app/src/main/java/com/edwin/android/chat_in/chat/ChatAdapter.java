@@ -55,8 +55,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatAdapterVie
 
         holder.mContactNameTextView.setText(contact.getName());
 
-        Message message = contact.getReceivedMessage().get(0);
-        CharSequence dateMessage = DateFormat.format("h:ma", message.getSend());
+        Message message = contact.getMessages().get(0);
+        CharSequence dateMessage = DateFormat.format(mContext.getString(R.string.time_format), message.getSend());
         holder.mContactMessageDateTextView.setText(dateMessage);
         holder.mContactMessageTextView.setText(message.getMessage());
 

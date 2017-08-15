@@ -57,7 +57,7 @@ public class ChatFragment extends Fragment implements ContactListener {
         mRecyclerView.setHasFixedSize(false);
         mRecyclerView.setAdapter(mChatAdapter);
         mRecyclerView.addItemDecoration(new SpacesItemDecoration(ResourceUtil.dpToPx(this
-                .getActivity(), getResources().getInteger(R.integer.space_between_conversation))));
+                .getActivity(), getResources().getInteger(R.integer.space_between_chat_list))));
 
         mChatAdapter.setContacts(MessageUtil.getContacts());
 

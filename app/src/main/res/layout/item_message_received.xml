@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="horizontal"
+              android:padding="8dp">
+
+    <com.edwin.android.chat_in.views.RoundedImageView
+        android:id="@+id/image_view_profile"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center"
+        tools:background="@drawable/ic_women_image"/>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="8dp"
+        android:background="@drawable/ic_message_received">
+
+            <TextView
+                android:id="@+id/text_message_sent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Holaaaaaaaaaaaa"/>
+    </FrameLayout>
+
+</LinearLayout>

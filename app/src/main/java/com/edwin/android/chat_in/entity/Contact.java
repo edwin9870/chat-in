@@ -13,8 +13,7 @@ public class Contact implements Parcelable {
 
     private String name;
     private int profileImage;
-    private List<Message> receivedMessage;
-    private List<Message> sentMessage;
+    private List<Message> messages;
 
     public String getName() {
         return name;
@@ -32,29 +31,12 @@ public class Contact implements Parcelable {
         this.profileImage = profileImage;
     }
 
-    public List<Message> getReceivedMessage() {
-        return receivedMessage;
+    public List<Message> getMessages() {
+        return messages;
     }
 
-    public void setReceivedMessage(List<Message> receivedMessage) {
-        this.receivedMessage = receivedMessage;
-    }
-
-    public List<Message> getSentMessage() {
-        return sentMessage;
-    }
-
-    public void setSentMessage(List<Message> sentMessage) {
-        this.sentMessage = sentMessage;
-    }
-
-    @Override
-    public String toString() {
-        return "Contact{" +
-                "name='" + name + '\'' +
-                ", profileImage='" + profileImage + '\'' +
-                ", receivedMessage=" + receivedMessage +
-                '}';
+    public void setMessages(List<Message> messages) {
+        this.messages = messages;
     }
 
 
@@ -67,7 +49,7 @@ public class Contact implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.name);
         dest.writeInt(this.profileImage);
-        dest.writeTypedList(this.receivedMessage);
+        dest.writeTypedList(this.messages);
     }
 
     public Contact() {
@@ -76,7 +58,7 @@ public class Contact implements Parcelable {
     protected Contact(Parcel in) {
         this.name = in.readString();
         this.profileImage = in.readInt();
-        this.receivedMessage = in.createTypedArrayList(Message.CREATOR);
+        this.messages = in.createTypedArrayList(Message.CREATOR);
     }
 
     public static final Creator<Contact> CREATOR = new Creator<Contact>() {
