@@ -39,8 +39,8 @@ public class MainViewActivity extends AppCompatActivity {
 
         ChatFragment chatFragment = ChatFragment.newInstance();
         ContactFragment contactFragment = ContactFragment.newInstance();
-        mAdapter.addFragment(chatFragment, "CHAT");
-        mAdapter.addFragment(contactFragment, "CONTACTOS");
+        mAdapter.addFragment(chatFragment, getString(R.string.main_view_tab_layout_chat_tab));
+        mAdapter.addFragment(contactFragment, getString(R.string.main_view_tab_layout_contacts_tab));
         mViewPager.setAdapter(mAdapter);
         mTabLayout.setupWithViewPager(mViewPager);
 

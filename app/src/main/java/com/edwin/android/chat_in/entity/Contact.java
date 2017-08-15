@@ -12,7 +12,7 @@ import java.util.List;
 public class Contact implements Parcelable {
 
     private String name;
-    private String profileImage;
+    private int profileImage;
     private List<Message> messages;
 
     public String getName() {
@@ -23,11 +23,11 @@ public class Contact implements Parcelable {
         this.name = name;
     }
 
-    public String getProfileImage() {
+    public int getProfileImage() {
         return profileImage;
     }
 
-    public void setProfileImage(String profileImage) {
+    public void setProfileImage(int profileImage) {
         this.profileImage = profileImage;
     }
 
@@ -48,6 +48,7 @@ public class Contact implements Parcelable {
                 '}';
     }
 
+
     @Override
     public int describeContents() {
         return 0;
@@ -56,7 +57,7 @@ public class Contact implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.name);
-        dest.writeString(this.profileImage);
+        dest.writeInt(this.profileImage);
         dest.writeTypedList(this.messages);
     }
 
@@ -65,11 +66,11 @@ public class Contact implements Parcelable {
 
     protected Contact(Parcel in) {
         this.name = in.readString();
-        this.profileImage = in.readString();
+        this.profileImage = in.readInt();
         this.messages = in.createTypedArrayList(Message.CREATOR);
     }
 
-    public static final Parcelable.Creator<Contact> CREATOR = new Parcelable.Creator<Contact>() {
+    public static final Creator<Contact> CREATOR = new Creator<Contact>() {
         @Override
         public Contact createFromParcel(Parcel source) {
             return new Contact(source);

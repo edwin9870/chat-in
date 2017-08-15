@@ -1,5 +1,6 @@
 package com.edwin.android.chat_in.util;
 
+import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.entity.Contact;
 import com.edwin.android.chat_in.entity.Message;
 
@@ -18,6 +19,7 @@ public class MessageUtil {
 
         Contact contact = new Contact();
         contact.setName("Juan Pablo Duarte");
+        contact.setProfileImage(R.drawable.ic_man_image);
         contact.setMessages(new ArrayList<Message>());
         contact.getMessages().add(new Message(new Date(), "One morning, when Gregor Samsa woke from troubled dreams, he"));
         contact.getMessages().add(new Message(new Date(), "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo"));
@@ -26,6 +28,7 @@ public class MessageUtil {
         contact = new Contact();
         contact.setName("Ana Maria");
         contact.setMessages(new ArrayList<Message>());
+        contact.setProfileImage(R.drawable.ic_women_image);
         contact.getMessages().add(new Message(new Date(), "Sed ut perspiciatis unde omnis iste natus error sit voluptatem"));
         contact.getMessages().add(new Message(new Date(), "But I must explain to you how all this mistaken"));
         contact.getMessages().add(new Message(new Date(), "Far far away, behind the word mountains, far from the"));

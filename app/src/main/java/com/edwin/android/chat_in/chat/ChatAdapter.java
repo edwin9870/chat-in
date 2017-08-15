@@ -50,7 +50,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatAdapterVie
         Contact contact = mContacts.get(position);
 
         Picasso picasso = Picasso.with(mContext);
-        picasso.load(R.drawable.ic_face).fit().into(holder.mProfileImageView);
+        picasso.load(contact.getProfileImage()).fit().into(holder.mProfileImageView);
 
         holder.mContactNameTextView.setText(contact.getName());
 

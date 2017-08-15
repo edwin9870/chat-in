@@ -6,12 +6,12 @@
               android:layout_height="72dp"
               android:orientation="horizontal">
 
-    <ImageView
+    <com.edwin.android.chat_in.views.RoundedImageView
         android:id="@+id/image_view_profile"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_gravity="center"
-        android:background="@drawable/ic_face"
+        tools:background="@drawable/ic_women_image"
         android:padding="8dp"/>
 
     <LinearLayout
