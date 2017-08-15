@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.edwin.android.chat_in.R;
-import com.edwin.android.chat_in.chat.ChatAdapter;
 import com.edwin.android.chat_in.entity.Contact;
 import com.edwin.android.chat_in.views.RoundedImageView;
 import com.squareup.picasso.Picasso;
@@ -80,6 +79,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactA
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
+            mContactListener.onClickContact(mContacts.get(adapterPosition));
         }
     }
 

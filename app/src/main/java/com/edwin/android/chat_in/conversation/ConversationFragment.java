@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.edwin.android.chat_in.R;
-import com.edwin.android.chat_in.util.MessageUtil;
+import com.edwin.android.chat_in.entity.Contact;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -19,22 +19,22 @@ import butterknife.Unbinder;
 
 public class ConversationFragment extends Fragment {
 
-    public static final String ARGUMENT_CONTACT_ID = "ARGUMENT_CONTACT_ID";
+    public static final String ARGUMENT_CONTACT = "ARGUMENT_CONTACT";
     public static final String TAG = ConversationFragment.class.getSimpleName();
     @BindView(R.id.recycler_conversation)
     RecyclerView mRecyclerView;
     Unbinder unbinder;
-    private int mContactId;
+    private Contact mContact;
     private ConversationAdapter mAdapter;
 
     public ConversationFragment() {
 
     }
 
-    public static ConversationFragment newInstance(int contactId) {
+    public static ConversationFragment newInstance(Contact contactId) {
         ConversationFragment fragment = new ConversationFragment();
         Bundle args = new Bundle();
-        args.putInt(ARGUMENT_CONTACT_ID, contactId);
+        args.putParcelable(ARGUMENT_CONTACT, contactId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -43,7 +43,7 @@ public class ConversationFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mContactId = getArguments().getInt(ARGUMENT_CONTACT_ID);
+            mContact = getArguments().getParcelable(ARGUMENT_CONTACT);
         }
     }
 
@@ -51,7 +51,7 @@ public class ConversationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_conversation, container, false);
-        Log.d(TAG, "ContactId:" + mContactId);
+        Log.d(TAG, "mContact received:" + mContact);
         unbinder = ButterKnife.bind(this, view);
 
 
@@ -63,7 +63,7 @@ public class ConversationFragment extends Fragment {
         mRecyclerView.setHasFixedSize(false);
         mRecyclerView.setAdapter(mAdapter);
 
-        mAdapter.setContacts(MessageUtil.getContacts().get(0));
+        mAdapter.setContact(mContact);
 
         return view;
     }

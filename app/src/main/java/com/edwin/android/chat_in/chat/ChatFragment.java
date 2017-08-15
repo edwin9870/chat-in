@@ -2,6 +2,7 @@ package com.edwin.android.chat_in.chat;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +13,8 @@ import android.view.ViewGroup;
 
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.contact.ContactListener;
+import com.edwin.android.chat_in.conversation.ConversationActivity;
+import com.edwin.android.chat_in.conversation.ConversationFragment;
 import com.edwin.android.chat_in.entity.Contact;
 import com.edwin.android.chat_in.util.MessageUtil;
 import com.edwin.android.chat_in.util.ResourceUtil;
@@ -76,7 +79,10 @@ public class ChatFragment extends Fragment implements ContactListener {
 
     @Override
     public void onClickContact(Contact contact) {
-        Log.d(ChatFragment.class.getSimpleName(), "Concat name clicked: " + contact.getName());
+        Log.d(ChatFragment.class.getSimpleName(), "Contact clicked: " + contact.getName());
+        Intent intent = new Intent(getActivity(), ConversationActivity.class);
+        intent.putExtra(ConversationFragment.ARGUMENT_CONTACT, contact);
+        getActivity().startActivity(intent);
     }
 
     @Override

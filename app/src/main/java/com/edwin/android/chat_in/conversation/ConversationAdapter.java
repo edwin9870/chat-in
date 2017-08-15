@@ -86,7 +86,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     }
 
-    public void setContacts(Contact contacts) {
+    public void setContact(Contact contacts) {
         this.mContacts = contacts;
         notifyDataSetChanged();
     }

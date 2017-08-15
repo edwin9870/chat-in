@@ -25,15 +25,20 @@ public class MessageUtil {
         contact.getMessages().add(new Message(new Date(), "One morning, when Gregor Samsa woke from troubled dreams, he", true));
         contact.getMessages().add(new Message(new Date(), "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo", true));
         contact.getMessages().add(new Message(new Date(), "Si, estoy muy bien la verdad", false));
+        contact.getMessages().add(new Message(new Date(), "ipsum dolor sit amet, consect", true));
         contacts.add(contact);
 
         contact = new Contact();
         contact.setName("Ana Maria");
         contact.setMessages(new ArrayList<Message>());
         contact.setProfileImage(R.drawable.ic_women_image);
-        contact.getMessages().add(new Message(new Date(), "Sed ut perspiciatis unde omnis iste natus error sit voluptatem", true));
-        contact.getMessages().add(new Message(new Date(), "But I must explain to you how all this mistaken", true));
-        contact.getMessages().add(new Message(new Date(), "But I must explain to you how all this mistaken", false));
+        contact.getMessages().add(new Message(new Date(), "¿Qué cuatrimestre?", true));
+        contact.getMessages().add(new Message(new Date(), "3", false));
+        contact.getMessages().add(new Message(new Date(), "Prioridades, tendrás que organizarte bien y saber a que dedicarle tiempo y en que momento, listo.", true));
+        contact.getMessages().add(new Message(new Date(), " Busca buenos grupos en cada materia...", true));
+        contact.getMessages().add(new Message(new Date(), "Prioridades, tendrás que organizarte bien y saber a que dedicarle tiempo y en que momento, listo.", true));
+        contact.getMessages().add(new Message(new Date(), "Estimados compañeros, alguien sabe de quien es esta seccion.", true));
+        contact.getMessages().add(new Message(new Date(), "Esta bien entonces", false));
         contacts.add(contact);
 
         return contacts;
