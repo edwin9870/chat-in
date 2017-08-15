@@ -13,6 +13,8 @@ import android.view.ViewGroup;
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.entity.Contact;
 import com.edwin.android.chat_in.util.MessageUtil;
+import com.edwin.android.chat_in.util.ResourceUtil;
+import com.edwin.android.chat_in.views.SpacesItemDecoration;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -53,6 +55,7 @@ public class ChatFragment extends Fragment implements ChatAdapter.ContactListene
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.setHasFixedSize(false);
         mRecyclerView.setAdapter(chatAdapter);
+        mRecyclerView.addItemDecoration(new SpacesItemDecoration(ResourceUtil.dpToPx(this.getActivity(), 8)));
 
         chatAdapter.setContacts(MessageUtil.getContacts());
 
