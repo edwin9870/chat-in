@@ -55,7 +55,8 @@ public class ChatFragment extends Fragment implements ChatAdapter.ContactListene
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.setHasFixedSize(false);
         mRecyclerView.setAdapter(chatAdapter);
-        mRecyclerView.addItemDecoration(new SpacesItemDecoration(ResourceUtil.dpToPx(this.getActivity(), 8)));
+        mRecyclerView.addItemDecoration(new SpacesItemDecoration(ResourceUtil.dpToPx(this
+                .getActivity(), getResources().getInteger(R.integer.space_between_conversation))));
 
         chatAdapter.setContacts(MessageUtil.getContacts());
 

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="text_view_contact_message_padding_right">24dp</dimen>
+</resources>
