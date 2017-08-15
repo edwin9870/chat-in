@@ -4,6 +4,7 @@
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="72dp"
+              android:background="?attr/selectableItemBackground"
               android:orientation="horizontal">
 
     <com.edwin.android.chat_in.views.RoundedImageView

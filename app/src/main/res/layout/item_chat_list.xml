@@ -4,22 +4,24 @@
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="72dp"
+              android:background="?attr/selectableItemBackground"
               android:orientation="horizontal">
 
     <com.edwin.android.chat_in.views.RoundedImageView
         android:id="@+id/image_view_profile"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="@dimen/image_view_profile_width"
+        android:layout_height="@dimen/image_view_profile_height"
         android:layout_gravity="center"
-        tools:background="@drawable/ic_women_image"
-        android:padding="8dp"/>
+        android:padding="@dimen/image_view_profile_padding"
+        tools:background="@drawable/ic_women_image"/>
 
     <LinearLayout
+        android:id="@+id/linear_chat_detail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginLeft="16dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginLeft="@dimen/linear_chat_detail_margin_left"
+        android:layout_marginStart="@dimen/linear_chat_detail_margin_right"
         android:orientation="vertical">
 
         <LinearLayout
@@ -53,7 +55,7 @@
             style="@style/TextAppearance.AppCompat.Caption"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="@dimen/text_view_contact_message_margin_bottom"
             android:ellipsize="end"
             android:maxLines="1"
             android:paddingRight="@dimen/text_view_contact_message_padding_right"
