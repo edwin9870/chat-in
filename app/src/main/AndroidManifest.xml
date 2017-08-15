@@ -12,6 +12,8 @@
         <activity
             android:name=".mainview.MainViewActivity"
             android:launchMode="singleTop">
+        </activity>
+        <activity android:name=".conversation.ConversationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
