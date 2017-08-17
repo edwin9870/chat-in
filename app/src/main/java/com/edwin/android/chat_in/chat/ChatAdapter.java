@@ -11,9 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.edwin.android.chat_in.R;
-import com.edwin.android.chat_in.contact.ContactListener;
-import com.edwin.android.chat_in.entity.Contact;
-import com.edwin.android.chat_in.entity.Message;
+import com.edwin.android.chat_in.entity.dto.Chat;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -28,12 +26,12 @@ import butterknife.ButterKnife;
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatAdapterViewHolder> {
 
     public static final String TAG = ChatAdapter.class.getSimpleName();
-    private ContactListener mContactListener;
+    private ChatListener mChatListener;
     private Context mContext;
-    private List<Contact> mContacts;
+    private List<Chat> mChats;
 
-    public ChatAdapter(ContactListener mContactListener) {
-        this.mContactListener = mContactListener;
+    public ChatAdapter(ChatListener chatListener) {
+        this.mChatListener = chatListener;
     }
 
     @Override
@@ -48,28 +46,28 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatAdapterVie
 
     @Override
     public void onBindViewHolder(ChatAdapterViewHolder holder, int position) {
-        Contact contact = mContacts.get(position);
+        Chat contact = mChats.get(position);
 
         Picasso picasso = Picasso.with(mContext);
         picasso.load(contact.getProfileImage()).fit().into(holder.mProfileImageView);
 
-        holder.mContactNameTextView.setText(contact.getName());
+        holder.mContactNameTextView.setText(contact.getUserName());
 
-        Message message = contact.getMessages().get(0);
-        CharSequence dateMessage = DateFormat.format(mContext.getString(R.string.time_format), message.getSend());
+        CharSequence dateMessage = DateFormat.format(mContext.getString(R.string.time_format), contact.getMessageDate());
         holder.mContactMessageDateTextView.setText(dateMessage);
-        holder.mContactMessageTextView.setText(message.getMessage());
+        holder.mContactMessageTextView.setText(contact.getLastMessage());
 
     }
 
     @Override
     public int getItemCount() {
-        if (null == mContacts) {
+        if (null == mChats) {
+            Log.d(TAG, "mChats is null at getItemCount");
             return 0;
         }
 
-        Log.d(TAG, "mContacts size:" + mContacts.size());
-        return mContacts.size();
+        Log.d(TAG, "mChats size:" + mChats.size());
+        return mChats.size();
     }
 
     class ChatAdapterViewHolder extends RecyclerView.ViewHolder implements View
@@ -93,13 +91,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatAdapterVie
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            mContactListener.onClickContact(mContacts.get(adapterPosition));
+            mChatListener.onClickContact(mChats.get(adapterPosition));
         }
     }
 
 
-    public void setContacts(List<Contact> contacts) {
-        this.mContacts = contacts;
+    public void setChats(List<Chat> chats) {
+        this.mChats = chats;
         notifyDataSetChanged();
     }
 }
