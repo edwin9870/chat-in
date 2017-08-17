@@ -9,6 +9,7 @@ import java.util.Date;
 public class Chat {
 
     private String userName;
+    private String phoneNumber;
     private String LastMessage;
     private int profileImage;
     private Date messageDate;
@@ -19,6 +20,14 @@ public class Chat {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public String getLastMessage() {
@@ -49,6 +58,7 @@ public class Chat {
     public String toString() {
         return "Chat{" +
                 "userName='" + userName + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
                 ", LastMessage='" + LastMessage + '\'' +
                 ", profileImage=" + profileImage +
                 ", messageDate=" + messageDate +

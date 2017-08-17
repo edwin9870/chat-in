@@ -34,6 +34,7 @@ import butterknife.Unbinder;
 public class ChatFragment extends Fragment implements ChatListener {
 
     public static final String TAG = ChatFragment.class.getSimpleName();
+    public static final String MY_NUMBER = "8292779870";
     @BindView(R.id.recycler_view_chat)
     RecyclerView mRecyclerView;
     Unbinder mUnbinder;
@@ -72,20 +73,18 @@ public class ChatFragment extends Fragment implements ChatListener {
         mRecyclerView.addItemDecoration(new SpacesItemDecoration(ResourceUtil.dpToPx(this
                 .getActivity(), getResources().getInteger(R.integer.space_between_chat_list))));
 
-        String actualPhoneNumber = "8292779870";
         mDatabase.child(FirebaseDatabaseUtil.Constants.CHATS_ROOT_PATH).startAt(null,
-                actualPhoneNumber).addValueEventListener(new ValueEventListener() {
+                MY_NUMBER).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 final List<Chat> chats = new ArrayList<>();
                 Log.d(TAG, "key: " + dataSnapshot);
                 for (DataSnapshot singleDataSnapshot : dataSnapshot.getChildren()) {
                     String key = singleDataSnapshot.getKey();
-                    String targetNumber = key.substring(key.indexOf("_") + 1);
+                    final String targetNumber = key.substring(key.indexOf("_") + 1);
                     Log.d(TAG, "singleDataSnapshot: " + targetNumber);
                     final LastMessage lastMessage = singleDataSnapshot.getValue(LastMessage.class);
                     Log.d(TAG, "dataSnapshot: " + lastMessage);
-
                     mDatabase.child(FirebaseDatabaseUtil.Constants.USERS_ROOT_PATH +
                             targetNumber).child(FirebaseDatabaseUtil.Constants.USER_NAME_PATH)
                             .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -96,6 +95,7 @@ public class ChatFragment extends Fragment implements ChatListener {
                                     chat.setUserName(dataSnapshot.getValue(String.class));
                                     chat.setProfileImage(R.drawable.ic_women_image);
                                     chat.setLastMessage(lastMessage.getLastMessage());
+                                    chat.setPhoneNumber(targetNumber);
                                     chat.setMessageDate(new Date(lastMessage.getTimestamp()));
                                     Log.d(TAG, "chat: " + chat);
                                     chats.add(chat);
