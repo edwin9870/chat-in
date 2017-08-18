@@ -88,7 +88,7 @@ public class ContactFragment extends Fragment implements ContactListener {
     @Override
     public void onClickContact(Contact contact) {
         Intent intent = new Intent(getActivity(), ConversationActivity.class);
-        intent.putExtra(ConversationFragment.ARGUMENT_CONTACT, contact);
+        intent.putExtra(ConversationFragment.ARGUMENT_CHAT, contact);
         getActivity().startActivity(intent);
     }
 }

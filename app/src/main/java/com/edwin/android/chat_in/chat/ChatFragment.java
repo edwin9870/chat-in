@@ -2,6 +2,7 @@ package com.edwin.android.chat_in.chat;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.edwin.android.chat_in.R;
+import com.edwin.android.chat_in.conversation.ConversationActivity;
+import com.edwin.android.chat_in.conversation.ConversationFragment;
 import com.edwin.android.chat_in.entity.dto.Chat;
 import com.edwin.android.chat_in.entity.fcm.LastMessage;
 import com.edwin.android.chat_in.util.FirebaseDatabaseUtil;
@@ -144,5 +147,8 @@ public class ChatFragment extends Fragment implements ChatListener {
     @Override
     public void onClickContact(Chat chat) {
         Log.d(TAG, "Chat clicked: " + chat);
+        Intent intent = new Intent(getActivity(), ConversationActivity.class);
+        intent.putExtra(ConversationFragment.ARGUMENT_CHAT, chat);
+        getActivity().startActivity(intent);
     }
 }

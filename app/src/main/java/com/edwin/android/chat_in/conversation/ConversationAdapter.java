@@ -12,6 +12,8 @@ import com.edwin.android.chat_in.entity.Contact;
 import com.edwin.android.chat_in.entity.Message;
 import com.squareup.picasso.Picasso;
 
+import java.util.List;
+
 /**
  * Created by Edwin Ramirez Ventura on 8/15/2017.
  */
@@ -22,7 +24,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public static final int VIEW_TYPE_MESSAGE_SENT = 8877;
     public static final String TAG = ConversationAdapter.class.getSimpleName();
     private Context mContext;
-    private Contact mContacts;
+    private List<Message> mContacts;
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -43,7 +45,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        Message message = mContacts.getMessages().get(position);
+        Message message = mContacts.get(position);
         Log.d(TAG, "holder.getItemViewType(): " + holder.getItemViewType());
         if(holder.getItemViewType() == VIEW_TYPE_MESSAGE_RECEIVED) {
             bindReceivedMessage((MessageReceivedViewHolder) holder, message);
@@ -57,7 +59,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         holder.mMessageReceivedTextView.setText(message.getMessage());
 
         Picasso picasso = Picasso.with(mContext);
-        picasso.load(mContacts.getProfileImage()).fit().into(holder.mProfileImageView);
+        picasso.load(R.drawable.ic_women_image).fit().into(holder.mProfileImageView);
     }
 
     private void bindSentMessage(MessageSentViewHolder holder, Message message) {
@@ -66,18 +68,18 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public int getItemCount() {
-        if (mContacts == null || mContacts.getMessages() == null) {
+        if (mContacts == null) {
             return 0;
         }
 
-        Log.d(TAG, "Messages size: " + mContacts.getMessages().size());
-        return mContacts.getMessages().size();
+        Log.d(TAG, "Messages size: " + mContacts.size());
+        return mContacts.size();
     }
 
     @Override
     public int getItemViewType(int position) {
-        boolean isMessageReceived = mContacts.getMessages().get(position).isMessageReceived();
-        Log.d(TAG, "Messages: " + mContacts.getMessages());
+        boolean isMessageReceived = mContacts.get(position).isMessageReceived();
+        Log.d(TAG, "Messages: " + mContacts);
         if (isMessageReceived) {
             return VIEW_TYPE_MESSAGE_RECEIVED;
         } else {
@@ -86,7 +88,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     }
 
-    public void setContact(Contact contacts) {
+    public void setContact(List<Message> contacts) {
         this.mContacts = contacts;
         notifyDataSetChanged();
     }
