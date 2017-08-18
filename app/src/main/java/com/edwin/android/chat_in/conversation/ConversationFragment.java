@@ -12,9 +12,9 @@ import android.view.ViewGroup;
 
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.chat.ChatFragment;
-import com.edwin.android.chat_in.entity.Contact;
 import com.edwin.android.chat_in.entity.Message;
 import com.edwin.android.chat_in.entity.dto.Chat;
+import com.edwin.android.chat_in.util.FirebaseDatabaseUtil;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -29,6 +29,12 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.ReplaySubject;
 
 public class ConversationFragment extends Fragment {
 
@@ -71,7 +77,7 @@ public class ConversationFragment extends Fragment {
         Log.d(TAG, "mChat received:" + mChat);
         unbinder = ButterKnife.bind(this, view);
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
+        final Date fragmentCreationDateTime = new Date();
         mAdapter = new ConversationAdapter();
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false);
@@ -80,103 +86,140 @@ public class ConversationFragment extends Fragment {
         mRecyclerView.setHasFixedSize(false);
         mRecyclerView.setAdapter(mAdapter);
 
-
-        String conversationPath = "conversation/" + ChatFragment.MY_NUMBER + "_" + mChat
+        String conversationPath = FirebaseDatabaseUtil.Constants.CONVERSATION_ROOT_PATH + ChatFragment.MY_NUMBER + "_" + mChat
                 .getPhoneNumber();
         Log.d(TAG, "conversationPath: " + conversationPath);
         mMessages = new ArrayList<>();
         final DatabaseReference meToTargetConversation = mDatabase.child(conversationPath);
-        meToTargetConversation.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.d(TAG, "child dataSnapshot: " + dataSnapshot);
-                Message message = new Message();
-                message.setMessage(dataSnapshot.child("message").getValue(String.class));
-                message.setSend(new Date(Long.valueOf(dataSnapshot.getKey())));
-                message.setMessageReceived(false);
-                Log.d(TAG, "message to be added: " + message);
-                mMessages.add(message);
-            }
+        ReplaySubject<Message> newMessageSubject = ReplaySubject.create();
 
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+        Observable<Message> meToTargetObservable = Observable.create(e -> {
+            meToTargetConversation.addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    Log.d(TAG, "child dataSnapshot: " + dataSnapshot);
+                    Message message = new Message();
+                    message.setMessage(dataSnapshot.child("message").getValue(String.class));
+                    message.setSend(new Date(Long.valueOf(dataSnapshot.getKey())*1000));
+                    message.setMessageReceived(false);
+                    Log.d(TAG, "meToTargetConversation. message to sent " + message);
+                    e.onNext(message);
 
-            }
+                    if(message.getSend().after(fragmentCreationDateTime)) {
+                        newMessageSubject.onNext(message);
+                    }
+                }
 
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
-            }
+                }
 
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
 
-            }
+                }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
 
-            }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+            meToTargetConversation.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Log.d(TAG, "meToTargetConversation completed");
+                    e.onComplete();
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
         });
-        meToTargetConversation.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d(TAG, "meToTargetConversation finish");
-                complete(true);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
 
 
-        DatabaseReference targetToMeConversation = meToTargetConversation
+        final DatabaseReference targetToMeConversation = meToTargetConversation
                 .getParent().child(mChat.getPhoneNumber() + "_" + ChatFragment.MY_NUMBER);
-        targetToMeConversation.addChildEventListener(new ChildEventListener() {
+        final Observable<Message> targetToMeObservable = Observable.create(e -> {
+            targetToMeConversation.addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    Log.d(TAG, "targetToMeConversation.child dataSnapshot: " + dataSnapshot);
+                    Message message = new Message();
+                    message.setMessage(dataSnapshot.child("message").getValue(String.class));
+                    message.setSend(new Date(Long.valueOf(dataSnapshot.getKey())*1000));
+                    message.setMessageReceived(true);
+                    Log.d(TAG, "message to be added: " + message);
+                    e.onNext(message);
+                    if(message.getSend().after(fragmentCreationDateTime)) {
+                        newMessageSubject.onNext(message);
+                    }
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+            targetToMeConversation.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Log.d(TAG, "targetToMeConversation finish");
+                    e.onComplete();
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        });
+
+        Observable<Message> messages = Observable
+                .merge(meToTargetObservable, targetToMeObservable)
+                .sorted((message, t1) -> message.getSend().compareTo(t1.getSend()))
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread());
+        messages.subscribeWith(new DisposableObserver<Message>() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.d(TAG, "targetToMeConversation.child dataSnapshot: " + dataSnapshot);
-                Message message = new Message();
-                message.setMessage(dataSnapshot.child("message").getValue(String.class));
-                message.setSend(new Date(Long.valueOf(dataSnapshot.getKey())));
-                message.setMessageReceived(true);
-                Log.d(TAG, "message to be added: " + message);
+            public void onNext(Message message) {
                 mMessages.add(message);
             }
-
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
+            public void onError(Throwable e) {
             }
-
             @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
+            public void onComplete() {
+                Log.d(TAG, "Calling onComplete");
+                Log.d(TAG, "mMessages: "+ mMessages);
+                mAdapter.setContact(mMessages);
             }
         });
-        targetToMeConversation.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d(TAG, "targetToMeConversation finish");
-                complete(false);
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
+        newMessageSubject.observeOn(AndroidSchedulers.mainThread()).subscribe(message -> {
+            Log.d(TAG, "New message: " + message);
+            mAdapter.message(message);
         });
 
         return view;

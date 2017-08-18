@@ -92,4 +92,12 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         this.mContacts = contacts;
         notifyDataSetChanged();
     }
+
+    public void message(Message message) {
+        if(mContacts == null) {
+            return;
+        }
+        this.mContacts.add(message);
+        notifyDataSetChanged();
+    }
 }
