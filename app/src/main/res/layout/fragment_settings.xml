@@ -1,8 +1,9 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             tools:context="com.edwin.android.chat_in.settings.SettingsFragment">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              tools:context="com.edwin.android.chat_in.settings.SettingsFragment">
 
     <com.edwin.android.chat_in.views.RoundedImageView
         android:id="@+id/image_profile"
@@ -11,5 +12,14 @@
         android:layout_gravity="center|top"
         android:layout_marginTop="@dimen/image_profile_margin_top"/>
 
+    <TextView
+        android:id="@+id/text_person_name"
+        style="@style/TextAppearance.AppCompat.Headline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/text_person_name_margin_top"
+        tools:text="Juan Pablo Duarte"
+        android:gravity="center"/>
 
-</FrameLayout>
+
+</LinearLayout>

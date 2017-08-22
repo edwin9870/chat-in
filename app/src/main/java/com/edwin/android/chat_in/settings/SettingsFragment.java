@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.views.RoundedImageView;
@@ -20,6 +21,8 @@ public class SettingsFragment extends Fragment {
     @BindView(R.id.image_profile)
     RoundedImageView mProfileImageView;
     Unbinder unbinder;
+    @BindView(R.id.text_person_name)
+    TextView mPersonNameTextView;
 
     public SettingsFragment() {
     }
@@ -43,6 +46,9 @@ public class SettingsFragment extends Fragment {
 
         Picasso picasso = Picasso.with(getActivity());
         picasso.load(R.drawable.ic_man_image).fit().into(mProfileImageView);
+
+        //TODO: Get person name
+        mPersonNameTextView.setText("Juan Pablo Duarte");
         return view;
     }
 
