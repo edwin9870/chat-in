@@ -34,7 +34,7 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
 
-public class ChatFragment extends Fragment implements ChatListener {
+public class ChatFragment extends Fragment implements ChatListener , ChatMVP.View{
 
     public static final String TAG = ChatFragment.class.getSimpleName();
     public static final String MY_NUMBER = "8292779870";
@@ -43,9 +43,15 @@ public class ChatFragment extends Fragment implements ChatListener {
     Unbinder mUnbinder;
     private ChatAdapter mChatAdapter;
     private DatabaseReference mDatabase;
+    private ChatMVP.Presenter mPresenter;
 
     public ChatFragment() {
-        // Required empty public constructor
+    }
+
+    @Override
+    public void setPresenter(ChatMVP.Presenter presenter) {
+        Log.d(TAG, "Setting presenter");
+        mPresenter = presenter;
     }
 
     public static ChatFragment newInstance() {
