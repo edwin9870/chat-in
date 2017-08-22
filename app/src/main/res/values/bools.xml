@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- settings.xml -->
+    <bool name="notification_sound_default_value">true</bool>
+    <bool name="notification_vibrate_default_value">true</bool>
+</resources>

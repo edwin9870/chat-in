@@ -4,8 +4,17 @@
     <string name="main_view_tab_layout_chat_tab">CHAT</string>
     <string name="main_view_tab_layout_contacts_tab">CONTACTS</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="time_format" translatable="false">h:mma</string>
     <string name="toolbar_settings_title">Settings</string>
+
+    <!-- settings.xml-->
+    <string name="settings_notifications_title">Notifications</string>
+    <string name="notification_vibrate_key">notification_vibrate_key</string>
+    <string name="notification_vibrate_title">Vibrate</string>
+    <string name="notification_vibrate_summary_on">On</string>
+    <string name="notification_vibrate_summary_off">Off</string>
+    <string name="notification_sound_key">notification_sound_key</string>
+    <string name="notification_sound_title">Sound</string>
+    <string name="notification_sound_summary_on">On</string>
+    <string name="notification_sound_summary_off">Off</string>
 </resources>

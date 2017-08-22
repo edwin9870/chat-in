@@ -21,5 +21,10 @@
         tools:text="Juan Pablo Duarte"
         android:gravity="center"/>
 
+    <fragment
+        android:id="@+id/fragment_settings_preferences"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:name="com.edwin.android.chat_in.settings.SettingsPreferenceFragment" />
 
 </LinearLayout>
