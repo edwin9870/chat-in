@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import com.edwin.android.chat_in.R;
-import com.edwin.android.chat_in.entity.Contact;
 import com.edwin.android.chat_in.entity.dto.Chat;
 
 import butterknife.BindView;
@@ -19,7 +18,7 @@ public class ConversationActivity extends AppCompatActivity {
 
 
     public static final String TAG = ConversationActivity.class.getSimpleName();
-    @BindView(R.id.toolbar_main_view)
+    @BindView(R.id.toolbar_settings_activity)
     Toolbar mToolbar;
 
     @Override

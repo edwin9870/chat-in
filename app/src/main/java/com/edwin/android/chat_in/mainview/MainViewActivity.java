@@ -20,7 +20,7 @@ public class MainViewActivity extends AppCompatActivity {
 
 
     public static final String TAG = MainViewActivity.class.getSimpleName();
-    @BindView(R.id.toolbar_main_view)
+    @BindView(R.id.toolbar_settings_activity)
     Toolbar mToolbar;
     @BindView(R.id.tab_layout)
     TabLayout mTabLayout;

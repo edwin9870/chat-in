@@ -10,7 +10,7 @@
     tools:context="com.edwin.android.chat_in.conversation.ConversationActivity">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar_main_view"
+        android:id="@+id/toolbar_settings_activity"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/colorPrimary"
