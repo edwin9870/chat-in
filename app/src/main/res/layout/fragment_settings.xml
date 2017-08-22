@@ -4,10 +4,12 @@
              android:layout_height="match_parent"
              tools:context="com.edwin.android.chat_in.settings.SettingsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment"/>
+    <com.edwin.android.chat_in.views.RoundedImageView
+        android:id="@+id/image_profile"
+        android:layout_width="@dimen/image_profile_width"
+        android:layout_height="@dimen/image_profile_height"
+        android:layout_gravity="center|top"
+        android:layout_marginTop="@dimen/image_profile_margin_top"/>
+
 
 </FrameLayout>

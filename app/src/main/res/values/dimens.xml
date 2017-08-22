@@ -9,4 +9,9 @@
     <dimen name="linear_chat_detail_margin_left">16dp</dimen>
     <dimen name="linear_chat_detail_margin_right">@dimen/linear_chat_detail_margin_left</dimen>
     <dimen name="text_view_contact_message_margin_bottom">8dp</dimen>
+
+    <!-- fragment_settings.xml -->
+    <dimen name="image_profile_width">250dp</dimen>
+    <dimen name="image_profile_height">250dp</dimen>
+    <dimen name="image_profile_margin_top">12dp</dimen>
 </resources>
