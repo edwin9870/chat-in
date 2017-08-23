@@ -12,15 +12,15 @@ import com.edwin.android.chat_in.data.ChatInContract.ConversationEntry;
  * Created by Edwin Ramirez Ventura on 8/23/2017.
  */
 
-public class ChatinDbHelper extends SQLiteOpenHelper {
+public class ChatInDbHelper extends SQLiteOpenHelper {
 
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "chat-in.db";
-    public static final String TAG = ChatinDbHelper.class.getSimpleName();
+    public static final String TAG = ChatInDbHelper.class.getSimpleName();
 
-    public ChatinDbHelper(Context context) {
+    public ChatInDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        Log.d(TAG, "ChatinDbHelper constructor called");
+        Log.d(TAG, "ChatInDbHelper constructor called");
     }
 
     @Override
