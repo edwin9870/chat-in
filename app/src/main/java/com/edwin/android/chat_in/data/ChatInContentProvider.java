@@ -1,6 +1,7 @@
 package com.edwin.android.chat_in.data;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
@@ -11,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.edwin.android.chat_in.data.ChatInContract.ContactEntry;
+import com.edwin.android.chat_in.data.ChatInContract.ConversationEntry;
 
 /**
  * Created by Edwin Ramirez Ventura on 8/23/2017.
@@ -66,7 +68,7 @@ public class ChatInContentProvider extends ContentProvider {
                         null, sortOrder);
                 break;
             case CONVERSATION:
-                refCursor = db.query(ChatInContract.ConversationEntry.TABLE_NAME, projection, selection, selectionArgs, null,
+                refCursor = db.query(ConversationEntry.TABLE_NAME, projection, selection, selectionArgs, null,
                         null, sortOrder);
                 break;
             default:
@@ -86,7 +88,28 @@ public class ChatInContentProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues contentValues) {
-        return null;
+        SQLiteDatabase db = mChatInDbHelper.getWritableDatabase();
+
+        int match = sUriMatcher.match(uri);
+        Uri uriToReturn;
+        long id;
+
+        switch (match) {
+            case CONTACT:
+                id = db.insertWithOnConflict(ContactEntry.TABLE_NAME, null,
+                        contentValues, SQLiteDatabase.CONFLICT_IGNORE);
+                uriToReturn = ContentUris.withAppendedId(ContactEntry.CONTENT_URI, id);
+                break;
+            case CONVERSATION:
+                id = db.insertWithOnConflict(ConversationEntry.TABLE_NAME, null,
+                        contentValues, SQLiteDatabase.CONFLICT_IGNORE);
+                uriToReturn = ContentUris.withAppendedId(ConversationEntry.CONTENT_URI, id);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+        return uriToReturn;
     }
 
     @Override
