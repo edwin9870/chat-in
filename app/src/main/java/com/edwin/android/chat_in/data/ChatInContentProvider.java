@@ -113,8 +113,36 @@ public class ChatInContentProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(@NonNull Uri uri, @Nullable String s, @Nullable String[] strings) {
-        return 0;
+    public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+        SQLiteDatabase db = mChatInDbHelper.getWritableDatabase();
+        int match = sUriMatcher.match(uri);
+        int tasksDeleted;
+        String id;
+
+        switch (match) {
+            case CONTACT_WITH_ID:
+                id = uri.getPathSegments().get(1);
+                tasksDeleted = db.delete(ContactEntry.TABLE_NAME, "_id=?", new String[]{id});
+                break;
+            case CONVERSATION_WITH_ID:
+                id = uri.getPathSegments().get(1);
+                tasksDeleted = db.delete(ConversationEntry.TABLE_NAME, "_id=?", new String[]{id});
+                break;
+            case CONTACT:
+                tasksDeleted = db.delete(ContactEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            case CONVERSATION:
+                tasksDeleted = db.delete(ConversationEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
+
+        if (tasksDeleted != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return tasksDeleted;
     }
 
     @Override
