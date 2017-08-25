@@ -1,4 +1,4 @@
-package com.edwin.android.chat_in.entity;
+package com.edwin.android.chat_in.data.entity;
 
 import android.os.Parcel;
 import android.os.Parcelable;

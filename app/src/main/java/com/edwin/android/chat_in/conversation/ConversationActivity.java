@@ -9,7 +9,7 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import com.edwin.android.chat_in.R;
-import com.edwin.android.chat_in.entity.dto.Chat;
+import com.edwin.android.chat_in.data.dto.ConversationDTO;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,11 +35,11 @@ public class ConversationActivity extends AppCompatActivity {
                 .findFragmentById(R.id.fragment_conversation);
 
         if (fragment == null) {
-            Chat chat = getIntent().getExtras().getParcelable(ConversationFragment
+            ConversationDTO conversationDTO = getIntent().getExtras().getParcelable(ConversationFragment
                     .ARGUMENT_CHAT);
-            Log.d(TAG, "Chat received: " + chat);
+            Log.d(TAG, "ConversationDTO received: " + conversationDTO);
 
-            fragment = ConversationFragment.newInstance(chat);
+            fragment = ConversationFragment.newInstance(conversationDTO);
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.add(R.id.fragment_conversation, fragment);

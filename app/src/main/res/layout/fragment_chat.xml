@@ -3,7 +3,7 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent"
              android:padding="8dp"
-             tools:context="com.edwin.android.chat_in.chat.ChatFragment">
+             tools:context="com.edwin.android.chat_in.conversationDTO.ChatFragment">
 
 
     <android.support.v7.widget.RecyclerView

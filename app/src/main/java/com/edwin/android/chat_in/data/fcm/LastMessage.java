@@ -1,5 +1,5 @@
 
-package com.edwin.android.chat_in.entity.fcm;
+package com.edwin.android.chat_in.data.fcm;
 
 import javax.annotation.Generated;
 import com.google.gson.annotations.SerializedName;

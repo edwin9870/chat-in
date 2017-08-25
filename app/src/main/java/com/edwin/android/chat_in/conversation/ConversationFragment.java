@@ -12,8 +12,8 @@ import android.view.ViewGroup;
 
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.chat.ChatFragment;
-import com.edwin.android.chat_in.entity.Message;
-import com.edwin.android.chat_in.entity.dto.Chat;
+import com.edwin.android.chat_in.data.dto.ConversationDTO;
+import com.edwin.android.chat_in.data.entity.Message;
 import com.edwin.android.chat_in.util.FirebaseDatabaseUtil;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -30,7 +30,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import io.reactivex.Observable;
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
@@ -43,7 +42,7 @@ public class ConversationFragment extends Fragment {
     @BindView(R.id.recycler_conversation)
     RecyclerView mRecyclerView;
     Unbinder unbinder;
-    private Chat mChat;
+    private ConversationDTO mConversationDTO;
     private ConversationAdapter mAdapter;
     private DatabaseReference mDatabase;
     private List<Message> mMessages;
@@ -54,10 +53,10 @@ public class ConversationFragment extends Fragment {
 
     }
 
-    public static ConversationFragment newInstance(Chat chat) {
+    public static ConversationFragment newInstance(ConversationDTO conversationDTO) {
         ConversationFragment fragment = new ConversationFragment();
         Bundle args = new Bundle();
-        args.putParcelable(ARGUMENT_CHAT, chat);
+        args.putParcelable(ARGUMENT_CHAT, conversationDTO);
         fragment.setArguments(args);
         return fragment;
     }
@@ -66,7 +65,7 @@ public class ConversationFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mChat = getArguments().getParcelable(ARGUMENT_CHAT);
+            mConversationDTO = getArguments().getParcelable(ARGUMENT_CHAT);
         }
     }
 
@@ -74,7 +73,7 @@ public class ConversationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_conversation, container, false);
-        Log.d(TAG, "mChat received:" + mChat);
+        Log.d(TAG, "mConversationDTO received:" + mConversationDTO);
         unbinder = ButterKnife.bind(this, view);
         mDatabase = FirebaseDatabase.getInstance().getReference();
         final Date fragmentCreationDateTime = new Date();
@@ -86,7 +85,7 @@ public class ConversationFragment extends Fragment {
         mRecyclerView.setHasFixedSize(false);
         mRecyclerView.setAdapter(mAdapter);
 
-        String conversationPath = FirebaseDatabaseUtil.Constants.CONVERSATION_ROOT_PATH + ChatFragment.MY_NUMBER + "_" + mChat
+        String conversationPath = FirebaseDatabaseUtil.Constants.CONVERSATION_ROOT_PATH + ChatFragment.MY_NUMBER + "_" + mConversationDTO
                 .getPhoneNumber();
         Log.d(TAG, "conversationPath: " + conversationPath);
         mMessages = new ArrayList<>();
@@ -145,7 +144,7 @@ public class ConversationFragment extends Fragment {
 
 
         final DatabaseReference targetToMeConversation = meToTargetConversation
-                .getParent().child(mChat.getPhoneNumber() + "_" + ChatFragment.MY_NUMBER);
+                .getParent().child(mConversationDTO.getPhoneNumber() + "_" + ChatFragment.MY_NUMBER);
         final Observable<Message> targetToMeObservable = Observable.create(e -> {
             targetToMeConversation.addChildEventListener(new ChildEventListener() {
                 @Override

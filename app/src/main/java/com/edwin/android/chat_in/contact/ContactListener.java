@@ -1,6 +1,6 @@
 package com.edwin.android.chat_in.contact;
 
-import com.edwin.android.chat_in.entity.Contact;
+import com.edwin.android.chat_in.data.entity.Contact;
 
 /**
  * Created by Edwin Ramirez Ventura on 8/14/2017.

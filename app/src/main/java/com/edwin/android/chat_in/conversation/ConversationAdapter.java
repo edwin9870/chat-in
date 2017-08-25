@@ -8,8 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.edwin.android.chat_in.R;
-import com.edwin.android.chat_in.entity.Contact;
-import com.edwin.android.chat_in.entity.Message;
+import com.edwin.android.chat_in.data.entity.Message;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;

@@ -14,8 +14,8 @@ import android.view.ViewGroup;
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.conversation.ConversationActivity;
 import com.edwin.android.chat_in.conversation.ConversationFragment;
-import com.edwin.android.chat_in.entity.dto.Chat;
-import com.edwin.android.chat_in.entity.fcm.LastMessage;
+import com.edwin.android.chat_in.data.dto.ConversationDTO;
+import com.edwin.android.chat_in.data.fcm.LastMessage;
 import com.edwin.android.chat_in.util.FirebaseDatabaseUtil;
 import com.edwin.android.chat_in.util.ResourceUtil;
 import com.edwin.android.chat_in.views.SpacesItemDecoration;
@@ -86,7 +86,7 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
                 MY_NUMBER).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                final List<Chat> chats = new ArrayList<>();
+                final List<ConversationDTO> conversationDTOS = new ArrayList<>();
                 Log.d(TAG, "key: " + dataSnapshot);
                 for (DataSnapshot singleDataSnapshot : dataSnapshot.getChildren()) {
                     String key = singleDataSnapshot.getKey();
@@ -100,15 +100,15 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Log.d(TAG, "userName: " + dataSnapshot.getValue(String.class));
-                                    Chat chat = new Chat();
-                                    chat.setUserName(dataSnapshot.getValue(String.class));
-                                    chat.setProfileImage(R.drawable.ic_women_image);
-                                    chat.setLastMessage(lastMessage.getLastMessage());
-                                    chat.setPhoneNumber(targetNumber);
-                                    chat.setMessageDate(new Date(lastMessage.getTimestamp()));
-                                    Log.d(TAG, "chat: " + chat);
-                                    chats.add(chat);
-                                    mChatAdapter.setChats(chats);
+                                    ConversationDTO conversationDTO = new ConversationDTO();
+                                    conversationDTO.setUserName(dataSnapshot.getValue(String.class));
+                                    conversationDTO.setProfileImage(R.drawable.ic_women_image);
+                                    conversationDTO.setLastMessage(lastMessage.getLastMessage());
+                                    conversationDTO.setPhoneNumber(targetNumber);
+                                    conversationDTO.setMessageDate(new Date(lastMessage.getTimestamp()));
+                                    Log.d(TAG, "conversationDTO: " + conversationDTO);
+                                    conversationDTOS.add(conversationDTO);
+                                    mChatAdapter.setChats(conversationDTOS);
                                 }
 
                                 @Override
@@ -151,10 +151,10 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
     }
 
     @Override
-    public void onClickContact(Chat chat) {
-        Log.d(TAG, "Chat clicked: " + chat);
+    public void onClickContact(ConversationDTO conversationDTO) {
+        Log.d(TAG, "ConversationDTO clicked: " + conversationDTO);
         Intent intent = new Intent(getActivity(), ConversationActivity.class);
-        intent.putExtra(ConversationFragment.ARGUMENT_CHAT, chat);
+        intent.putExtra(ConversationFragment.ARGUMENT_CHAT, conversationDTO);
         getActivity().startActivity(intent);
     }
 }

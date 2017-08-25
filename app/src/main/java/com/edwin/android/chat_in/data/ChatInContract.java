@@ -30,9 +30,9 @@ public class ChatInContract {
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_CONVERSATION).build();
 
         public static final String TABLE_NAME = "CONVERSATION";
-        public static final String COLUMN_NAME_DATE = "DATE";
         public static final String COLUMN_NAME_MESSAGE = "MESSAGE";
         public static final String COLUMN_NAME_FROM = "FROM";
         public static final String COLUMN_NAME_TO = "TO";
+        public static final String COLUMN_NAME_NUMERIC_DATE = "NUMERIC_DATE";
     }
 }

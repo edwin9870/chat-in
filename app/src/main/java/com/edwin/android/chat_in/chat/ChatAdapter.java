@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.edwin.android.chat_in.R;
-import com.edwin.android.chat_in.entity.dto.Chat;
+import com.edwin.android.chat_in.data.dto.ConversationDTO;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -28,7 +28,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatAdapterVie
     public static final String TAG = ChatAdapter.class.getSimpleName();
     private ChatListener mChatListener;
     private Context mContext;
-    private List<Chat> mChats;
+    private List<ConversationDTO> mConversationDTOS;
 
     public ChatAdapter(ChatListener chatListener) {
         this.mChatListener = chatListener;
@@ -46,7 +46,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatAdapterVie
 
     @Override
     public void onBindViewHolder(ChatAdapterViewHolder holder, int position) {
-        Chat contact = mChats.get(position);
+        ConversationDTO contact = mConversationDTOS.get(position);
 
         Picasso picasso = Picasso.with(mContext);
         picasso.load(contact.getProfileImage()).fit().into(holder.mProfileImageView);
@@ -55,19 +55,19 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatAdapterVie
 
         CharSequence dateMessage = DateFormat.format(mContext.getString(R.string.time_format), contact.getMessageDate());
         holder.mContactMessageDateTextView.setText(dateMessage);
-        holder.mContactMessageTextView.setText(contact.getLastMessage());
+        holder.mContactMessageTextView.setText(contact.getMessage());
 
     }
 
     @Override
     public int getItemCount() {
-        if (null == mChats) {
-            Log.d(TAG, "mChats is null at getItemCount");
+        if (null == mConversationDTOS) {
+            Log.d(TAG, "mConversationDTOS is null at getItemCount");
             return 0;
         }
 
-        Log.d(TAG, "mChats size:" + mChats.size());
-        return mChats.size();
+        Log.d(TAG, "mConversationDTOS size:" + mConversationDTOS.size());
+        return mConversationDTOS.size();
     }
 
     class ChatAdapterViewHolder extends RecyclerView.ViewHolder implements View
@@ -91,13 +91,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatAdapterVie
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            mChatListener.onClickContact(mChats.get(adapterPosition));
+            mChatListener.onClickContact(mConversationDTOS.get(adapterPosition));
         }
     }
 
 
-    public void setChats(List<Chat> chats) {
-        this.mChats = chats;
+    public void setChats(List<ConversationDTO> conversationDTOS) {
+        this.mConversationDTOS = conversationDTOS;
         notifyDataSetChanged();
     }
 }

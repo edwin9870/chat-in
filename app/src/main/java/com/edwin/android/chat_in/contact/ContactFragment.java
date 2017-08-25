@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.conversation.ConversationActivity;
 import com.edwin.android.chat_in.conversation.ConversationFragment;
-import com.edwin.android.chat_in.entity.Contact;
+import com.edwin.android.chat_in.data.entity.Contact;
 import com.edwin.android.chat_in.util.MessageUtil;
 import com.edwin.android.chat_in.util.ResourceUtil;
 import com.edwin.android.chat_in.views.SpacesItemDecoration;
