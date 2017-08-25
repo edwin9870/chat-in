@@ -101,10 +101,10 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Log.d(TAG, "userName: " + dataSnapshot.getValue(String.class));
                                     ConversationDTO conversationDTO = new ConversationDTO();
-                                    conversationDTO.setUserName(dataSnapshot.getValue(String.class));
+                                    /*conversationDTO.setUserName(dataSnapshot.getValue(String.class));
                                     conversationDTO.setProfileImage(R.drawable.ic_women_image);
                                     conversationDTO.setLastMessage(lastMessage.getLastMessage());
-                                    conversationDTO.setPhoneNumber(targetNumber);
+                                    conversationDTO.setPhoneNumber(targetNumber);*/
                                     conversationDTO.setMessageDate(new Date(lastMessage.getTimestamp()));
                                     Log.d(TAG, "conversationDTO: " + conversationDTO);
                                     conversationDTOS.add(conversationDTO);
@@ -154,7 +154,7 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
     public void onClickContact(ConversationDTO conversationDTO) {
         Log.d(TAG, "ConversationDTO clicked: " + conversationDTO);
         Intent intent = new Intent(getActivity(), ConversationActivity.class);
-        intent.putExtra(ConversationFragment.ARGUMENT_CHAT, conversationDTO);
+        //intent.putExtra(ConversationFragment.ARGUMENT_CHAT, conversationDTO);
         getActivity().startActivity(intent);
     }
 }

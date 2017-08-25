@@ -1,4 +1,4 @@
-package com.edwin.android.chat_in.data.fcm;
+package com.edwin.android.chat_in.data.sync;
 
 import android.util.Log;
 
@@ -11,6 +11,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
@@ -19,6 +20,7 @@ import io.reactivex.subjects.PublishSubject;
  * Created by Edwin Ramirez Ventura on 8/23/2017.
  */
 
+@Singleton
 public class SyncDatabase {
 
     public static final String TAG = SyncDatabase.class.getSimpleName();
@@ -32,13 +34,15 @@ public class SyncDatabase {
     }
 
 
-    public void syncContact(long ownerTelephoneNumber) {
+    public void syncContact(String ownerTelephoneNumber) {
+        Log.d(TAG, "Executing syncContact");
         PublishSubject<Long> publishSubjectTelephoneNumberContact = PublishSubject.create();
         final DatabaseReference contactsReference = mDatabase.child("/users/" + ownerTelephoneNumber +
                 "/contacts");
         contactsReference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Log.d(TAG, "child dataSnapshot: "+ dataSnapshot);
                 publishSubjectTelephoneNumberContact.onNext(Long.valueOf(dataSnapshot.getKey()));
             }
 
@@ -66,6 +70,7 @@ public class SyncDatabase {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 publishSubjectTelephoneNumberContact.onComplete();
+                Log.d(TAG, "OnComplete called");
             }
 
             @Override
@@ -77,15 +82,18 @@ public class SyncDatabase {
                 .observeOn(Schedulers.computation())
                 .subscribeOn(Schedulers.computation())
                 .subscribe(telephoneNumber ->
-                mContactRepository.getContactByNumber(telephoneNumber).isEmpty().subscribe(isEmpty -> {
+                {
+                    Log.d(TAG, "telephoneNumber to find contact: "+ telephoneNumber);
+                    mContactRepository.getContactByNumber(telephoneNumber).isEmpty().subscribe(isEmpty -> {
                     Log.d(TAG, "isEmpty: " + isEmpty);
                     if(isEmpty) {
                         final ContactDTO contact = new ContactDTO();
                         contact.setNumber(telephoneNumber);
-                        mContactRepository.persit(contact);
+                        mContactRepository.persist(contact);
                         Log.d(TAG, "Persisted contact: "+ contact);
                     }
-                })
+                });
+                }
         );
 
     }

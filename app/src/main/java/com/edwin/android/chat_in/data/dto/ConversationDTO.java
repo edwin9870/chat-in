@@ -1,12 +1,15 @@
 package com.edwin.android.chat_in.data.dto;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.Date;
 
 /**
  * Created by Edwin Ramirez Ventura on 8/17/2017.
  */
 
-public class ConversationDTO {
+public class ConversationDTO implements Parcelable {
 
     private long id;
     private int sentContactId;
@@ -79,4 +82,44 @@ public class ConversationDTO {
                 ", messageDate=" + messageDate +
                 '}';
     }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(this.id);
+        dest.writeInt(this.sentContactId);
+        dest.writeInt(this.receiveContactId);
+        dest.writeString(this.message);
+        dest.writeLong(this.messageDate != null ? this.messageDate.getTime() : -1);
+    }
+
+    public ConversationDTO() {
+    }
+
+    protected ConversationDTO(Parcel in) {
+        this.id = in.readLong();
+        this.sentContactId = in.readInt();
+        this.receiveContactId = in.readInt();
+        this.message = in.readString();
+        long tmpMessageDate = in.readLong();
+        this.messageDate = tmpMessageDate == -1 ? null : new Date(tmpMessageDate);
+    }
+
+    public static final Parcelable.Creator<ConversationDTO> CREATOR = new Parcelable
+            .Creator<ConversationDTO>() {
+        @Override
+        public ConversationDTO createFromParcel(Parcel source) {
+            return new ConversationDTO(source);
+        }
+
+        @Override
+        public ConversationDTO[] newArray(int size) {
+            return new ConversationDTO[size];
+        }
+    };
 }

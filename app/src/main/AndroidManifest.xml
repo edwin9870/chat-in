@@ -18,9 +18,13 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".conversationDTO.ConversationActivity"/>
+        <activity android:name=".conversation.ConversationActivity"/>
         <activity android:name=".settings.SettingsActivity">
         </activity>
+        
+        <provider
+            android:authorities="com.edwin.android.chat_in"
+            android:name=".data.ChatInContentProvider" android:exported="false" />
     </application>
 
 </manifest>

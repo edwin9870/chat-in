@@ -85,8 +85,8 @@ public class ConversationFragment extends Fragment {
         mRecyclerView.setHasFixedSize(false);
         mRecyclerView.setAdapter(mAdapter);
 
-        String conversationPath = FirebaseDatabaseUtil.Constants.CONVERSATION_ROOT_PATH + ChatFragment.MY_NUMBER + "_" + mConversationDTO
-                .getPhoneNumber();
+        //TODO: Fix this
+        String conversationPath = FirebaseDatabaseUtil.Constants.CONVERSATION_ROOT_PATH + ChatFragment.MY_NUMBER + "_" ;
         Log.d(TAG, "conversationPath: " + conversationPath);
         mMessages = new ArrayList<>();
         final DatabaseReference meToTargetConversation = mDatabase.child(conversationPath);
@@ -144,7 +144,7 @@ public class ConversationFragment extends Fragment {
 
 
         final DatabaseReference targetToMeConversation = meToTargetConversation
-                .getParent().child(mConversationDTO.getPhoneNumber() + "_" + ChatFragment.MY_NUMBER);
+                .getParent().child("_" + ChatFragment.MY_NUMBER);
         final Observable<Message> targetToMeObservable = Observable.create(e -> {
             targetToMeConversation.addChildEventListener(new ChildEventListener() {
                 @Override

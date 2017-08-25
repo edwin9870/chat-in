@@ -1,5 +1,6 @@
 package com.edwin.android.chat_in.data.repositories;
 
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -20,11 +21,11 @@ import javax.inject.Singleton;
 public class ConversationRepository {
 
     public static final String TAG = ConversationRepository.class.getSimpleName();
-    private Context mContext;
+    private ContentResolver mContentResolver;
 
     @Inject
-    public ConversationRepository(Context context) {
-        this.mContext = context;
+    public ConversationRepository(ContentResolver contentResolver) {
+        this.mContentResolver = contentResolver;
     }
 
     private long persit(ConversationDTO conversationDTO) {
@@ -34,7 +35,7 @@ public class ConversationRepository {
             cv.put(ChatInContract.ConversationEntry.COLUMN_NAME_FROM, conversationDTO.getFromContactId());
             cv.put(ChatInContract.ConversationEntry.COLUMN_NAME_TO, conversationDTO.getToContactId());
             cv.put(ChatInContract.ConversationEntry.COLUMN_NAME_NUMERIC_DATE, conversationDTO.getMessageDate().getTime());
-        final Uri insertedUri = mContext.getContentResolver().insert(ChatInContract.ConversationEntry
+        final Uri insertedUri = mContentResolver.insert(ChatInContract.ConversationEntry
                 .CONTENT_URI, cv);
         final long idConversation = ContentUris.parseId(insertedUri);
         Log.d(TAG, "idConversation: " + idConversation);

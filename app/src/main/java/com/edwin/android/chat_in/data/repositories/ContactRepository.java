@@ -1,8 +1,8 @@
 package com.edwin.android.chat_in.data.repositories;
 
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
@@ -24,13 +24,11 @@ import io.reactivex.Maybe;
 public class ContactRepository {
 
     public static final String TAG = ContactRepository.class.getSimpleName();
-    private Context mContext;
-    private DatabaseReference mFirebaseDatabase;
+    private ContentResolver mContentResolver;
 
     @Inject
-    public ContactRepository(Context context, DatabaseReference firebaseDatabase) {
-        this.mContext = context;
-        this.mFirebaseDatabase = firebaseDatabase;
+    public ContactRepository(ContentResolver contentResolver) {
+        this.mContentResolver = contentResolver;
     }
 
     public Maybe<ContactDTO> getContactByNumber(long number) {
@@ -38,7 +36,7 @@ public class ContactRepository {
         return Maybe.create(emitter -> {
             Cursor contactCursor = null;
             try {
-                contactCursor = mContext.getContentResolver().query(
+                contactCursor = mContentResolver.query(
                         ChatInContract.ContactEntry.CONTENT_URI,
                         null,
                         ChatInContract.ContactEntry.COLUMN_NAME_NUMBER + " = ?",
@@ -62,6 +60,9 @@ public class ContactRepository {
                     contact.setNumber(contactNumber);
                     contact.setProfileImagePath(contactProfileImagePath);
                     emitter.onSuccess(contact);
+                } else {
+                    Log.d(TAG, "Returning empty");
+                    emitter.onComplete();
                 }
             } catch (Exception e) {
                 emitter.onError(e);
@@ -73,13 +74,13 @@ public class ContactRepository {
         });
     }
 
-    public int persit(ContactDTO contactDTO) {
+    public int persist(ContactDTO contactDTO) {
         final ContentValues cv = new ContentValues();
         cv.put(ChatInContract.ContactEntry.COLUMN_NAME_NAME, contactDTO.getUserName());
         cv.put(ChatInContract.ContactEntry.COLUMN_NAME_NUMBER, contactDTO.getNumber());
         cv.put(ChatInContract.ContactEntry.COLUMN_NAME_PROFILE_IMAGE_PATH, contactDTO.getProfileImagePath());
 
-        final Uri insertedUri = mContext.getContentResolver().insert(ChatInContract.ConversationEntry
+        final Uri insertedUri = mContentResolver.insert(ChatInContract.ContactEntry
                 .CONTENT_URI, cv);
         final int idContactGenerated = (int)ContentUris.parseId(insertedUri);
         Log.d(TAG, "idContactGenerated: " + idContactGenerated);

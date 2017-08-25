@@ -49,9 +49,11 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatAdapterVie
         ConversationDTO contact = mConversationDTOS.get(position);
 
         Picasso picasso = Picasso.with(mContext);
-        picasso.load(contact.getProfileImage()).fit().into(holder.mProfileImageView);
 
-        holder.mContactNameTextView.setText(contact.getUserName());
+        //TODO:  Add correct image
+        picasso.load(R.drawable.ic_man_image).fit().into(holder.mProfileImageView);
+        //TODO: add contact name
+        holder.mContactNameTextView.setText("Teddy");
 
         CharSequence dateMessage = DateFormat.format(mContext.getString(R.string.time_format), contact.getMessageDate());
         holder.mContactMessageDateTextView.setText(dateMessage);

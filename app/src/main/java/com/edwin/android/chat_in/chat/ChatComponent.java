@@ -11,6 +11,6 @@ import dagger.Component;
 
 @FragmentScoped
 @Component(modules = {ChatPresenterModule.class})
-public interface MovieFinderComponent {
-    void inject(MainViewActivity activity);
+public interface ChatComponent {
+    //void inject(MainViewActivity activity);
 }
