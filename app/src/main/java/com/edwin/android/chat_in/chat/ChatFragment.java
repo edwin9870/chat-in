@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.conversation.ConversationActivity;
+import com.edwin.android.chat_in.data.dto.ContactDTO;
 import com.edwin.android.chat_in.data.dto.ConversationDTO;
 import com.edwin.android.chat_in.util.ResourceUtil;
 import com.edwin.android.chat_in.views.SpacesItemDecoration;
@@ -80,7 +81,7 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
     }
 
     @Override
-    public void showChats(List<ConversationDTO> conversations) {
+    public void showChats(List<ConversationWrapper> conversations) {
         Log.d(TAG, "Showing list of chats with the followings conversations: " + conversations);
         mChatAdapter.setChats(conversations);
     }

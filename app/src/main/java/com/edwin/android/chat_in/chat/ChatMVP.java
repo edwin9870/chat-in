@@ -1,7 +1,5 @@
 package com.edwin.android.chat_in.chat;
 
-import com.edwin.android.chat_in.data.dto.ConversationDTO;
-
 import java.util.List;
 
 /**
@@ -12,7 +10,7 @@ public interface ChatMVP {
 
     interface View {
         void setPresenter(Presenter presenter);
-        void showChats(List<ConversationDTO> conversations);
+        void showChats(List<ConversationWrapper> conversations);
     }
 
     interface Presenter {

@@ -11,9 +11,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.edwin.android.chat_in.R;
-import com.edwin.android.chat_in.data.dto.ConversationDTO;
+import com.edwin.android.chat_in.data.dto.ContactDTO;
 import com.squareup.picasso.Picasso;
 
+import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -28,7 +29,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatAdapterVie
     public static final String TAG = ChatAdapter.class.getSimpleName();
     private ChatListener mChatListener;
     private Context mContext;
-    private List<ConversationDTO> mConversationDTOS;
+    private List<ConversationWrapper> mConversationDTOS;
 
     public ChatAdapter(ChatListener chatListener) {
         this.mChatListener = chatListener;
@@ -46,18 +47,25 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatAdapterVie
 
     @Override
     public void onBindViewHolder(ChatAdapterViewHolder holder, int position) {
-        ConversationDTO contact = mConversationDTOS.get(position);
+        ConversationWrapper conversation = mConversationDTOS.get(position);
 
         Picasso picasso = Picasso.with(mContext);
 
         //TODO:  Add correct image
         picasso.load(R.drawable.ic_man_image).fit().into(holder.mProfileImageView);
-        //TODO: add contact name
-        holder.mContactNameTextView.setText("Teddy");
 
-        CharSequence dateMessage = DateFormat.format(mContext.getString(R.string.time_format), contact.getMessageDate());
+        if(conversation.getContact().getUserName() != null && !conversation.getContact().getUserName().isEmpty()) {
+            holder.mContactNameTextView.setText(conversation.getContact().getUserName());
+        } else {
+            holder.mContactNameTextView.setText(String.valueOf(conversation.getContact().getNumber()));
+        }
+
+        final Date messageDate = new Date(conversation.getConversation().getMessageDate());
+        Log.d(TAG, "Message date: " + messageDate);
+        //TODO: If date is not today, show date with time instead of time
+        CharSequence dateMessage = DateFormat.format(mContext.getString(R.string.time_format), messageDate);
         holder.mContactMessageDateTextView.setText(dateMessage);
-        holder.mContactMessageTextView.setText(contact.getMessage());
+        holder.mContactMessageTextView.setText(conversation.getConversation().getMessage());
 
     }
 
@@ -93,13 +101,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatAdapterVie
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            mChatListener.onClickContact(mConversationDTOS.get(adapterPosition));
+            mChatListener.onClickContact(mConversationDTOS.get(adapterPosition).getConversation());
         }
     }
 
 
-    public void setChats(List<ConversationDTO> conversationDTOS) {
-        this.mConversationDTOS = conversationDTOS;
+    public void setChats(List<ConversationWrapper> conversations) {
+        this.mConversationDTOS = conversations;
         notifyDataSetChanged();
     }
 }

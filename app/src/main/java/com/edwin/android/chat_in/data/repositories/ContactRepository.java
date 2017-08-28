@@ -5,6 +5,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.edwin.android.chat_in.data.ChatInContract;
@@ -15,6 +16,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.reactivex.Maybe;
+import io.reactivex.MaybeEmitter;
+import io.reactivex.MaybeOnSubscribe;
 
 /**
  * Created by Edwin Ramirez Ventura on 8/24/2017.
@@ -46,22 +49,36 @@ public class ContactRepository {
                         null);
                 if (contactCursor != null && contactCursor.moveToNext()) {
                     Log.d(TAG, "Contact name exists");
-                    final int contactId = contactCursor.getInt(contactCursor.getColumnIndex
-                            (ChatInContract.ContactEntry._ID));
-                    final String contactName = contactCursor.getString(contactCursor.getColumnIndex
+                    final ContactDTO contact = convertCursorToContact(contactCursor);
+                    emitter.onSuccess(contact);
+                } else {
+                    Log.d(TAG, "Returning empty");
+                    emitter.onComplete();
+                }
+            } catch (Exception e) {
+                emitter.onError(e);
+            } finally {
+                if (contactCursor != null) {
+                    contactCursor.close();
+                }
+            }
+        });
+    }
 
-                            (ChatInContract.ContactEntry.COLUMN_NAME_NAME));
-                    final String contactProfileImagePath = contactCursor.getString
-                            (contactCursor.getColumnIndex
-                            (ChatInContract.ContactEntry.COLUMN_NAME_PROFILE_IMAGE_PATH));
-                    final long contactNumber = contactCursor.getLong(contactCursor.getColumnIndex
-                            (ChatInContract.ContactEntry.COLUMN_NAME_NUMBER));
-
-                    final ContactDTO contact = new ContactDTO();
-                    contact.setId(contactId);
-                    contact.setUserName(contactName);
-                    contact.setNumber(contactNumber);
-                    contact.setProfileImagePath(contactProfileImagePath);
+    public Maybe<ContactDTO> getContactById(int contactId) {
+        return Maybe.create(emitter -> {
+            Cursor contactCursor = null;
+            try {
+                Log.d(TAG, "Finding contact with contactId: " + contactId);
+                contactCursor = mContentResolver.query(
+                        ChatInContract.ContactEntry.CONTENT_URI,
+                        null,
+                        ChatInContract.ContactEntry._ID + " = ?",
+                        new String[]{String.valueOf(contactId)},
+                        null);
+                if (contactCursor != null && contactCursor.moveToNext()) {
+                    Log.d(TAG, "Contact id exists");
+                    final ContactDTO contact = convertCursorToContact(contactCursor);
                     emitter.onSuccess(contact);
                 } else {
                     Log.d(TAG, "Returning empty");
@@ -91,5 +108,27 @@ public class ContactRepository {
         final int idContactGenerated = (int)ContentUris.parseId(insertedUri);
         Log.d(TAG, "idContactGenerated: " + idContactGenerated);
         return idContactGenerated;
+    }
+
+
+    @NonNull
+    private ContactDTO convertCursorToContact(Cursor contactCursor) {
+        final int contactId = contactCursor.getInt(contactCursor.getColumnIndex
+                (ChatInContract.ContactEntry._ID));
+        final String contactName = contactCursor.getString(contactCursor.getColumnIndex
+
+                (ChatInContract.ContactEntry.COLUMN_NAME_NAME));
+        final String contactProfileImagePath = contactCursor.getString
+                (contactCursor.getColumnIndex
+                        (ChatInContract.ContactEntry.COLUMN_NAME_PROFILE_IMAGE_PATH));
+        final long contactNumber = contactCursor.getLong(contactCursor.getColumnIndex
+                (ChatInContract.ContactEntry.COLUMN_NAME_NUMBER));
+
+        final ContactDTO contact = new ContactDTO();
+        contact.setId(contactId);
+        contact.setUserName(contactName);
+        contact.setNumber(contactNumber);
+        contact.setProfileImagePath(contactProfileImagePath);
+        return contact;
     }
 }
