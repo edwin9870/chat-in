@@ -10,7 +10,6 @@ import android.view.MenuInflater;
 
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.chat.ChatFragment;
-import com.edwin.android.chat_in.chat.ChatPresenter;
 import com.edwin.android.chat_in.chat.ChatPresenterModule;
 import com.edwin.android.chat_in.chat.DaggerChatComponent;
 import com.edwin.android.chat_in.configuration.di.ApplicationModule;
@@ -63,7 +62,10 @@ public class MainViewActivity extends AppCompatActivity {
         syncDatabase.syncConversation(ChatFragment.MY_NUMBER);
 
         DaggerChatComponent.builder().chatPresenterModule(new
-                ChatPresenterModule(mChatFragment)).build().getChatPresenter();
+                ChatPresenterModule(mChatFragment))
+                .applicationModule(new ApplicationModule(this))
+                .databaseModule(new DatabaseModule())
+                .build().getChatPresenter();
 
 
     }

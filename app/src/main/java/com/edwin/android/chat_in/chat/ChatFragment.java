@@ -13,20 +13,12 @@ import android.view.ViewGroup;
 
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.conversation.ConversationActivity;
-import com.edwin.android.chat_in.conversation.ConversationFragment;
 import com.edwin.android.chat_in.data.dto.ConversationDTO;
-import com.edwin.android.chat_in.data.fcm.LastMessage;
-import com.edwin.android.chat_in.util.FirebaseDatabaseUtil;
 import com.edwin.android.chat_in.util.ResourceUtil;
 import com.edwin.android.chat_in.views.SpacesItemDecoration;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -72,7 +64,6 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
         mChatAdapter = new ChatAdapter(this);
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
-
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false);
 
@@ -81,56 +72,17 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
         mRecyclerView.setAdapter(mChatAdapter);
         mRecyclerView.addItemDecoration(new SpacesItemDecoration(ResourceUtil.dpToPx(this
                 .getActivity(), getResources().getInteger(R.integer.space_between_chat_list))));
-
-        mDatabase.child(FirebaseDatabaseUtil.Constants.CHATS_ROOT_PATH).startAt(null,
-                MY_NUMBER).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                final List<ConversationDTO> conversationDTOS = new ArrayList<>();
-                Log.d(TAG, "key: " + dataSnapshot);
-                for (DataSnapshot singleDataSnapshot : dataSnapshot.getChildren()) {
-                    String key = singleDataSnapshot.getKey();
-                    final String targetNumber = key.substring(key.indexOf("_") + 1);
-                    Log.d(TAG, "singleDataSnapshot: " + targetNumber);
-                    final LastMessage lastMessage = singleDataSnapshot.getValue(LastMessage.class);
-                    Log.d(TAG, "dataSnapshot: " + lastMessage);
-                    mDatabase.child(FirebaseDatabaseUtil.Constants.USERS_ROOT_PATH +
-                            targetNumber).child(FirebaseDatabaseUtil.Constants.USER_NAME_PATH)
-                            .addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    Log.d(TAG, "userName: " + dataSnapshot.getValue(String.class));
-                                    ConversationDTO conversationDTO = new ConversationDTO();
-                                    /*conversationDTO.setUserName(dataSnapshot.getValue(String.class));
-                                    conversationDTO.setProfileImage(R.drawable.ic_women_image);
-                                    conversationDTO.setLastMessage(lastMessage.getLastMessage());
-                                    conversationDTO.setPhoneNumber(targetNumber);*/
-                                    conversationDTO.setMessageDate(lastMessage.getTimestamp());
-                                    Log.d(TAG, "conversationDTO: " + conversationDTO);
-                                    conversationDTOS.add(conversationDTO);
-                                    mChatAdapter.setChats(conversationDTOS);
-                                }
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-
-                                }
-                            });
-                }
-
-            }
-
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-
-
-        });
+        mPresenter.getChats();
 
         Log.d(TAG, "finish onCreateView");
 
         return view;
+    }
+
+    @Override
+    public void showChats(List<ConversationDTO> conversations) {
+        Log.d(TAG, "Showing list of chats with the followings conversations: " + conversations);
+        mChatAdapter.setChats(conversations);
     }
 
     @Override

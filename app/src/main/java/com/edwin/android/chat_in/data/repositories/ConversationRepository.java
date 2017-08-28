@@ -7,13 +7,23 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
+import com.edwin.android.chat_in.data.ChatInContract;
 import com.edwin.android.chat_in.data.ChatInContract.ConversationEntry;
 import com.edwin.android.chat_in.data.dto.ConversationDTO;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.reactivex.Maybe;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
 
 /**
  * Created by Edwin Ramirez Ventura on 8/24/2017.
@@ -42,18 +52,7 @@ public class ConversationRepository {
                         new String[]{String.valueOf(dateTime)}, null);
 
                 if(conversationCursor != null && conversationCursor.moveToNext()) {
-                    ConversationDTO conversation = new ConversationDTO();
-                    conversation.setRecipientContactId(
-                            conversationCursor.getInt(
-                                    conversationCursor.getColumnIndex(ConversationEntry.COLUMN_NAME_RECIPIENT)));
-
-                    conversation.setSenderContactId(conversationCursor.getInt(
-                            conversationCursor.getColumnIndex(ConversationEntry.COLUMN_NAME_SENDER)));
-
-                    conversation.setMessageDate(dateTime);
-                    conversation.setMessage(conversationCursor.getString(conversationCursor
-                            .getColumnIndex(ConversationEntry.COLUMN_NAME_MESSAGE)));
-                    conversation.setId(conversationCursor.getInt(conversationCursor.getColumnIndex(ConversationEntry._ID)));
+                    ConversationDTO conversation = getConversationFromCursor(conversationCursor);
                     Log.d(TAG, "Conversation to return: " + conversation);
                     emitter.onSuccess(conversation);
                 } else {
@@ -83,5 +82,64 @@ public class ConversationRepository {
         final long idConversation = ContentUris.parseId(insertedUri);
         Log.d(TAG, "idConversation: " + idConversation);
         return idConversation;
+    }
+
+    public Observable<ConversationDTO> getLastMessages() {
+        return Observable.create(emitter -> {
+            Cursor cursor = null;
+            try {
+                cursor = mContentResolver.query(ConversationEntry.CONTENT_URI,
+                        null,
+                        ConversationEntry.COLUMN_NAME_MESSAGE + " IS NOT NULL GROUP BY " +
+                                ConversationEntry.COLUMN_NAME_RECIPIENT + ", " +
+                                ConversationEntry.COLUMN_NAME_SENDER + " ORDER BY " +
+                                ConversationEntry.COLUMN_NAME_NUMERIC_DATE + " DESC",
+                        null,
+                        null);
+                List<Integer> contactsIdProcessed = new ArrayList<>();
+                while(cursor != null && cursor.moveToNext()) {
+                    ConversationDTO conversation = getConversationFromCursor(cursor);
+                    Log.d(TAG, "getLastMessage. conversation: " + conversation);
+
+                    int contactId = conversation.getRecipientContactId() == ContactRepository.OWNER_CONTACT_ID
+                            ? conversation.getSenderContactId()
+                            : conversation.getRecipientContactId();
+                    Log.d(TAG, "contactId: " + contactId);
+                    if(!contactsIdProcessed.contains(contactId)) {
+                        contactsIdProcessed.add(contactId);
+                        Log.d(TAG, "getLastMessage. emitting conversation: "+ conversation);
+                        emitter.onNext(conversation);
+                    }
+
+                }
+
+            } finally {
+                Log.d(TAG, "Calling onComplete");
+                emitter.onComplete();
+                if(cursor != null) {
+                    cursor.close();
+                }
+            }
+
+
+        });
+    }
+
+    private ConversationDTO getConversationFromCursor(Cursor conversationCursor) {
+        ConversationDTO conversation = new ConversationDTO();
+        conversation.setRecipientContactId(
+                conversationCursor.getInt(
+                        conversationCursor.getColumnIndex(ConversationEntry.COLUMN_NAME_RECIPIENT)));
+
+        conversation.setSenderContactId(conversationCursor.getInt(
+                conversationCursor.getColumnIndex(ConversationEntry.COLUMN_NAME_SENDER)));
+
+        conversation.setMessageDate(conversationCursor.getLong(conversationCursor
+                .getColumnIndex(ConversationEntry.COLUMN_NAME_NUMERIC_DATE)));
+        conversation.setMessage(conversationCursor.getString(conversationCursor
+                .getColumnIndex(ConversationEntry.COLUMN_NAME_MESSAGE)));
+        conversation.setId(conversationCursor.getInt(conversationCursor.getColumnIndex(ConversationEntry._ID)));
+
+        return conversation;
     }
 }
