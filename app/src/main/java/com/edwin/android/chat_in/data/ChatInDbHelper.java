@@ -40,15 +40,15 @@ public class ChatInDbHelper extends SQLiteOpenHelper {
                 ConversationEntry.TABLE_NAME + " ( "
                 + ConversationEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
                 + ConversationEntry.COLUMN_NAME_MESSAGE + " TEXT NOT NULL, " +
-                "\"" + ConversationEntry.COLUMN_NAME_FROM + "\" INTEGER NOT NULL, " +
+                "\"" + ConversationEntry.COLUMN_NAME_SENDER + "\" INTEGER NOT NULL, " +
                 "\"" + ConversationEntry.COLUMN_NAME_NUMERIC_DATE + "\" LONG NOT NULL, " +
-                "\"" + ConversationEntry.COLUMN_NAME_TO + "\" INTEGER NOT NULL, " +
+                "\"" + ConversationEntry.COLUMN_NAME_RECIPIENT + "\" INTEGER NOT NULL, " +
                 "CONSTRAINT CONVERSATION_CONTACT__ID_fk FOREIGN KEY (\"" +
-                ConversationEntry.COLUMN_NAME_FROM + "\") REFERENCES " +
+                ConversationEntry.COLUMN_NAME_SENDER + "\") REFERENCES " +
                 ContactEntry.TABLE_NAME + " (" +
                 ContactEntry._ID + "), " +
                 "CONSTRAINT CONVERSATION_CONTACT__ID_fk FOREIGN KEY (\"" +
-                ConversationEntry.COLUMN_NAME_TO + "\") REFERENCES " +
+                ConversationEntry.COLUMN_NAME_RECIPIENT + "\") REFERENCES " +
                 ContactEntry.TABLE_NAME + " " +
                 "(" + ContactEntry._ID + ") );";
 

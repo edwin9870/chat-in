@@ -24,6 +24,7 @@ import io.reactivex.Maybe;
 public class ContactRepository {
 
     public static final String TAG = ContactRepository.class.getSimpleName();
+    public static final int OWNER_CONTACT_ID = 1;
     private ContentResolver mContentResolver;
 
     @Inject
@@ -36,6 +37,7 @@ public class ContactRepository {
         return Maybe.create(emitter -> {
             Cursor contactCursor = null;
             try {
+                Log.d(TAG, "Finding contact with number: " + number);
                 contactCursor = mContentResolver.query(
                         ChatInContract.ContactEntry.CONTENT_URI,
                         null,
@@ -43,6 +45,7 @@ public class ContactRepository {
                         new String[]{String.valueOf(number)},
                         null);
                 if (contactCursor != null && contactCursor.moveToNext()) {
+                    Log.d(TAG, "Contact name exists");
                     final int contactId = contactCursor.getInt(contactCursor.getColumnIndex
                             (ChatInContract.ContactEntry._ID));
                     final String contactName = contactCursor.getString(contactCursor.getColumnIndex
@@ -76,6 +79,9 @@ public class ContactRepository {
 
     public int persist(ContactDTO contactDTO) {
         final ContentValues cv = new ContentValues();
+        if(contactDTO.getId() > 0) {
+            cv.put(ChatInContract.ContactEntry._ID, contactDTO.getId());
+        }
         cv.put(ChatInContract.ContactEntry.COLUMN_NAME_NAME, contactDTO.getUserName());
         cv.put(ChatInContract.ContactEntry.COLUMN_NAME_NUMBER, contactDTO.getNumber());
         cv.put(ChatInContract.ContactEntry.COLUMN_NAME_PROFILE_IMAGE_PATH, contactDTO.getProfileImagePath());

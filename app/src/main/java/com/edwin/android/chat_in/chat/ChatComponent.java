@@ -12,5 +12,5 @@ import dagger.Component;
 @FragmentScoped
 @Component(modules = {ChatPresenterModule.class})
 public interface ChatComponent {
-    //void inject(MainViewActivity activity);
+    ChatPresenter getChatPresenter();
 }

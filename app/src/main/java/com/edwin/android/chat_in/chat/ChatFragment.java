@@ -105,7 +105,7 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
                                     conversationDTO.setProfileImage(R.drawable.ic_women_image);
                                     conversationDTO.setLastMessage(lastMessage.getLastMessage());
                                     conversationDTO.setPhoneNumber(targetNumber);*/
-                                    conversationDTO.setMessageDate(new Date(lastMessage.getTimestamp()));
+                                    conversationDTO.setMessageDate(lastMessage.getTimestamp());
                                     Log.d(TAG, "conversationDTO: " + conversationDTO);
                                     conversationDTOS.add(conversationDTO);
                                     mChatAdapter.setChats(conversationDTOS);

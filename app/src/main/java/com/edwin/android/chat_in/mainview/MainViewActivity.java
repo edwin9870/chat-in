@@ -5,22 +5,22 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 
-import com.edwin.android.chat_in.configuration.di.ApplicationModule;
-import com.edwin.android.chat_in.contact.ContactFragment;
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.chat.ChatFragment;
+import com.edwin.android.chat_in.chat.ChatPresenter;
+import com.edwin.android.chat_in.chat.ChatPresenterModule;
+import com.edwin.android.chat_in.chat.DaggerChatComponent;
+import com.edwin.android.chat_in.configuration.di.ApplicationModule;
+import com.edwin.android.chat_in.contact.ContactFragment;
 import com.edwin.android.chat_in.data.fcm.FcmModule;
 import com.edwin.android.chat_in.data.repositories.DatabaseModule;
 import com.edwin.android.chat_in.data.sync.DaggerSyncComponent;
 import com.edwin.android.chat_in.data.sync.SyncComponent;
 import com.edwin.android.chat_in.data.sync.SyncDatabase;
 import com.edwin.android.chat_in.views.WrapContentViewPager;
-
-import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -39,6 +39,8 @@ public class MainViewActivity extends AppCompatActivity {
     WrapContentViewPager mViewPager;
     private ViewPagerAdapter mAdapter;
     SyncDatabase mSyncDatabase;
+    private ChatFragment mChatFragment;
+    private ContactFragment mContactFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,9 +58,12 @@ public class MainViewActivity extends AppCompatActivity {
                 .databaseModule(new DatabaseModule())
                 .fcmModule(new FcmModule())
                 .build();
-        mSyncDatabase = syncComponent.getSyncDatabase();
+        final SyncDatabase syncDatabase = syncComponent.getSyncDatabase();
+        syncDatabase.syncContact(ChatFragment.MY_NUMBER);
+        syncDatabase.syncConversation(ChatFragment.MY_NUMBER);
 
-        mSyncDatabase.syncContact(ChatFragment.MY_NUMBER);
+        DaggerChatComponent.builder().chatPresenterModule(new
+                ChatPresenterModule(mChatFragment)).build().getChatPresenter();
 
 
     }
@@ -66,20 +71,20 @@ public class MainViewActivity extends AppCompatActivity {
     private void setupViewPager() {
         mAdapter = new ViewPagerAdapter(getFragmentManager());
 
-        ChatFragment chatFragment = (ChatFragment) getFragmentManager().findFragmentByTag
+        mChatFragment = (ChatFragment) getFragmentManager().findFragmentByTag
                 (getFragmentName(R.id.pager_tab_content, CHAT_FRAGMENT_TAB));
-        if(chatFragment == null) {
-            chatFragment = ChatFragment.newInstance();
+        if(mChatFragment == null) {
+            mChatFragment = ChatFragment.newInstance();
         }
 
-        ContactFragment contactFragment = (ContactFragment) getFragmentManager().findFragmentByTag
+        mContactFragment = (ContactFragment) getFragmentManager().findFragmentByTag
                 (getFragmentName(R.id.pager_tab_content, CONTACT_FRAGMENT_TAB));
-        if(contactFragment == null) {
-            contactFragment = ContactFragment.newInstance();
+        if(mContactFragment == null) {
+            mContactFragment = ContactFragment.newInstance();
         }
 
-        mAdapter.addFragment(chatFragment, getString(R.string.main_view_tab_layout_chat_tab));
-        mAdapter.addFragment(contactFragment, getString(R.string.main_view_tab_layout_contacts_tab));
+        mAdapter.addFragment(mChatFragment, getString(R.string.main_view_tab_layout_chat_tab));
+        mAdapter.addFragment(mContactFragment, getString(R.string.main_view_tab_layout_contacts_tab));
         mViewPager.setAdapter(mAdapter);
         mTabLayout.setupWithViewPager(mViewPager);
 

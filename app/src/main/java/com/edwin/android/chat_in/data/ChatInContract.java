@@ -31,8 +31,8 @@ public class ChatInContract {
 
         public static final String TABLE_NAME = "CONVERSATION";
         public static final String COLUMN_NAME_MESSAGE = "MESSAGE";
-        public static final String COLUMN_NAME_FROM = "FROM";
-        public static final String COLUMN_NAME_TO = "TO";
+        public static final String COLUMN_NAME_SENDER = "SENDER";
+        public static final String COLUMN_NAME_RECIPIENT = "RECIPIENT";
         public static final String COLUMN_NAME_NUMERIC_DATE = "NUMERIC_DATE";
     }
 }

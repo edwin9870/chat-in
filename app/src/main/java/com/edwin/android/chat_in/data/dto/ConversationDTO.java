@@ -3,8 +3,6 @@ package com.edwin.android.chat_in.data.dto;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.Date;
-
 /**
  * Created by Edwin Ramirez Ventura on 8/17/2017.
  */
@@ -12,10 +10,10 @@ import java.util.Date;
 public class ConversationDTO implements Parcelable {
 
     private long id;
-    private int sentContactId;
-    private int receiveContactId;
+    private int senderContactId;
+    private int recipientContactId;
     private String message;
-    private Date messageDate;
+    private long messageDate;
 
     public long getId() {
         return id;
@@ -25,20 +23,20 @@ public class ConversationDTO implements Parcelable {
         this.id = id;
     }
 
-    public int getFromContactId() {
-        return sentContactId;
+    public int getSenderContactId() {
+        return senderContactId;
     }
 
-    public void setSentContactId(int sentContactId) {
-        this.sentContactId = sentContactId;
+    public void setSenderContactId(int senderContactId) {
+        this.senderContactId = senderContactId;
     }
 
-    public int getToContactId() {
-        return receiveContactId;
+    public int getRecipientContactId() {
+        return recipientContactId;
     }
 
-    public void setReceiveContactId(int receiveContactId) {
-        this.receiveContactId = receiveContactId;
+    public void setRecipientContactId(int recipientContactId) {
+        this.recipientContactId = recipientContactId;
     }
 
     public String getMessage() {
@@ -49,11 +47,11 @@ public class ConversationDTO implements Parcelable {
         this.message = message;
     }
 
-    public Date getMessageDate() {
+    public long getMessageDate() {
         return messageDate;
     }
 
-    public void setMessageDate(Date messageDate) {
+    public void setMessageDate(long messageDate) {
         this.messageDate = messageDate;
     }
 
@@ -76,8 +74,8 @@ public class ConversationDTO implements Parcelable {
     public String toString() {
         return "ConversationDTO{" +
                 "id=" + id +
-                ", sentContactId=" + sentContactId +
-                ", receiveContactId=" + receiveContactId +
+                ", senderContactId=" + senderContactId +
+                ", recipientContactId=" + recipientContactId +
                 ", message='" + message + '\'' +
                 ", messageDate=" + messageDate +
                 '}';
@@ -92,10 +90,10 @@ public class ConversationDTO implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(this.id);
-        dest.writeInt(this.sentContactId);
-        dest.writeInt(this.receiveContactId);
+        dest.writeInt(this.senderContactId);
+        dest.writeInt(this.recipientContactId);
         dest.writeString(this.message);
-        dest.writeLong(this.messageDate != null ? this.messageDate.getTime() : -1);
+        dest.writeLong(this.messageDate);
     }
 
     public ConversationDTO() {
@@ -103,11 +101,10 @@ public class ConversationDTO implements Parcelable {
 
     protected ConversationDTO(Parcel in) {
         this.id = in.readLong();
-        this.sentContactId = in.readInt();
-        this.receiveContactId = in.readInt();
+        this.senderContactId = in.readInt();
+        this.recipientContactId = in.readInt();
         this.message = in.readString();
-        long tmpMessageDate = in.readLong();
-        this.messageDate = tmpMessageDate == -1 ? null : new Date(tmpMessageDate);
+        this.messageDate = in.readLong();
     }
 
     public static final Parcelable.Creator<ConversationDTO> CREATOR = new Parcelable
