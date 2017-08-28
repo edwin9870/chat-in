@@ -11,6 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.edwin.android.chat_in.R;
+import com.edwin.android.chat_in.data.dto.ConversationDTO;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -60,7 +63,7 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.setHasFixedSize(false);
         mRecyclerView.setAdapter(mAdapter);
-
+        mPresenter.getConversation(mContactId);
         
         return view;
     }
@@ -75,5 +78,11 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
     public void setPresenter(ConversationMVP.Presenter presenter) {
         Log.d(TAG, "Setting presenter");
         mPresenter = presenter;
+    }
+
+    @Override
+    public void showConversation(List<ConversationDTO> conversation) {
+        Log.d(TAG, "Conversation to show: "+ conversation);
+        mAdapter.setConversations(conversation);
     }
 }

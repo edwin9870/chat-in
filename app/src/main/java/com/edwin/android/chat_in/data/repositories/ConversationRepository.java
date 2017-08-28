@@ -125,6 +125,40 @@ public class ConversationRepository {
         });
     }
 
+    /**
+     * Get the a list of conversations with a contact
+     *
+     * @param contactId
+     * @return list of conversation sorted by Date in descending order
+     */
+    public Observable<ConversationDTO> getConversations(int contactId) {
+        return Observable.create(emitter -> {
+            Cursor cursor = null;
+            try {
+                cursor = mContentResolver.query(ConversationEntry.CONTENT_URI, null,
+                        ConversationEntry.COLUMN_NAME_RECIPIENT + " = ? OR " +
+                                ConversationEntry.COLUMN_NAME_SENDER + " = ?", new
+                                String[]{String.valueOf(contactId), String.valueOf(contactId)
+                        }, ConversationEntry.COLUMN_NAME_NUMERIC_DATE + " DESC");
+
+                while(cursor != null && cursor.moveToNext()) {
+                    ConversationDTO conversation = getConversationFromCursor(cursor);
+                    Log.d(TAG, "Emitting conversation: " + conversation);
+                    emitter.onNext(conversation);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                emitter.onError(e);
+            } finally {
+                emitter.onComplete();
+                if(cursor != null) {
+                    cursor.close();
+                }
+            }
+
+        });
+    }
+
     private ConversationDTO getConversationFromCursor(Cursor conversationCursor) {
         ConversationDTO conversation = new ConversationDTO();
         conversation.setRecipientContactId(
