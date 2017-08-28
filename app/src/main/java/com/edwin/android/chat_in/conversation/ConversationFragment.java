@@ -16,7 +16,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
-public class ConversationFragment extends Fragment {
+public class ConversationFragment extends Fragment implements ConversationMVP.View {
 
     public static final String ARGUMENT_CHAT = "ARGUMENT_CHAT";
     public static final String BUNDLE_CONTACT_ID = "BUNDLE_CONTACT_ID";
@@ -26,6 +26,7 @@ public class ConversationFragment extends Fragment {
     Unbinder unbinder;
     private int mContactId;
     private ConversationAdapter mAdapter;
+    private ConversationMVP.Presenter mPresenter;
 
     public ConversationFragment() {
 
@@ -68,5 +69,11 @@ public class ConversationFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+    }
+
+    @Override
+    public void setPresenter(ConversationMVP.Presenter presenter) {
+        Log.d(TAG, "Setting presenter");
+        mPresenter = presenter;
     }
 }

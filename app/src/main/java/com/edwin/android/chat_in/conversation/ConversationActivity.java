@@ -9,7 +9,11 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import com.edwin.android.chat_in.R;
+import com.edwin.android.chat_in.chat.ChatPresenterModule;
+import com.edwin.android.chat_in.chat.DaggerChatComponent;
+import com.edwin.android.chat_in.configuration.di.ApplicationModule;
 import com.edwin.android.chat_in.data.dto.ConversationDTO;
+import com.edwin.android.chat_in.data.repositories.DatabaseModule;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,6 +49,11 @@ public class ConversationActivity extends AppCompatActivity {
             fragmentTransaction.add(R.id.fragment_conversation, fragment);
             fragmentTransaction.commit();
         }
+
+        DaggerConversationComponent.builder().conversationPresenterModule(new ConversationPresenterModule(fragment))
+                .applicationModule(new ApplicationModule(this))
+                .databaseModule(new DatabaseModule())
+                .build().getPresenter();
     }
 
     @Override

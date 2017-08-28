@@ -37,7 +37,6 @@ public class MainViewActivity extends AppCompatActivity {
     @BindView(R.id.pager_tab_content)
     WrapContentViewPager mViewPager;
     private ViewPagerAdapter mAdapter;
-    SyncDatabase mSyncDatabase;
     private ChatFragment mChatFragment;
     private ContactFragment mContactFragment;
 
