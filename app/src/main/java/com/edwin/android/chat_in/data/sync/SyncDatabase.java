@@ -124,9 +124,68 @@ public class SyncDatabase {
     public void syncConversation(String ownerTelephoneNumber) {
         Log.d(TAG, "Executing syncConversation method");
         Log.d(TAG, "ownerTelephoneNumber: " + ownerTelephoneNumber);
+        persistMeToTargetConversation(ownerTelephoneNumber);
+        persistTargetToMeConversation(ownerTelephoneNumber);
+    }
+
+    private void persistTargetToMeConversation(String ownerTelephoneNumber) {
+        final Query targetToMeConversation = mDatabase.child(CONVERSATION_ROOT_PATH).endAt(null, ownerTelephoneNumber);
+        Observable<ConversationDTO> targetToMeObservable = Observable.create(e -> {
+            Log.d(TAG, "targetToMeObservable");
+            targetToMeConversation.addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    Log.d(TAG, "child dataSnapshot: " + dataSnapshot);
+                    ConversationDTO conversation = new ConversationDTO();
+
+                    final String senderNumber = dataSnapshot.getKey().substring(0, dataSnapshot.getKey().indexOf("_"));
+                    Log.d(TAG, "senderNumber: " + senderNumber);
+                    mContactRepository.getContactByNumber(Long.valueOf(senderNumber))
+                            .subscribe(contactDTO -> {
+                                for (DataSnapshot conversationDataSnapShot : dataSnapshot
+                                        .getChildren()) {
+                                    Log.d(TAG, "conversationDataSnapShot: " +
+                                            conversationDataSnapShot);
+                                    conversation.setSenderContactId(contactDTO.getId());
+                                    conversation.setRecipientContactId(ContactRepository.OWNER_CONTACT_ID);
+                                    conversation.setMessage(conversationDataSnapShot.child("message").getValue(String.class));
+                                    conversation.setMessageDate(Long.valueOf(conversationDataSnapShot.getKey()) * 1000);
+                                    Log.d(TAG, "Conversation: " + conversation);
+                                    e.onNext(conversation);
+                                }
+                            });
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        });
+        targetToMeObservable.filter(conversationDTO -> {
+            final ConversationDTO conversationReturned = mConversationRepository
+                    .getConversationByDateTimeNumber(conversationDTO
+                            .getMessageDate()).blockingGet();
+            Log.d(TAG, "conversationReturned from filter: " + conversationReturned);
+            return conversationReturned == null;
+        }).subscribe(mConversationRepository::persist);
+    }
+
+    private void persistMeToTargetConversation(String ownerTelephoneNumber) {
         final Query meToTargetConversation = mDatabase.child(CONVERSATION_ROOT_PATH).startAt
                 (null, ownerTelephoneNumber);
-
         Observable<ConversationDTO> meToTargetObservable = Observable.create(e -> {
             Log.d(TAG, "meToTargetObservable");
             meToTargetConversation.addChildEventListener(new ChildEventListener() {
@@ -188,7 +247,6 @@ public class SyncDatabase {
             Log.d(TAG, "conversationReturned from filter: " + conversationReturned);
             return conversationReturned == null;
         }).subscribe(mConversationRepository::persist);
-
     }
 
 
