@@ -13,8 +13,7 @@ import android.view.ViewGroup;
 
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.conversation.ConversationActivity;
-import com.edwin.android.chat_in.data.dto.ContactDTO;
-import com.edwin.android.chat_in.data.dto.ConversationDTO;
+import com.edwin.android.chat_in.conversation.ConversationFragment;
 import com.edwin.android.chat_in.util.ResourceUtil;
 import com.edwin.android.chat_in.views.SpacesItemDecoration;
 import com.google.firebase.database.DatabaseReference;
@@ -104,10 +103,10 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
     }
 
     @Override
-    public void onClickContact(ConversationDTO conversationDTO) {
-        Log.d(TAG, "ConversationDTO clicked: " + conversationDTO);
+    public void onClickContact(int contactId) {
+        Log.d(TAG, "contactId clicked: " + contactId);
         Intent intent = new Intent(getActivity(), ConversationActivity.class);
-        //intent.putExtra(ConversationFragment.ARGUMENT_CHAT, conversationDTO);
+        intent.putExtra(ConversationFragment.BUNDLE_CONTACT_ID, contactId);
         getActivity().startActivity(intent);
     }
 }

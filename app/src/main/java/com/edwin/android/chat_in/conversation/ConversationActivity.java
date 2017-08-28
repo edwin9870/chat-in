@@ -35,11 +35,11 @@ public class ConversationActivity extends AppCompatActivity {
                 .findFragmentById(R.id.fragment_conversation);
 
         if (fragment == null) {
-            ConversationDTO conversationDTO = getIntent().getExtras().getParcelable(ConversationFragment
-                    .ARGUMENT_CHAT);
-            Log.d(TAG, "ConversationDTO received: " + conversationDTO);
+            int contactId = getIntent().getExtras().getInt(ConversationFragment
+                    .BUNDLE_CONTACT_ID);
+            Log.d(TAG, "ConversationDTO received: " + contactId);
 
-            fragment = ConversationFragment.newInstance(conversationDTO);
+            fragment = ConversationFragment.newInstance(contactId);
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.add(R.id.fragment_conversation, fragment);

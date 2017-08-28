@@ -101,7 +101,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatAdapterVie
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            mChatListener.onClickContact(mConversationDTOS.get(adapterPosition).getConversation());
+            mChatListener.onClickContact(mConversationDTOS.get(adapterPosition).getContact().getId());
         }
     }
 
