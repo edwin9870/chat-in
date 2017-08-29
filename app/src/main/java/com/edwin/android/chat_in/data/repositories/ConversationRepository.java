@@ -123,7 +123,7 @@ public class ConversationRepository {
      * Get the a list of conversations with a contact
      *
      * @param contactId
-     * @return list of conversation sorted by Date in descending order
+     * @return list of conversation sorted by Date in ascending order
      */
     public Observable<ConversationDTO> getConversations(int contactId) {
         return Observable.create(emitter -> {
@@ -133,7 +133,7 @@ public class ConversationRepository {
                         ConversationEntry.COLUMN_NAME_RECIPIENT + " = ? OR " +
                                 ConversationEntry.COLUMN_NAME_SENDER + " = ?", new
                                 String[]{String.valueOf(contactId), String.valueOf(contactId)
-                        }, ConversationEntry.COLUMN_NAME_NUMERIC_DATE + " DESC");
+                        }, ConversationEntry.COLUMN_NAME_NUMERIC_DATE + " ASC");
 
                 while(cursor != null && cursor.moveToNext()) {
                     ConversationDTO conversation = getConversationFromCursor(cursor);
