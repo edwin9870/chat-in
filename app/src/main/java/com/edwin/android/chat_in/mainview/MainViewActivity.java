@@ -14,6 +14,8 @@ import com.edwin.android.chat_in.chat.ChatPresenterModule;
 import com.edwin.android.chat_in.chat.DaggerChatComponent;
 import com.edwin.android.chat_in.configuration.di.ApplicationModule;
 import com.edwin.android.chat_in.contact.ContactFragment;
+import com.edwin.android.chat_in.contact.ContactPresenterModule;
+import com.edwin.android.chat_in.contact.DaggerContactComponent;
 import com.edwin.android.chat_in.data.fcm.FcmModule;
 import com.edwin.android.chat_in.data.repositories.DatabaseModule;
 import com.edwin.android.chat_in.data.sync.DaggerSyncComponent;
@@ -65,6 +67,10 @@ public class MainViewActivity extends AppCompatActivity {
                 .applicationModule(new ApplicationModule(this))
                 .databaseModule(new DatabaseModule())
                 .build().getChatPresenter();
+
+        DaggerContactComponent.builder()
+                .contactPresenterModule(new ContactPresenterModule(mContactFragment))
+                .build().getPresenter();
 
 
     }

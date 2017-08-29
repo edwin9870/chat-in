@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,13 +24,15 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
 
-public class ContactFragment extends Fragment implements ContactListener {
+public class ContactFragment extends Fragment implements ContactListener, ContactMVP.View {
 
 
+    public static final String TAG = ContactFragment.class.getSimpleName();
     @BindView(R.id.recycler_view_contact)
     RecyclerView mRecyclerView;
     Unbinder mUnbinder;
     private ContactAdapter mAdapter;
+    private ContactMVP.Presenter mPresenter;
 
     public ContactFragment() {
         // Required empty public constructor
@@ -90,5 +93,11 @@ public class ContactFragment extends Fragment implements ContactListener {
         Intent intent = new Intent(getActivity(), ConversationActivity.class);
         intent.putExtra(ConversationFragment.ARGUMENT_CHAT, contact);
         getActivity().startActivity(intent);
+    }
+
+    @Override
+    public void setPresenter(ContactMVP.Presenter presenter) {
+        Log.d(TAG, "Setting presenter");
+        mPresenter = presenter;
     }
 }
