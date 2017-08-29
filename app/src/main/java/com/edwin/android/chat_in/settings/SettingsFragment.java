@@ -15,6 +15,7 @@ import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 
 public class SettingsFragment extends Fragment implements SettingsMVP.View{
@@ -23,8 +24,6 @@ public class SettingsFragment extends Fragment implements SettingsMVP.View{
     @BindView(R.id.image_profile)
     RoundedImageView mProfileImageView;
     Unbinder unbinder;
-    @BindView(R.id.text_person_name)
-    TextView mPersonNameTextView;
     private SettingsMVP.Presenter mPresenter;
 
     public SettingsFragment() {
@@ -50,8 +49,6 @@ public class SettingsFragment extends Fragment implements SettingsMVP.View{
         Picasso picasso = Picasso.with(getActivity());
         picasso.load(R.drawable.ic_man_image).fit().into(mProfileImageView);
 
-        //TODO: Get person name
-        mPersonNameTextView.setText("Juan Pablo Duarte");
         return view;
     }
 
@@ -65,5 +62,10 @@ public class SettingsFragment extends Fragment implements SettingsMVP.View{
     public void setPresenter(SettingsMVP.Presenter presenter) {
         Log.d(TAG, "Setting Presenter");
         mPresenter = presenter;
+    }
+
+    @OnClick({R.id.image_profile})
+    public void profileImageClicked() {
+        Log.d(TAG, "Profile image clicked");
     }
 }

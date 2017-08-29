@@ -12,15 +12,6 @@
         android:layout_gravity="center|top"
         android:layout_marginTop="@dimen/image_profile_margin_top"/>
 
-    <TextView
-        android:id="@+id/text_person_name"
-        style="@style/TextAppearance.AppCompat.Headline"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/text_person_name_margin_top"
-        tools:text="Juan Pablo Duarte"
-        android:gravity="center"/>
-
     <fragment
         android:id="@+id/fragment_settings_preferences"
         android:layout_width="match_parent"
