@@ -7,6 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import com.edwin.android.chat_in.R;
+import com.edwin.android.chat_in.configuration.di.ApplicationModule;
+import com.edwin.android.chat_in.data.repositories.DatabaseModule;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -36,6 +38,12 @@ public class SettingsActivity extends AppCompatActivity {
             fragmentTransaction.add(R.id.fragment_settings, settingsFragment);
             fragmentTransaction.commit();
         }
+
+        DaggerSettingsComponent.builder()
+                .settingsPresenterModule(new SettingsPresenterModule(settingsFragment))
+                .applicationModule(new ApplicationModule(this))
+                .databaseModule(new DatabaseModule())
+                .build().getPresenter();
 
     }
 }

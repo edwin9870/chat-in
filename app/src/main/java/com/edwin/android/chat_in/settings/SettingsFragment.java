@@ -3,6 +3,7 @@ package com.edwin.android.chat_in.settings;
 
 import android.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,13 +17,15 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
-public class SettingsFragment extends Fragment {
+public class SettingsFragment extends Fragment implements SettingsMVP.View{
 
+    public static final String TAG = SettingsFragment.class.getSimpleName();
     @BindView(R.id.image_profile)
     RoundedImageView mProfileImageView;
     Unbinder unbinder;
     @BindView(R.id.text_person_name)
     TextView mPersonNameTextView;
+    private SettingsMVP.Presenter mPresenter;
 
     public SettingsFragment() {
     }
@@ -56,5 +59,11 @@ public class SettingsFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+    }
+
+    @Override
+    public void setPresenter(SettingsMVP.Presenter presenter) {
+        Log.d(TAG, "Setting Presenter");
+        mPresenter = presenter;
     }
 }
