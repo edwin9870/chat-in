@@ -8,6 +8,7 @@ import android.support.v7.widget.Toolbar;
 
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.configuration.di.ApplicationModule;
+import com.edwin.android.chat_in.data.fcm.FcmModule;
 import com.edwin.android.chat_in.data.repositories.DatabaseModule;
 
 import butterknife.BindView;
@@ -43,6 +44,7 @@ public class SettingsActivity extends AppCompatActivity {
                 .settingsPresenterModule(new SettingsPresenterModule(settingsFragment))
                 .applicationModule(new ApplicationModule(this))
                 .databaseModule(new DatabaseModule())
+                .fcmModule(new FcmModule())
                 .build().getPresenter();
 
     }
