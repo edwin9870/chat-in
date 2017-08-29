@@ -14,10 +14,13 @@ import android.view.ViewGroup;
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.conversation.ConversationActivity;
 import com.edwin.android.chat_in.conversation.ConversationFragment;
+import com.edwin.android.chat_in.data.dto.ContactDTO;
 import com.edwin.android.chat_in.data.entity.Contact;
 import com.edwin.android.chat_in.util.MessageUtil;
 import com.edwin.android.chat_in.util.ResourceUtil;
 import com.edwin.android.chat_in.views.SpacesItemDecoration;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -65,7 +68,8 @@ public class ContactFragment extends Fragment implements ContactListener, Contac
         mRecyclerView.addItemDecoration(new SpacesItemDecoration(ResourceUtil.dpToPx(this
                 .getActivity(), getResources().getInteger(R.integer.space_between_chat_list))));
 
-        mAdapter.setContacts(MessageUtil.getContacts());
+        //mAdapter.setContacts(MessageUtil.getContacts());
+        mPresenter.getContacts();
 
 
         return view;
@@ -89,15 +93,21 @@ public class ContactFragment extends Fragment implements ContactListener, Contac
     }
 
     @Override
-    public void onClickContact(Contact contact) {
-        Intent intent = new Intent(getActivity(), ConversationActivity.class);
-        intent.putExtra(ConversationFragment.ARGUMENT_CHAT, contact);
-        getActivity().startActivity(intent);
-    }
-
-    @Override
     public void setPresenter(ContactMVP.Presenter presenter) {
         Log.d(TAG, "Setting presenter");
         mPresenter = presenter;
+    }
+
+    @Override
+    public void showContacts(List<ContactDTO> contacts) {
+        Log.d(TAG, "contacts to show: "+ contacts);
+        mAdapter.setContacts(contacts);
+    }
+
+    @Override
+    public void onClickContact(ContactDTO contact) {
+        Intent intent = new Intent(getActivity(), ConversationActivity.class);
+        intent.putExtra(ConversationFragment.BUNDLE_CONTACT_ID, contact.getId());
+        getActivity().startActivity(intent);
     }
 }

@@ -18,6 +18,9 @@ import javax.inject.Singleton;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeEmitter;
 import io.reactivex.MaybeOnSubscribe;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 
 /**
  * Created by Edwin Ramirez Ventura on 8/24/2017.
@@ -110,7 +113,6 @@ public class ContactRepository {
         return idContactGenerated;
     }
 
-
     @NonNull
     private ContactDTO convertCursorToContact(Cursor contactCursor) {
         final int contactId = contactCursor.getInt(contactCursor.getColumnIndex
@@ -131,4 +133,32 @@ public class ContactRepository {
         contact.setProfileImagePath(contactProfileImagePath);
         return contact;
     }
+
+    public Observable<ContactDTO> getAllContacts() {
+        return Observable.create(emitter -> {
+            Cursor contactCursor = null;
+            try {
+                Log.d(TAG, "Retrieving all contacts");
+                contactCursor = mContentResolver.query(
+                        ChatInContract.ContactEntry.CONTENT_URI,
+                        null,
+                        null,
+                        null,
+                        null);
+                while (contactCursor != null && contactCursor.moveToNext()) {
+                    final ContactDTO contact = convertCursorToContact(contactCursor);
+                    emitter.onNext(contact);
+                }
+                    Log.d(TAG, "Calling onComplete");
+                    emitter.onComplete();
+            } catch (Exception e) {
+                emitter.onError(e);
+            } finally {
+                emitter.onComplete();
+                if (contactCursor != null) {
+                    contactCursor.close();
+                }
+            }
+        });
+    };
 }

@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.edwin.android.chat_in.R;
+import com.edwin.android.chat_in.data.dto.ContactDTO;
 import com.edwin.android.chat_in.data.entity.Contact;
 import com.edwin.android.chat_in.views.RoundedImageView;
 import com.squareup.picasso.Picasso;
@@ -27,7 +28,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactA
     public static final String TAG = ContactAdapter.class.getSimpleName();
     private ContactListener mContactListener;
     private Context mContext;
-    private List<Contact> mContacts;
+    private List<ContactDTO> mContacts;
 
     public ContactAdapter(ContactListener mContactListener) {
         this.mContactListener = mContactListener;
@@ -38,19 +39,18 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactA
         mContext = viewGroup.getContext();
         int idLayout = R.layout.item_contact_list;
         LayoutInflater inflater = LayoutInflater.from(mContext);
-
         View view = inflater.inflate(idLayout, viewGroup, false);
         return new ContactAdapterViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(ContactAdapterViewHolder holder, int position) {
-        Contact contact = mContacts.get(position);
-
+        ContactDTO contact = mContacts.get(position);
         Picasso picasso = Picasso.with(mContext);
-        picasso.load(contact.getProfileImage()).fit().into(holder.mProfileImageView);
+        //TODO: Add real image of user
+        picasso.load(R.drawable.ic_women_image).fit().into(holder.mProfileImageView);
 
-        holder.mContactNameTextView.setText(contact.getName());
+        holder.mContactNameTextView.setText(contact.getUserName());
     }
 
     @Override
@@ -83,7 +83,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactA
         }
     }
 
-    public void setContacts(List<Contact> contacts) {
+    public void setContacts(List<ContactDTO> contacts) {
         this.mContacts = contacts;
         notifyDataSetChanged();
     }

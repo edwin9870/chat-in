@@ -70,9 +70,9 @@ public class MainViewActivity extends AppCompatActivity {
 
         DaggerContactComponent.builder()
                 .contactPresenterModule(new ContactPresenterModule(mContactFragment))
+                .applicationModule(new ApplicationModule(this))
+                .databaseModule(new DatabaseModule())
                 .build().getPresenter();
-
-
     }
 
     private void setupViewPager() {

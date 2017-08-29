@@ -9,10 +9,7 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import com.edwin.android.chat_in.R;
-import com.edwin.android.chat_in.chat.ChatPresenterModule;
-import com.edwin.android.chat_in.chat.DaggerChatComponent;
 import com.edwin.android.chat_in.configuration.di.ApplicationModule;
-import com.edwin.android.chat_in.data.dto.ConversationDTO;
 import com.edwin.android.chat_in.data.repositories.DatabaseModule;
 
 import butterknife.BindView;
