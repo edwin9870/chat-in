@@ -18,8 +18,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.reactivex.Observable;
-import io.reactivex.schedulers.Schedulers;
-import io.reactivex.subjects.PublishSubject;
 
 import static com.edwin.android.chat_in.util.FirebaseDatabaseUtil.Constants.CONVERSATION_ROOT_PATH;
 
@@ -44,7 +42,7 @@ public class SyncDatabase {
         mConversationRepository = conversationRepository;
     }
 
-    public void syncContact(String ownerTelephoneNumber) {
+    public void syncContact() {
         Log.d(TAG, "Executing syncContact");
 
         mContactRepository.getContactByNumber(Long.valueOf(ChatFragment.MY_NUMBER)).isEmpty().subscribe(isEmpty -> {
@@ -57,67 +55,38 @@ public class SyncDatabase {
                 mContactRepository.persist(contact);
                 Log.d(TAG, "Persisted contact: "+ contact);
             }
+
+            mContactRepository.getAllPhoneContacts()
+                    .filter(sparseArray -> {
+                        final String telephoneNumber = sparseArray.get(ContactRepository.TELEPHONE_NUMBER);
+
+                        final Boolean existsContact = mContactRepository.getContactByNumber(Long.valueOf
+                                (telephoneNumber)).isEmpty().blockingGet();
+                        Log.d(TAG, "number exists: " + existsContact);
+                        return existsContact;
+                    })
+                    .subscribe(sparseArray -> {
+                        final String contactName = sparseArray.get(ContactRepository.CONTACT_NAME);
+                        final String telephoneNumber = sparseArray.get(ContactRepository.TELEPHONE_NUMBER);
+                        Log.d(TAG, "Contact name received: "+ contactName+", number: "+ telephoneNumber);
+                        mDatabase.child("/users/"+telephoneNumber).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                final ContactDTO contact = new ContactDTO();
+                                contact.setNumber(Long.valueOf(telephoneNumber));
+                                contact.setUserName(contactName);
+                                mContactRepository.persist(contact);
+                                Log.d(TAG, "Persisted contact: "+ contact);
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    });
         });
 
-        PublishSubject<Long> publishSubjectTelephoneNumberContact = PublishSubject.create();
-        final DatabaseReference contactsReference = mDatabase.child("/users/" + ownerTelephoneNumber +
-                "/contacts");
-        contactsReference.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.d(TAG, "child dataSnapshot: "+ dataSnapshot);
-                publishSubjectTelephoneNumberContact.onNext(Long.valueOf(dataSnapshot.getKey()));
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-        contactsReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                publishSubjectTelephoneNumberContact.onComplete();
-                Log.d(TAG, "OnComplete called");
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-
-        publishSubjectTelephoneNumberContact
-                .observeOn(Schedulers.computation())
-                .subscribeOn(Schedulers.computation())
-                .subscribe(telephoneNumber ->
-                {
-                    Log.d(TAG, "telephoneNumber to find contact: "+ telephoneNumber);
-                    mContactRepository.getContactByNumber(telephoneNumber).isEmpty().subscribe(isEmpty -> {
-                    Log.d(TAG, "isEmpty: " + isEmpty);
-                    if(isEmpty) {
-                        final ContactDTO contact = new ContactDTO();
-                        contact.setNumber(telephoneNumber);
-                        mContactRepository.persist(contact);
-                        Log.d(TAG, "Persisted contact: "+ contact);
-                    }
-                });
-                }
-        );
 
     }
 

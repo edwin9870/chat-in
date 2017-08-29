@@ -3,7 +3,6 @@ package com.edwin.android.chat_in.data.sync;
 import com.edwin.android.chat_in.configuration.di.ApplicationModule;
 import com.edwin.android.chat_in.data.fcm.FcmModule;
 import com.edwin.android.chat_in.data.repositories.DatabaseModule;
-import com.edwin.android.chat_in.mainview.MainViewActivity;
 
 import javax.inject.Singleton;
 

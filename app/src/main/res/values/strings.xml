@@ -17,4 +17,5 @@
     <string name="notification_sound_title">Sound</string>
     <string name="notification_sound_summary_on">On</string>
     <string name="notification_sound_summary_off">Off</string>
+    <string name="permisson_read_contacts_explanation">Read contacts permission is required to show chats</string>
 </resources>

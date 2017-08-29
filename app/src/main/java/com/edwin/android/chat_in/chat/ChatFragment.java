@@ -47,13 +47,7 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
     }
 
     public static ChatFragment newInstance() {
-        ChatFragment fragment = new ChatFragment();
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        return new ChatFragment();
     }
 
     @Override
@@ -83,16 +77,6 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
     public void showChats(List<ConversationWrapper> conversations) {
         Log.d(TAG, "Showing list of chats with the followings conversations: " + conversations);
         mChatAdapter.setChats(conversations);
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
     }
 
 

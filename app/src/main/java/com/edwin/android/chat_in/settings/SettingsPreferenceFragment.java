@@ -13,8 +13,7 @@ import com.edwin.android.chat_in.R;
 public class SettingsPreferenceFragment extends PreferenceFragment {
 
     public static SettingsPreferenceFragment newInstance() {
-        SettingsPreferenceFragment fragment = new SettingsPreferenceFragment();
-        return fragment;
+        return new SettingsPreferenceFragment();
     }
 
     @Override

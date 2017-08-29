@@ -15,8 +15,6 @@ import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.conversation.ConversationActivity;
 import com.edwin.android.chat_in.conversation.ConversationFragment;
 import com.edwin.android.chat_in.data.dto.ContactDTO;
-import com.edwin.android.chat_in.data.entity.Contact;
-import com.edwin.android.chat_in.util.MessageUtil;
 import com.edwin.android.chat_in.util.ResourceUtil;
 import com.edwin.android.chat_in.views.SpacesItemDecoration;
 
@@ -42,13 +40,7 @@ public class ContactFragment extends Fragment implements ContactListener, Contac
     }
 
     public static ContactFragment newInstance() {
-        ContactFragment fragment = new ContactFragment();
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        return new ContactFragment();
     }
 
     @Override
@@ -75,16 +67,6 @@ public class ContactFragment extends Fragment implements ContactListener, Contac
         return view;
     }
 
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-    }
 
     @Override
     public void onDestroyView() {

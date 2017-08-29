@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
-import com.edwin.android.chat_in.data.ChatInContract;
 import com.edwin.android.chat_in.data.ChatInContract.ConversationEntry;
 import com.edwin.android.chat_in.data.dto.ConversationDTO;
 
@@ -19,11 +18,6 @@ import javax.inject.Singleton;
 
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
 
 /**
  * Created by Edwin Ramirez Ventura on 8/24/2017.

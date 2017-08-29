@@ -1,12 +1,19 @@
 package com.edwin.android.chat_in.mainview;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
+import android.support.v13.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.widget.Toast;
 
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.chat.ChatFragment;
@@ -32,6 +39,7 @@ public class MainViewActivity extends AppCompatActivity {
     public static final String TAG = MainViewActivity.class.getSimpleName();
     public static final int CHAT_FRAGMENT_TAB = 0;
     public static final int CONTACT_FRAGMENT_TAB = 1;
+    public static final int PERMISSIONS_REQUEST_READ_CONTACTS = 54515;
     @BindView(R.id.toolbar_settings_activity)
     Toolbar mToolbar;
     @BindView(R.id.tab_layout)
@@ -51,6 +59,16 @@ public class MainViewActivity extends AppCompatActivity {
         setSupportActionBar(mToolbar);
         getSupportActionBar().setTitle(getString(R.string.app_name).toUpperCase());
 
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_CONTACTS)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions();
+        } else {
+            setupActivity();
+        }
+    }
+
+    private void setupActivity() {
         setupViewPager();
 
         final SyncComponent syncComponent = DaggerSyncComponent.builder()
@@ -59,7 +77,7 @@ public class MainViewActivity extends AppCompatActivity {
                 .fcmModule(new FcmModule())
                 .build();
         final SyncDatabase syncDatabase = syncComponent.getSyncDatabase();
-        syncDatabase.syncContact(ChatFragment.MY_NUMBER);
+        syncDatabase.syncContact();
         syncDatabase.syncConversation(ChatFragment.MY_NUMBER);
 
         DaggerChatComponent.builder().chatPresenterModule(new
@@ -73,6 +91,37 @@ public class MainViewActivity extends AppCompatActivity {
                 .applicationModule(new ApplicationModule(this))
                 .databaseModule(new DatabaseModule())
                 .build().getPresenter();
+    }
+
+    private void requestPermissions() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.READ_CONTACTS)) {
+            Toast.makeText(this, R.string.permisson_read_contacts_explanation, Toast.LENGTH_LONG).show();
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_CONTACTS},
+                    PERMISSIONS_REQUEST_READ_CONTACTS);
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_READ_CONTACTS:
+
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "Permissions granted, showing activity");
+                    setupActivity();
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                break;
+        }
     }
 
     private void setupViewPager() {

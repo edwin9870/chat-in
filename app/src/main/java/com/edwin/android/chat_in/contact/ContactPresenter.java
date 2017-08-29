@@ -30,6 +30,7 @@ public class ContactPresenter implements ContactMVP.Presenter {
     @Override
     public void getContacts() {
         mContactRepository.getAllContacts()
+                .filter(contact -> contact.getId() != ContactRepository.OWNER_CONTACT_ID)
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .toList().subscribe(mView::showContacts);

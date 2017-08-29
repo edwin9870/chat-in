@@ -5,22 +5,19 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.util.SparseArray;
 
 import com.edwin.android.chat_in.data.ChatInContract;
 import com.edwin.android.chat_in.data.dto.ContactDTO;
-import com.google.firebase.database.DatabaseReference;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.reactivex.Maybe;
-import io.reactivex.MaybeEmitter;
-import io.reactivex.MaybeOnSubscribe;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 
 /**
  * Created by Edwin Ramirez Ventura on 8/24/2017.
@@ -31,6 +28,8 @@ public class ContactRepository {
 
     public static final String TAG = ContactRepository.class.getSimpleName();
     public static final int OWNER_CONTACT_ID = 1;
+    public static final int TELEPHONE_NUMBER = 5451;
+    public static final int CONTACT_NAME = 12121;
     private ContentResolver mContentResolver;
 
     @Inject
@@ -160,5 +159,52 @@ public class ContactRepository {
                 }
             }
         });
-    };
+    }
+
+    public Observable<SparseArray<String>> getAllPhoneContacts() {
+        return Observable.create(emitter -> {
+            Cursor cursor = null;
+            try {
+                cursor = mContentResolver.query(ContactsContract.Contacts.CONTENT_URI,
+                        null, null, null, null);
+                Log.d(TAG, "Calling getAllPhoneContacts method");
+                if (cursor != null && cursor.getCount() > 0) {
+                    while (cursor.moveToNext()) {
+                        String id = cursor.getString(
+                                cursor.getColumnIndex(ContactsContract.Contacts._ID));
+                        String name = cursor.getString(cursor.getColumnIndex(
+                                ContactsContract.Contacts.DISPLAY_NAME));
+
+                        if (cursor.getInt(cursor.getColumnIndex(
+                                ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
+                            Cursor phoneCursor = mContentResolver.query(
+                                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                                    null,
+                                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+                                    new String[]{id}, null);
+                            while (phoneCursor != null && phoneCursor.moveToNext()) {
+                                String phoneNo = phoneCursor.getString(phoneCursor.getColumnIndex(
+                                        ContactsContract.CommonDataKinds.Phone.NUMBER));
+                                Log.d(TAG, "Name: " + name + ", Phone No: " + phoneNo);
+                                SparseArray<String> data = new SparseArray<>();
+                                data.put(TELEPHONE_NUMBER, phoneNo.replaceAll("[()\\s-]+", ""));
+                                data.put(CONTACT_NAME, name);
+                                emitter.onNext(data);
+                            }
+                            if(phoneCursor != null) {
+                                phoneCursor.close();
+                            }
+                        }
+                    }
+                }
+            } finally {
+                Log.d(TAG, "Calling onComplete");
+                emitter.onComplete();
+                if(cursor != null) {
+                    cursor.close();
+                }
+            }
+        });
+
+    }
 }

@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.data.dto.ContactDTO;
-import com.edwin.android.chat_in.data.entity.Contact;
 import com.edwin.android.chat_in.views.RoundedImageView;
 import com.squareup.picasso.Picasso;
 

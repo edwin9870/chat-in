@@ -11,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.edwin.android.chat_in.R;
-import com.edwin.android.chat_in.data.dto.ContactDTO;
 import com.squareup.picasso.Picasso;
 
 import java.util.Date;
