@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.edwin.android.chat_in.data.ChatInContract.ContactEntry;
 import com.edwin.android.chat_in.data.ChatInContract.ConversationEntry;
@@ -27,6 +28,7 @@ public class ChatInContentProvider extends ContentProvider {
     public static final int CONVERSATION_WITH_ID = 201;
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
+    public static final String TAG = ChatInContentProvider.class.getSimpleName();
     private ChatInDbHelper mChatInDbHelper;
 
 
@@ -146,7 +148,24 @@ public class ChatInContentProvider extends ContentProvider {
     }
 
     @Override
-    public int update(@NonNull Uri uri, @Nullable ContentValues contentValues, @Nullable String s, @Nullable String[] strings) {
-        return 0;
+    public int update(@NonNull Uri uri, @Nullable ContentValues contentValues, @Nullable String
+            selection, @Nullable String[] selectionArgs) {
+        int match = sUriMatcher.match(uri);
+        SQLiteDatabase db = mChatInDbHelper.getWritableDatabase();
+        String id;
+        int rowsUpdated;
+        switch (match) {
+            case CONTACT:
+                rowsUpdated = db.update(ContactEntry.TABLE_NAME, contentValues,
+                        selection, selectionArgs);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
+        if(rowsUpdated > 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowsUpdated;
     }
 }

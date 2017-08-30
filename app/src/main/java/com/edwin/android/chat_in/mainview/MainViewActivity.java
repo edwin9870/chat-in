@@ -1,6 +1,7 @@
 package com.edwin.android.chat_in.mainview;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.edwin.android.chat_in.R;
@@ -28,6 +30,7 @@ import com.edwin.android.chat_in.data.repositories.DatabaseModule;
 import com.edwin.android.chat_in.data.sync.DaggerSyncComponent;
 import com.edwin.android.chat_in.data.sync.SyncComponent;
 import com.edwin.android.chat_in.data.sync.SyncDatabase;
+import com.edwin.android.chat_in.settings.SettingsActivity;
 import com.edwin.android.chat_in.views.WrapContentViewPager;
 
 import butterknife.BindView;
@@ -172,5 +175,19 @@ public class MainViewActivity extends AppCompatActivity {
 
     private static String getFragmentName(int viewPagerId, int index) {
         return "android:switcher:" + viewPagerId + ":" + index;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.item_setting_action:
+                final Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+
+        }
+
     }
 }

@@ -16,8 +16,13 @@ import com.edwin.android.chat_in.data.dto.ContactDTO;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
+
+import static com.edwin.android.chat_in.data.ChatInContract.*;
 
 /**
  * Created by Edwin Ramirez Ventura on 8/24/2017.
@@ -44,9 +49,9 @@ public class ContactRepository {
             try {
                 Log.d(TAG, "Finding contact with number: " + number);
                 contactCursor = mContentResolver.query(
-                        ChatInContract.ContactEntry.CONTENT_URI,
+                        ContactEntry.CONTENT_URI,
                         null,
-                        ChatInContract.ContactEntry.COLUMN_NAME_NUMBER + " = ?",
+                        ContactEntry.COLUMN_NAME_NUMBER + " = ?",
                         new String[]{String.valueOf(number)},
                         null);
                 if (contactCursor != null && contactCursor.moveToNext()) {
@@ -73,9 +78,9 @@ public class ContactRepository {
             try {
                 Log.d(TAG, "Finding contact with contactId: " + contactId);
                 contactCursor = mContentResolver.query(
-                        ChatInContract.ContactEntry.CONTENT_URI,
+                        ContactEntry.CONTENT_URI,
                         null,
-                        ChatInContract.ContactEntry._ID + " = ?",
+                        ContactEntry._ID + " = ?",
                         new String[]{String.valueOf(contactId)},
                         null);
                 if (contactCursor != null && contactCursor.moveToNext()) {
@@ -99,13 +104,13 @@ public class ContactRepository {
     public int persist(ContactDTO contactDTO) {
         final ContentValues cv = new ContentValues();
         if(contactDTO.getId() > 0) {
-            cv.put(ChatInContract.ContactEntry._ID, contactDTO.getId());
+            cv.put(ContactEntry._ID, contactDTO.getId());
         }
-        cv.put(ChatInContract.ContactEntry.COLUMN_NAME_NAME, contactDTO.getUserName());
-        cv.put(ChatInContract.ContactEntry.COLUMN_NAME_NUMBER, contactDTO.getNumber());
-        cv.put(ChatInContract.ContactEntry.COLUMN_NAME_PROFILE_IMAGE_PATH, contactDTO.getProfileImagePath());
+        cv.put(ContactEntry.COLUMN_NAME_NAME, contactDTO.getUserName());
+        cv.put(ContactEntry.COLUMN_NAME_NUMBER, contactDTO.getNumber());
+        cv.put(ContactEntry.COLUMN_NAME_PROFILE_IMAGE_PATH, contactDTO.getProfileImagePath());
 
-        final Uri insertedUri = mContentResolver.insert(ChatInContract.ContactEntry
+        final Uri insertedUri = mContentResolver.insert(ContactEntry
                 .CONTENT_URI, cv);
         final int idContactGenerated = (int)ContentUris.parseId(insertedUri);
         Log.d(TAG, "idContactGenerated: " + idContactGenerated);
@@ -115,15 +120,15 @@ public class ContactRepository {
     @NonNull
     private ContactDTO convertCursorToContact(Cursor contactCursor) {
         final int contactId = contactCursor.getInt(contactCursor.getColumnIndex
-                (ChatInContract.ContactEntry._ID));
+                (ContactEntry._ID));
         final String contactName = contactCursor.getString(contactCursor.getColumnIndex
 
-                (ChatInContract.ContactEntry.COLUMN_NAME_NAME));
+                (ContactEntry.COLUMN_NAME_NAME));
         final String contactProfileImagePath = contactCursor.getString
                 (contactCursor.getColumnIndex
-                        (ChatInContract.ContactEntry.COLUMN_NAME_PROFILE_IMAGE_PATH));
+                        (ContactEntry.COLUMN_NAME_PROFILE_IMAGE_PATH));
         final long contactNumber = contactCursor.getLong(contactCursor.getColumnIndex
-                (ChatInContract.ContactEntry.COLUMN_NAME_NUMBER));
+                (ContactEntry.COLUMN_NAME_NUMBER));
 
         final ContactDTO contact = new ContactDTO();
         contact.setId(contactId);
@@ -139,7 +144,7 @@ public class ContactRepository {
             try {
                 Log.d(TAG, "Retrieving all contacts");
                 contactCursor = mContentResolver.query(
-                        ChatInContract.ContactEntry.CONTENT_URI,
+                        ContactEntry.CONTENT_URI,
                         null,
                         null,
                         null,
@@ -206,5 +211,24 @@ public class ContactRepository {
             }
         });
 
+    }
+
+    public Completable updateContact(ContactDTO contact) {
+        Log.d(TAG, "new contact: "+ contact);
+        return Completable.create(emitter -> {
+            try {
+                final ContentValues newValues = new ContentValues();
+                newValues.put(ContactEntry._ID, contact.getId());
+                newValues.put(ContactEntry.COLUMN_NAME_PROFILE_IMAGE_PATH, contact.getProfileImagePath());
+                newValues.put(ContactEntry.COLUMN_NAME_NUMBER, contact.getNumber());
+                newValues.put(ContactEntry.COLUMN_NAME_NAME, contact.getUserName());
+                mContentResolver.update(ContactEntry.CONTENT_URI, newValues,
+                        ContactEntry._ID + " = ?", new String[]{String.valueOf
+                                (contact.getId())});
+                emitter.onComplete();
+            } catch (Exception e) {
+                emitter.onError(e);
+            }
+        });
     }
 }
