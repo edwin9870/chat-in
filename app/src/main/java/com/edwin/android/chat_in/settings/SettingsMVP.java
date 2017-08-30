@@ -11,12 +11,12 @@ import java.io.File;
 public interface SettingsMVP {
     interface View {
         void setPresenter(Presenter presenter);
-        void showImageProfile(int resourceId);
-        void showImageProfile(File file);
+        void showImageProfile(int resourceId, boolean b);
+        void showImageProfile(File file, boolean enableCache);
     }
 
     interface Presenter {
         void uploadImage(String fullPathImage);
-        void loadProfileImage();
+        void loadProfileImage(boolean enableCache);
     }
 }

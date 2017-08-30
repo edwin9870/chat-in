@@ -71,7 +71,7 @@ public class FileUtil {
         ContextWrapper cw = new ContextWrapper(context);
         final File imagesDirectory = cw.getDir(IMAGES_DIRECTORY_NAME, Context.MODE_PRIVATE);
         File imageFile = new File(imagesDirectory, fileName);
-        outputStream = new FileOutputStream(imageFile);
+        outputStream = new FileOutputStream(imageFile, false);
         switch (getFileExtension(fileName).toUpperCase()) {
             case "JPEG":
             image.compress(Bitmap.CompressFormat.JPEG, IMAGE_QUALITY, outputStream);

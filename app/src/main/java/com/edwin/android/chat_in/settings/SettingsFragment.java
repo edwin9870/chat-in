@@ -21,7 +21,9 @@ import android.widget.Toast;
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.util.FileUtil;
 import com.edwin.android.chat_in.views.RoundedImageView;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 
 import java.io.File;
 
@@ -63,7 +65,7 @@ public class SettingsFragment extends Fragment implements SettingsMVP.View{
         unbinder = ButterKnife.bind(this, view);
         mPicasso = Picasso.with(getActivity());
 
-        mPresenter.loadProfileImage();
+        mPresenter.loadProfileImage(true);
         return view;
     }
 
@@ -80,13 +82,25 @@ public class SettingsFragment extends Fragment implements SettingsMVP.View{
     }
 
     @Override
-    public void showImageProfile(int resourceId) {
-        mPicasso.load(R.drawable.ic_man_image).fit().into(mProfileImageView);
+    public void showImageProfile(int resourceId, boolean enableCache) {
+
+        final RequestCreator requestCreator = mPicasso.load(R.drawable.ic_man_image);
+
+        if(!enableCache) {
+            requestCreator.memoryPolicy(MemoryPolicy.NO_CACHE);
+        }
+        requestCreator.fit().into(mProfileImageView);
     }
 
     @Override
-    public void showImageProfile(File imageFile) {
-        mPicasso.load(imageFile).fit().into(mProfileImageView);
+    public void showImageProfile(File imageFile, boolean enableCache) {
+        final RequestCreator requestCreator = mPicasso.load(imageFile);
+
+        if(!enableCache) {
+            requestCreator.memoryPolicy(MemoryPolicy.NO_CACHE);
+        }
+
+        requestCreator.fit().into(mProfileImageView);
     }
 
     @OnClick({R.id.image_profile})

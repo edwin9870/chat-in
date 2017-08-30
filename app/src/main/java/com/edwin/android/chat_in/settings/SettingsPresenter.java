@@ -81,20 +81,25 @@ public class SettingsPresenter implements SettingsMVP.Presenter {
                 .subscribe(() -> {Log.d(TAG, "Upload completed");
                     mContactRepository.getContactById(ContactRepository.OWNER_CONTACT_ID).subscribe(contact -> {
                         contact.setProfileImagePath(imageFileNameToSave);
-                        mContactRepository.updateContact(contact).subscribe(SettingsPresenter.this::loadProfileImage);
+
+                        mContactRepository.updateContact(contact)
+                                .subscribe(() -> SettingsPresenter.this.loadProfileImage(false));
                     });
         });
     }
 
     @Override
-    public void loadProfileImage() {
+    public void loadProfileImage(boolean enableCache) {
+        Log.d(TAG, "loadProfileImage called");
         mContactRepository.getContactById(ContactRepository.OWNER_CONTACT_ID)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .filter(contactDTO -> !(contactDTO.getProfileImagePath() == null ||
                                         contactDTO.getProfileImagePath().isEmpty()))
-                .switchIfEmpty(observer -> mView.showImageProfile(R.drawable.ic_man_image))
-                .subscribe(contactDTO -> mView.showImageProfile(FileUtil.getImageFile(mContext, contactDTO.getProfileImagePath())));
+                .switchIfEmpty(observer -> mView.showImageProfile(R.drawable.ic_man_image, true))
+                .subscribe(contactDTO -> mView.showImageProfile(
+                        FileUtil.getImageFile(mContext, contactDTO.getProfileImagePath()),
+                        enableCache));
 
     }
 }
