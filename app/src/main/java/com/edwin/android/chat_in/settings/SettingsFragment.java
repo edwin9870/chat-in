@@ -23,6 +23,8 @@ import com.edwin.android.chat_in.util.FileUtil;
 import com.edwin.android.chat_in.views.RoundedImageView;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -39,13 +41,13 @@ public class SettingsFragment extends Fragment implements SettingsMVP.View{
     RoundedImageView mProfileImageView;
     Unbinder unbinder;
     private SettingsMVP.Presenter mPresenter;
+    private Picasso mPicasso;
 
     public SettingsFragment() {
     }
 
     public static SettingsFragment newInstance() {
         SettingsFragment fragment = new SettingsFragment();
-        Bundle args = new Bundle();
         return fragment;
     }
 
@@ -59,10 +61,9 @@ public class SettingsFragment extends Fragment implements SettingsMVP.View{
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_settings, container, false);
         unbinder = ButterKnife.bind(this, view);
+        mPicasso = Picasso.with(getActivity());
 
-        Picasso picasso = Picasso.with(getActivity());
-        picasso.load(R.drawable.ic_man_image).fit().into(mProfileImageView);
-
+        mPresenter.loadProfileImage();
         return view;
     }
 
@@ -76,6 +77,16 @@ public class SettingsFragment extends Fragment implements SettingsMVP.View{
     public void setPresenter(SettingsMVP.Presenter presenter) {
         Log.d(TAG, "Setting Presenter");
         mPresenter = presenter;
+    }
+
+    @Override
+    public void showImageProfile(int resourceId) {
+        mPicasso.load(R.drawable.ic_man_image).fit().into(mProfileImageView);
+    }
+
+    @Override
+    public void showImageProfile(File imageFile) {
+        mPicasso.load(imageFile).fit().into(mProfileImageView);
     }
 
     @OnClick({R.id.image_profile})

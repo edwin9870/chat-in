@@ -4,7 +4,9 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
+import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.chat.ChatFragment;
+import com.edwin.android.chat_in.data.dto.ContactDTO;
 import com.edwin.android.chat_in.data.repositories.ContactRepository;
 import com.edwin.android.chat_in.util.FileUtil;
 import com.google.firebase.storage.FirebaseStorage;
@@ -16,6 +18,12 @@ import java.io.IOException;
 import javax.inject.Inject;
 
 import io.reactivex.Completable;
+import io.reactivex.MaybeObserver;
+import io.reactivex.MaybeSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -69,12 +77,24 @@ public class SettingsPresenter implements SettingsMVP.Presenter {
             uploadTask.addOnFailureListener(emitter::onError);
         })
                 .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(() -> {Log.d(TAG, "Upload completed");
                     mContactRepository.getContactById(ContactRepository.OWNER_CONTACT_ID).subscribe(contact -> {
                         contact.setProfileImagePath(imageFileNameToSave);
-                        mContactRepository.updateContact(contact).subscribe();
+                        mContactRepository.updateContact(contact).subscribe(SettingsPresenter.this::loadProfileImage);
                     });
         });
+    }
+
+    @Override
+    public void loadProfileImage() {
+        mContactRepository.getContactById(ContactRepository.OWNER_CONTACT_ID)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .filter(contactDTO -> !(contactDTO.getProfileImagePath() == null ||
+                                        contactDTO.getProfileImagePath().isEmpty()))
+                .switchIfEmpty(observer -> mView.showImageProfile(R.drawable.ic_man_image))
+                .subscribe(contactDTO -> mView.showImageProfile(FileUtil.getImageFile(mContext, contactDTO.getProfileImagePath())));
+
     }
 }
