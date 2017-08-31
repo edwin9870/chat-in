@@ -70,9 +70,29 @@ public class MainViewActivity extends AppCompatActivity {
             setupActivity();
         }
     }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_READ_CONTACTS:
+
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "Permissions granted, showing activity");
+                    setupActivity();
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                break;
+        }
+    }
+
 
     private void setupActivity() {
-        setupViewPager();
+
+        setupFragment();
 
         final SyncComponent syncComponent = DaggerSyncComponent.builder()
                 .applicationModule(new ApplicationModule(this))
@@ -94,6 +114,24 @@ public class MainViewActivity extends AppCompatActivity {
                 .applicationModule(new ApplicationModule(this))
                 .databaseModule(new DatabaseModule())
                 .build().getPresenter();
+
+        setupViewPager();
+    }
+
+    private void setupFragment() {
+        mAdapter = new ViewPagerAdapter(getFragmentManager());
+
+        mChatFragment = (ChatFragment) getFragmentManager().findFragmentByTag
+                (getFragmentName(R.id.pager_tab_content, CHAT_FRAGMENT_TAB));
+        if(mChatFragment == null) {
+            mChatFragment = ChatFragment.newInstance();
+        }
+
+        mContactFragment = (ContactFragment) getFragmentManager().findFragmentByTag
+                (getFragmentName(R.id.pager_tab_content, CONTACT_FRAGMENT_TAB));
+        if(mContactFragment == null) {
+            mContactFragment = ContactFragment.newInstance();
+        }
     }
 
     private void requestPermissions() {
@@ -108,40 +146,8 @@ public class MainViewActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_READ_CONTACTS:
-
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d(TAG, "Permissions granted, showing activity");
-                    setupActivity();
-                } else {
-
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                }
-                break;
-        }
-    }
 
     private void setupViewPager() {
-        mAdapter = new ViewPagerAdapter(getFragmentManager());
-
-        mChatFragment = (ChatFragment) getFragmentManager().findFragmentByTag
-                (getFragmentName(R.id.pager_tab_content, CHAT_FRAGMENT_TAB));
-        if(mChatFragment == null) {
-            mChatFragment = ChatFragment.newInstance();
-        }
-
-        mContactFragment = (ContactFragment) getFragmentManager().findFragmentByTag
-                (getFragmentName(R.id.pager_tab_content, CONTACT_FRAGMENT_TAB));
-        if(mContactFragment == null) {
-            mContactFragment = ContactFragment.newInstance();
-        }
-
         mAdapter.addFragment(mChatFragment, getString(R.string.main_view_tab_layout_chat_tab));
         mAdapter.addFragment(mContactFragment, getString(R.string.main_view_tab_layout_contacts_tab));
         mViewPager.setAdapter(mAdapter);
