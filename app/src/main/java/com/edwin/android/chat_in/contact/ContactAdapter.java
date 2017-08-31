@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.data.dto.ContactDTO;
+import com.edwin.android.chat_in.util.FileUtil;
 import com.edwin.android.chat_in.views.RoundedImageView;
 import com.squareup.picasso.Picasso;
 
@@ -47,7 +48,12 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactA
         ContactDTO contact = mContacts.get(position);
         Picasso picasso = Picasso.with(mContext);
         //TODO: Add real image of user
-        picasso.load(R.drawable.ic_women_image).fit().into(holder.mProfileImageView);
+
+        if(contact.getProfileImagePath() == null || contact.getProfileImagePath().isEmpty()) {
+            picasso.load(R.drawable.ic_man_image).fit().into(holder.mProfileImageView);
+        } else {
+            picasso.load(FileUtil.getImageFile(mContext, contact.getProfileImagePath())).fit().into(holder.mProfileImageView);
+        }
 
         holder.mContactNameTextView.setText(contact.getUserName());
     }
