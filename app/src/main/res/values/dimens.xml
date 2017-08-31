@@ -16,4 +16,13 @@
     <dimen name="image_profile_margin_top">12dp</dimen>
     <dimen name="text_person_name_margin_top">16dp</dimen>
     <dimen name="fragment_settings_preferences_margin_top">16dp</dimen>
+    <dimen name="frame_padding">8dp</dimen>
+    <dimen name="frame_message_min_height">56dp</dimen>
+    <dimen name="linear_item_message_sent_padding">8dp</dimen>
+
+    <!-- fragment_conversation.xml -->
+    <dimen name="frame_layout_message_box_width">320dp</dimen>
+    <dimen name="message_send_button_width">56dp</dimen>
+    <dimen name="message_send_button_height">56dp</dimen>
+    <dimen name="message_send_button_margin">8dp</dimen>
 </resources>

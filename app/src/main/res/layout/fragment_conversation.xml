@@ -1,13 +1,44 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:tools="http://schemas.android.com/tools"
              android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             tools:context="com.edwin.android.chat_in.conversationDTO.ConversationFragment">
+             android:layout_height="match_parent">
 
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_conversation"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:id="@+id/frame_layout_message_box"
+            android:layout_width="@dimen/frame_layout_message_box_width"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/frame_padding"
+            android:background="@drawable/ic_send_message"
+            android:minHeight="@dimen/frame_message_min_height">
+
+            <EditText
+                style="@style/TextAppearance.AppCompat.Body1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/type_a_message"
+                />
+        </FrameLayout>
+
+        <ImageView
+            android:layout_width="@dimen/message_send_button_width"
+            android:layout_height="@dimen/message_send_button_height"
+            android:layout_margin="@dimen/message_send_button_margin"
+            android:background="@drawable/ic_send_message"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_send"
+            android:clickable="true"
+            android:focusable="true"
+            />
+    </LinearLayout>
 </FrameLayout>

@@ -19,4 +19,5 @@
     <string name="notification_sound_summary_off">Off</string>
     <string name="permisson_read_contacts_explanation">Read contacts permission is required to show chats</string>
     <string name="select_image_profile">Select Picture</string>
+    <string name="type_a_message">Message</string>
 </resources>
