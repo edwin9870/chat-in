@@ -15,35 +15,23 @@
   },
   "conversation" : {
     "8096995682_8292779870" : {
-      "1502999784" : {
-        "message" : "Holaaaaa como estas"
-      },
-      "1502999785" : {
-        "message" : "Holaaaaa como estas"
-      },
       "1502999786" : {
         "message" : "Holaaaaa como estas"
       }
     },
     "8292779870_8096995682" : {
-      "1360576800" : {
-        "message" : "Viejo mensaje"
-      },
       "1436714110" : {
         "message" : "Este es el nuevo"
       },
       "1502999781" : {
         "message" : "Ok"
       },
-      "1502999783" : {
-        "message" : "Holaaaaa como estas"
-      },
-      "1503054000" : {
-        "message" : "Oka..."
+      "1536782400" : {
+        "message" : "Quien sabe..."
       }
     },
     "8292779870_8295848089" : {
-      "1502999781" : {
+      "1503955477" : {
         "message" : "Soy cindy"
       }
     }
@@ -51,13 +39,15 @@
   "users" : {
     "8096995682" : {
       "contacts" : {
-        "8292779870" : "true"
+        "8292779870" : "true",
+        "8295848089" : true
       },
       "userName" : "Juan Pablo Duarte"
     },
     "8292779870" : {
       "contacts" : {
-        "8096995682" : "true"
+        "8096995682" : "true",
+        "8295848089" : true
       },
       "userName" : "Ana Maria"
     },

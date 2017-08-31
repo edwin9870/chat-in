@@ -10,6 +10,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -50,6 +51,18 @@ public class FileUtil {
         }
     }
 
+    @Nullable
+    public static String saveImage(Context context, URL url, String fileName) {
+        Bitmap image = getBitmap(url);
+        try {
+            saveImage(context, image, fileName);
+            return fileName;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static String saveImage(Context context, Uri uri) throws IOException {
         Log.d(TAG, "Image's uri: " + uri);
         final String fileName = getFileName(uri.toString());
@@ -72,7 +85,7 @@ public class FileUtil {
         final File imagesDirectory = cw.getDir(IMAGES_DIRECTORY_NAME, Context.MODE_PRIVATE);
         File imageFile = new File(imagesDirectory, fileName);
         outputStream = new FileOutputStream(imageFile, false);
-        switch (getFileExtension(fileName).toUpperCase()) {
+        switch (MimeTypeMap.getFileExtensionFromUrl(fileName).toUpperCase()) {
             case "JPEG":
             image.compress(Bitmap.CompressFormat.JPEG, IMAGE_QUALITY, outputStream);
             break;
@@ -119,16 +132,6 @@ public class FileUtil {
         return uri.substring(uri.lastIndexOf('/') + 1);
     }
 
-    /**
-     * Return the file's extension. Ex: jpg
-     * @param fileName
-     * @return
-     */
-    @NonNull
-    public static String getFileExtension(String fileName) {
-        return fileName.substring(fileName.lastIndexOf(".") +1,
-                fileName.length());
-    }
 
     @NonNull
     public static File getImageFile(Context context, String fileName) {

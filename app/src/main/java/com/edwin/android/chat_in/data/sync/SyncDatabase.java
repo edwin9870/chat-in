@@ -1,23 +1,35 @@
 package com.edwin.android.chat_in.data.sync;
 
+import android.content.Context;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 
 import com.edwin.android.chat_in.chat.ChatFragment;
 import com.edwin.android.chat_in.data.dto.ContactDTO;
 import com.edwin.android.chat_in.data.dto.ConversationDTO;
 import com.edwin.android.chat_in.data.repositories.ContactRepository;
 import com.edwin.android.chat_in.data.repositories.ConversationRepository;
+import com.edwin.android.chat_in.util.FileUtil;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+
+import java.net.URL;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Action;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.edwin.android.chat_in.util.FirebaseDatabaseUtil.Constants.CONVERSATION_ROOT_PATH;
 
@@ -31,13 +43,19 @@ public class SyncDatabase {
     public static final String TAG = SyncDatabase.class.getSimpleName();
     private final ContactRepository mContactRepository;
     private final ConversationRepository mConversationRepository;
+    private final FirebaseStorage mFirebaseStorage;
+    private final Context mContext;
     private DatabaseReference mDatabase;
 
     @Inject
-    public SyncDatabase(DatabaseReference databaseReference,
+    public SyncDatabase(Context context,
+            DatabaseReference databaseReference,
+                        FirebaseStorage firebaseStorage,
                         ContactRepository contactRepository,
                         ConversationRepository conversationRepository) {
+        mContext = context;
         this.mDatabase = databaseReference;
+        mFirebaseStorage = firebaseStorage;
         mContactRepository = contactRepository;
         mConversationRepository = conversationRepository;
     }
@@ -59,11 +77,10 @@ public class SyncDatabase {
             mContactRepository.getAllPhoneContacts()
                     .filter(sparseArray -> {
                         final String telephoneNumber = sparseArray.get(ContactRepository.TELEPHONE_NUMBER);
-
-                        final Boolean existsContact = mContactRepository.getContactByNumber(Long.valueOf
+                        final Boolean isEmptyContact = mContactRepository.getContactByNumber(Long.valueOf
                                 (telephoneNumber)).isEmpty().blockingGet();
-                        Log.d(TAG, "number exists: " + existsContact);
-                        return existsContact;
+                        Log.d(TAG, "number exists: " + isEmptyContact);
+                        return isEmptyContact;
                     })
                     .subscribe(sparseArray -> {
                         final String contactName = sparseArray.get(ContactRepository.CONTACT_NAME);
@@ -72,11 +89,20 @@ public class SyncDatabase {
                         mDatabase.child("/users/"+telephoneNumber).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
+                                Log.d(TAG, "user dataSnapshot: " + dataSnapshot);
                                 final ContactDTO contact = new ContactDTO();
                                 contact.setNumber(Long.valueOf(telephoneNumber));
                                 contact.setUserName(contactName);
+                                final String profileFileImage = dataSnapshot.child
+                                        ("profileImage").getValue(String.class);
+                                contact.setProfileImagePath(profileFileImage);
                                 mContactRepository.persist(contact);
                                 Log.d(TAG, "Persisted contact: "+ contact);
+
+                                SyncDatabase.this.downloadProfileImage(profileFileImage)
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe();
                             }
 
                             @Override
@@ -86,8 +112,25 @@ public class SyncDatabase {
                         });
                     });
         });
+    }
 
+    public Completable downloadProfileImage(String imageName) {
+        return Completable.create(emitter -> {
+                    mFirebaseStorage.getReference().child("images/profile/" + imageName).getDownloadUrl()
+                            .addOnSuccessListener(uri -> {
+                        try {
+                            Log.d(TAG, "Uri to download de image: " + uri);
+                            Completable.create(e ->
+                                    FileUtil.saveImage(mContext, new URL(uri.toString()), imageName))
+                                    .subscribeOn(Schedulers.io())
+                                    .subscribe(emitter::onComplete);
+                        } catch (Exception e1) {
+                            emitter.onError(e1);
+                        }
+                    });
+        }
 
+        );
     }
 
     public void syncConversation(String ownerTelephoneNumber) {
