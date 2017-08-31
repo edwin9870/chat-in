@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.edwin.android.chat_in.R;
+import com.edwin.android.chat_in.util.FileUtil;
 import com.squareup.picasso.Picasso;
 
 import java.util.Date;
@@ -51,7 +52,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatAdapterVie
         Picasso picasso = Picasso.with(mContext);
 
         //TODO:  Add correct image
-        picasso.load(R.drawable.ic_man_image).fit().into(holder.mProfileImageView);
+        Log.d(TAG, "conversation contact: "+ conversation.getContact());
+        if(conversation.getContact().getProfileImagePath() == null || conversation.getContact().getProfileImagePath().isEmpty()) {
+            picasso.load(R.drawable.ic_man_image).fit().into(holder.mProfileImageView);
+        } else {
+            picasso.load(FileUtil.getImageFile(mContext, conversation.getContact().getProfileImagePath()))
+                    .fit().into(holder.mProfileImageView);
+        }
 
         if(conversation.getContact().getUserName() != null && !conversation.getContact().getUserName().isEmpty()) {
             holder.mContactNameTextView.setText(conversation.getContact().getUserName());
