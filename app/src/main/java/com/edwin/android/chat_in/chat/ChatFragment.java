@@ -29,7 +29,6 @@ import butterknife.Unbinder;
 public class ChatFragment extends Fragment implements ChatListener , ChatMVP.View{
 
     public static final String TAG = ChatFragment.class.getSimpleName();
-    public static final String MY_NUMBER = "8292779870";
     @BindView(R.id.recycler_view_chat)
     RecyclerView mRecyclerView;
     Unbinder mUnbinder;

@@ -10,19 +10,16 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.SparseArray;
 
-import com.edwin.android.chat_in.data.ChatInContract;
 import com.edwin.android.chat_in.data.dto.ContactDTO;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 
-import static com.edwin.android.chat_in.data.ChatInContract.*;
+import static com.edwin.android.chat_in.data.ChatInContract.ContactEntry;
 
 /**
  * Created by Edwin Ramirez Ventura on 8/24/2017.
@@ -42,17 +39,17 @@ public class ContactRepository {
         this.mContentResolver = contentResolver;
     }
 
-    public Maybe<ContactDTO> getContactByNumber(long number) {
+    public Maybe<ContactDTO> getContactByNumber(String phoneNumber) {
 
         return Maybe.create(emitter -> {
             Cursor contactCursor = null;
             try {
-                Log.d(TAG, "Finding contact with number: " + number);
+                Log.d(TAG, "Finding contact with phoneNumber: " + phoneNumber);
                 contactCursor = mContentResolver.query(
                         ContactEntry.CONTENT_URI,
                         null,
                         ContactEntry.COLUMN_NAME_NUMBER + " = ?",
-                        new String[]{String.valueOf(number)},
+                        new String[]{phoneNumber},
                         null);
                 if (contactCursor != null && contactCursor.moveToNext()) {
                     Log.d(TAG, "Contact name exists");
@@ -127,7 +124,7 @@ public class ContactRepository {
         final String contactProfileImagePath = contactCursor.getString
                 (contactCursor.getColumnIndex
                         (ContactEntry.COLUMN_NAME_PROFILE_IMAGE_PATH));
-        final long contactNumber = contactCursor.getLong(contactCursor.getColumnIndex
+        final String contactNumber = contactCursor.getString(contactCursor.getColumnIndex
                 (ContactEntry.COLUMN_NAME_NUMBER));
 
         final ContactDTO contact = new ContactDTO();

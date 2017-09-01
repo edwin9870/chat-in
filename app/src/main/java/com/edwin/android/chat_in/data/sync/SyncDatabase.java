@@ -3,14 +3,13 @@ package com.edwin.android.chat_in.data.sync;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
-import android.webkit.MimeTypeMap;
 
-import com.edwin.android.chat_in.chat.ChatFragment;
 import com.edwin.android.chat_in.data.dto.ContactDTO;
 import com.edwin.android.chat_in.data.dto.ConversationDTO;
 import com.edwin.android.chat_in.data.repositories.ContactRepository;
 import com.edwin.android.chat_in.data.repositories.ConversationRepository;
 import com.edwin.android.chat_in.util.FileUtil;
+import com.edwin.android.chat_in.util.ResourceUtil;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -25,12 +24,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 import static com.edwin.android.chat_in.util.FirebaseDatabaseUtil.Constants.CONVERSATION_ROOT_PATH;
@@ -65,13 +60,14 @@ public class SyncDatabase {
     public void syncContact() {
         Log.d(TAG, "Executing syncContact");
 
-        mContactRepository.getContactByNumber(Long.valueOf(ChatFragment.MY_NUMBER)).isEmpty().subscribe(isEmpty -> {
+        final String phoneNumber = ResourceUtil.getPhoneNumber(mContext);
+        mContactRepository.getContactByNumber(phoneNumber).isEmpty().subscribe(isEmpty -> {
             Log.d(TAG, "isEmpty: " + isEmpty);
             if(isEmpty) {
                 Log.d(TAG, "Persisting owner contact");
                 final ContactDTO contact = new ContactDTO();
                 contact.setId(ContactRepository.OWNER_CONTACT_ID);
-                contact.setNumber(Long.valueOf(ChatFragment.MY_NUMBER));
+                contact.setNumber(phoneNumber);
                 mContactRepository.persist(contact);
                 Log.d(TAG, "Persisted contact: "+ contact);
             }
@@ -79,8 +75,8 @@ public class SyncDatabase {
             mContactRepository.getAllPhoneContacts()
                     .filter(sparseArray -> {
                         final String telephoneNumber = sparseArray.get(ContactRepository.TELEPHONE_NUMBER);
-                        final Boolean isEmptyContact = mContactRepository.getContactByNumber(Long.valueOf
-                                (telephoneNumber)).isEmpty().blockingGet();
+                        final Boolean isEmptyContact = mContactRepository.getContactByNumber(telephoneNumber)
+                                .isEmpty().blockingGet();
                         Log.d(TAG, "number exists: " + isEmptyContact);
                         return isEmptyContact;
                     })
@@ -93,7 +89,7 @@ public class SyncDatabase {
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 Log.d(TAG, "user dataSnapshot: " + dataSnapshot);
                                 final ContactDTO contact = new ContactDTO();
-                                contact.setNumber(Long.valueOf(telephoneNumber));
+                                contact.setNumber(telephoneNumber);
                                 contact.setUserName(contactName);
                                 final String profileFileImage = dataSnapshot.child
                                         ("profileImage").getValue(String.class);
@@ -154,7 +150,7 @@ public class SyncDatabase {
 
                     final String senderNumber = dataSnapshot.getKey().substring(0, dataSnapshot.getKey().indexOf("_"));
                     Log.d(TAG, "senderNumber: " + senderNumber);
-                    mContactRepository.getContactByNumber(Long.valueOf(senderNumber))
+                    mContactRepository.getContactByNumber(senderNumber)
                             .subscribe(contactDTO -> {
                                 for (DataSnapshot conversationDataSnapShot : dataSnapshot
                                         .getChildren()) {
@@ -214,7 +210,7 @@ public class SyncDatabase {
                             .getKey
                             ().indexOf("_") + 1);
                     Log.d(TAG, "destinationNumber: " + destinationNumber);
-                    mContactRepository.getContactByNumber(Long.valueOf(destinationNumber))
+                    mContactRepository.getContactByNumber(destinationNumber)
                             .subscribe(contactDTO -> {
                                 final int receiveContactId = contactDTO.getId();
                                 for (DataSnapshot conversationDataSnapShot : dataSnapshot

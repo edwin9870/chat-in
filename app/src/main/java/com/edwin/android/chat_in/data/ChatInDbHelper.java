@@ -30,7 +30,7 @@ public class ChatInDbHelper extends SQLiteOpenHelper {
                 " ( " + ContactEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT " +
                 "NOT NULL," +
                 "    " + ContactEntry.COLUMN_NAME_NAME + " VARCHAR(30)," +
-                "    " + ContactEntry.COLUMN_NAME_NUMBER + " INT(20) NOT NULL," +
+                "    " + ContactEntry.COLUMN_NAME_NUMBER + " VARCHAR(20) NOT NULL," +
                 "    " + ContactEntry.COLUMN_NAME_PROFILE_IMAGE_PATH + " VARCHAR" +
                 ");";
 

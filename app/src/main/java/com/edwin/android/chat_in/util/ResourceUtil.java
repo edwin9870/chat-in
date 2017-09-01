@@ -1,8 +1,12 @@
 package com.edwin.android.chat_in.util;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
+import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
+
+import javax.annotation.Nullable;
 
 /**
  * Created by Edwin Ramirez Ventura on 8/7/2017.
@@ -24,6 +28,13 @@ public final class ResourceUtil {
     public static int dpToPx(Context context,int dp) {
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+    }
+
+    @SuppressLint("MissingPermission")
+    @Nullable
+    public static String getPhoneNumber(Context context) {
+        TelephonyManager tMgr = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+        return tMgr.getLine1Number();
     }
 
 

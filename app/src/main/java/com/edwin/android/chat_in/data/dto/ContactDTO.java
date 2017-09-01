@@ -8,7 +8,7 @@ public class ContactDTO {
 
     private int id;
     private String userName;
-    private long number;
+    private String number;
     private String profileImagePath;
 
 
@@ -28,11 +28,11 @@ public class ContactDTO {
         this.userName = userName;
     }
 
-    public long getNumber() {
+    public String getNumber() {
         return number;
     }
 
-    public void setNumber(long number) {
+    public void setNumber(String number) {
         this.number = number;
     }
 

@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v13.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -31,6 +30,8 @@ import com.edwin.android.chat_in.data.sync.DaggerSyncComponent;
 import com.edwin.android.chat_in.data.sync.SyncComponent;
 import com.edwin.android.chat_in.data.sync.SyncDatabase;
 import com.edwin.android.chat_in.settings.SettingsActivity;
+import com.edwin.android.chat_in.util.ResourceUtil;
+import com.edwin.android.chat_in.util.SecurityUtil;
 import com.edwin.android.chat_in.views.WrapContentViewPager;
 
 import butterknife.BindView;
@@ -42,8 +43,7 @@ public class MainViewActivity extends AppCompatActivity {
     public static final String TAG = MainViewActivity.class.getSimpleName();
     public static final int CHAT_FRAGMENT_TAB = 0;
     public static final int CONTACT_FRAGMENT_TAB = 1;
-    public static final int REQUEST_PERMISSIONS_READ_CONTACTS = 54515;
-    public static final int REQUEST_PERMISSION_READ_PHONE_STATUS = 51212;
+    public static final int REQUEST_PERMISSION_READ_PHONE_STATUS_AND_CONTACT = 51212;
     @BindView(R.id.toolbar_settings_activity)
     Toolbar mToolbar;
     @BindView(R.id.tab_layout)
@@ -53,8 +53,6 @@ public class MainViewActivity extends AppCompatActivity {
     private ViewPagerAdapter mAdapter;
     private ChatFragment mChatFragment;
     private ContactFragment mContactFragment;
-    private boolean mIsReadPhoneStatusPermissionNotGranted;
-    private boolean mIsReadContactPermissionNotGranted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,10 +63,16 @@ public class MainViewActivity extends AppCompatActivity {
         setSupportActionBar(mToolbar);
         getSupportActionBar().setTitle(getString(R.string.app_name).toUpperCase());
 
-        setupPermission();
+        final String[] permissions = {
+                Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.READ_CONTACTS};
+        final boolean hasPermissions = SecurityUtil.hasPermissions(this, permissions);
 
-        if (!mIsReadPhoneStatusPermissionNotGranted &&
-                !mIsReadContactPermissionNotGranted) {
+        if(!hasPermissions) {
+            ActivityCompat.requestPermissions(MainViewActivity.this,
+                    permissions,
+                    REQUEST_PERMISSION_READ_PHONE_STATUS_AND_CONTACT);
+        } else {
             setupActivity();
         }
     }
@@ -78,35 +82,14 @@ public class MainViewActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         switch (requestCode) {
-            case REQUEST_PERMISSIONS_READ_CONTACTS:
-
+            case REQUEST_PERMISSION_READ_PHONE_STATUS_AND_CONTACT:
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d(TAG, "Permissions granted, showing activity");
-                    mIsReadContactPermissionNotGranted = false;
-
-                    if(!mIsReadPhoneStatusPermissionNotGranted) {
                         setupActivity();
-                    }
                 } else {
 
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                }
-                break;
-            case REQUEST_PERMISSION_READ_PHONE_STATUS:
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d(TAG, "Permissions granted, showing activity");
-                    mIsReadPhoneStatusPermissionNotGranted = false;
-
-                    if(!mIsReadContactPermissionNotGranted) {
-                        setupActivity();
-                    }
-                } else {
-
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
+                    Toast.makeText(this, getString(R.string.permission_phone_number), Toast.LENGTH_LONG).show();
                 }
                 break;
 
@@ -132,7 +115,7 @@ public class MainViewActivity extends AppCompatActivity {
                 .build();
         final SyncDatabase syncDatabase = syncComponent.getSyncDatabase();
         syncDatabase.syncContact();
-        syncDatabase.syncConversation(ChatFragment.MY_NUMBER);
+        syncDatabase.syncConversation(ResourceUtil.getPhoneNumber(this));
 
         DaggerChatComponent.builder().chatPresenterModule(new
                 ChatPresenterModule(mChatFragment))
@@ -147,6 +130,8 @@ public class MainViewActivity extends AppCompatActivity {
                 .build().getPresenter();
 
         setupViewPager();
+
+        Log.d(TAG, "Phone number: "+ ResourceUtil.getPhoneNumber(this));
     }
 
     private void setupFragment() {
@@ -163,18 +148,6 @@ public class MainViewActivity extends AppCompatActivity {
         if(mContactFragment == null) {
             mContactFragment = ContactFragment.newInstance();
         }
-    }
-
-    private void requestPermissions(String permission, String messagePermissionDenied, int requestPermisionId) {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                permission)) {
-            Toast.makeText(this, messagePermissionDenied, Toast.LENGTH_LONG).show();
-        } else {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{permission},
-                    requestPermisionId);
-        }
-
     }
 
 
@@ -221,23 +194,4 @@ public class MainViewActivity extends AppCompatActivity {
 
     }
 
-    private void setupPermission() {
-        mIsReadPhoneStatusPermissionNotGranted = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_PHONE_STATE)
-                != PackageManager.PERMISSION_GRANTED;
-
-        mIsReadContactPermissionNotGranted = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_CONTACTS)
-                != PackageManager.PERMISSION_GRANTED;
-
-        if (mIsReadContactPermissionNotGranted) {
-            requestPermissions(Manifest.permission.READ_CONTACTS,
-                    getString(R.string.permisson_read_contacts_explanation),
-                    REQUEST_PERMISSIONS_READ_CONTACTS);
-        } else if (mIsReadPhoneStatusPermissionNotGranted) {
-            requestPermissions(Manifest.permission.READ_PHONE_STATE,
-                    getString(R.string.permission_phone_number),
-                    REQUEST_PERMISSION_READ_PHONE_STATUS);
-        }
-    }
 }

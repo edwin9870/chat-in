@@ -5,10 +5,9 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.edwin.android.chat_in.R;
-import com.edwin.android.chat_in.chat.ChatFragment;
-import com.edwin.android.chat_in.data.dto.ContactDTO;
 import com.edwin.android.chat_in.data.repositories.ContactRepository;
 import com.edwin.android.chat_in.util.FileUtil;
+import com.edwin.android.chat_in.util.ResourceUtil;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -18,12 +17,7 @@ import java.io.IOException;
 import javax.inject.Inject;
 
 import io.reactivex.Completable;
-import io.reactivex.MaybeObserver;
-import io.reactivex.MaybeSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -59,7 +53,7 @@ public class SettingsPresenter implements SettingsMVP.Presenter {
         final String fileImagePath = "file://"+fullPathImage;
         final String extension = fileImagePath.substring(fileImagePath.lastIndexOf(".") +1,
                 fileImagePath.length());
-        final String imageFileNameToSave = ChatFragment.MY_NUMBER + "." + extension;
+        final String imageFileNameToSave = ResourceUtil.getPhoneNumber(mContext) + "." + extension;
         Completable.create(emitter -> {
             final String pathToSaveImage = "images/profile/" + imageFileNameToSave;
             Log.d(TAG, "Path to save image: " + pathToSaveImage);
