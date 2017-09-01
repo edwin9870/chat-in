@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.edwin.android.chat_in.data.dto.ContactDTO;
 import com.edwin.android.chat_in.data.dto.ConversationDTO;
+import com.edwin.android.chat_in.data.fcm.ContactRepositoryFcm;
 import com.edwin.android.chat_in.data.repositories.ContactRepository;
 import com.edwin.android.chat_in.data.repositories.ConversationRepository;
 import com.edwin.android.chat_in.util.FileUtil;
@@ -42,19 +43,22 @@ public class SyncDatabase {
     private final ConversationRepository mConversationRepository;
     private final FirebaseStorage mFirebaseStorage;
     private final Context mContext;
+    private final ContactRepositoryFcm mContactRepositoryFcm;
     private DatabaseReference mDatabase;
 
     @Inject
     public SyncDatabase(Context context,
-            DatabaseReference databaseReference,
+                        DatabaseReference databaseReference,
                         FirebaseStorage firebaseStorage,
                         ContactRepository contactRepository,
-                        ConversationRepository conversationRepository) {
+                        ConversationRepository conversationRepository,
+                        ContactRepositoryFcm contactRepositoryFcm) {
         mContext = context;
         this.mDatabase = databaseReference;
         mFirebaseStorage = firebaseStorage;
         mContactRepository = contactRepository;
         mConversationRepository = conversationRepository;
+        mContactRepositoryFcm = contactRepositoryFcm;
     }
 
     public void syncContact() {
@@ -70,6 +74,9 @@ public class SyncDatabase {
                 contact.setNumber(phoneNumber);
                 mContactRepository.persist(contact);
                 Log.d(TAG, "Persisted contact: "+ contact);
+                mContactRepositoryFcm.persist(contact)
+                        .subscribeOn(Schedulers.io())
+                        .subscribe();
             }
 
             mContactRepository.getAllPhoneContacts()

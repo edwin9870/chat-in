@@ -16,4 +16,5 @@ import dagger.Component;
 public interface FcmComponent {
     DatabaseReference getDatabaseReference();
     ConversationRepositoryFcm getConversationRepositoryFcm();
+    ContactRepositoryFcm getContactRepositoryFcm();
 }
