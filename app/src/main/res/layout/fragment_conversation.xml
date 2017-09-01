@@ -23,6 +23,7 @@
             android:minHeight="@dimen/frame_message_min_height">
 
             <EditText
+                android:id="@+id/edit_text_message_to_sent"
                 style="@style/TextAppearance.AppCompat.Body1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -31,6 +32,7 @@
         </FrameLayout>
 
         <ImageView
+            android:id="@+id/image_view_send_message"
             android:layout_width="@dimen/message_send_button_width"
             android:layout_height="@dimen/message_send_button_height"
             android:layout_margin="@dimen/message_send_button_margin"

@@ -17,12 +17,15 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.reactivex.Maybe;
+import io.reactivex.MaybeEmitter;
+import io.reactivex.MaybeOnSubscribe;
 import io.reactivex.Observable;
 
 /**
- * Created by Edwin Ramirez Ventura on 8/24/2017.
+ * @author Edwin Ramirez Ventur
+ *
+ * This class contains CRUD operation for Conversation
  */
-
 @Singleton
 public class ConversationRepository {
 
@@ -63,21 +66,22 @@ public class ConversationRepository {
             }
         });
     }
-
-    public long persist(ConversationDTO conversation) {
-        final ContentValues cv = new ContentValues();
-        Log.d(TAG, "Persisting conversation: "+ conversation);
-        cv.put(ConversationEntry.COLUMN_NAME_MESSAGE, conversation.getMessage());
-        cv.put(ConversationEntry.COLUMN_NAME_SENDER, conversation.getSenderContactId());
-        cv.put(ConversationEntry.COLUMN_NAME_RECIPIENT, conversation.getRecipientContactId());
-        cv.put(ConversationEntry.COLUMN_NAME_NUMERIC_DATE, conversation.getMessageDate());
-        final Uri insertedUri = mContentResolver.insert(ConversationEntry
-                .CONTENT_URI, cv);
-        final long idConversation = ContentUris.parseId(insertedUri);
-        Log.d(TAG, "idConversation: " + idConversation);
-        return idConversation;
+    public Maybe<Long> persist(ConversationDTO conversation) {
+        Log.d(TAG, "Calling persist with conversation: "+ conversation);
+        return Maybe.create(e -> {
+            final ContentValues cv = new ContentValues();
+            cv.put(ConversationEntry.COLUMN_NAME_MESSAGE, conversation.getMessage());
+            cv.put(ConversationEntry.COLUMN_NAME_SENDER, conversation.getSenderContactId());
+            cv.put(ConversationEntry.COLUMN_NAME_RECIPIENT, conversation.getRecipientContactId());
+            cv.put(ConversationEntry.COLUMN_NAME_NUMERIC_DATE, conversation.getMessageDate());
+            final Uri insertedUri = mContentResolver.insert(ConversationEntry
+                    .CONTENT_URI, cv);
+            final long idConversation = ContentUris.parseId(insertedUri);
+            Log.d(TAG, "idConversation: " + idConversation);
+            e.onSuccess(idConversation);
+            e.onComplete();
+        });
     }
-
     public Observable<ConversationDTO> getLastMessages() {
         return Observable.create(emitter -> {
             Cursor cursor = null;
@@ -152,7 +156,6 @@ public class ConversationRepository {
 
         });
     }
-
     private ConversationDTO getConversationFromCursor(Cursor conversationCursor) {
         ConversationDTO conversation = new ConversationDTO();
         conversation.setRecipientContactId(

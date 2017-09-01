@@ -9,6 +9,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.data.dto.ConversationDTO;
@@ -17,17 +19,21 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 
 public class ConversationFragment extends Fragment implements ConversationMVP.View {
 
-    public static final String ARGUMENT_CHAT = "ARGUMENT_CHAT";
     public static final String BUNDLE_CONTACT_ID = "BUNDLE_CONTACT_ID";
     public static final String TAG = ConversationFragment.class.getSimpleName();
     @BindView(R.id.recycler_conversation)
     RecyclerView mRecyclerView;
     Unbinder unbinder;
-    private int mContactId;
+    @BindView(R.id.image_view_send_message)
+    ImageView mSendMessageImageView;
+    @BindView(R.id.edit_text_message_to_sent)
+    EditText mMessageToSentEditText;
+    private int recipientContactId;
     private ConversationAdapter mAdapter;
     private ConversationMVP.Presenter mPresenter;
 
@@ -47,7 +53,7 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mContactId = getArguments().getInt(BUNDLE_CONTACT_ID);
+            recipientContactId = getArguments().getInt(BUNDLE_CONTACT_ID);
         }
     }
 
@@ -55,7 +61,7 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_conversation, container, false);
-        Log.d(TAG, "mContactId received:" + mContactId);
+        Log.d(TAG, "recipientContactId received:" + recipientContactId);
         unbinder = ButterKnife.bind(this, view);
         mAdapter = new ConversationAdapter();
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(),
@@ -63,8 +69,8 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.setHasFixedSize(false);
         mRecyclerView.setAdapter(mAdapter);
-        mPresenter.getConversation(mContactId);
-        
+        mPresenter.getConversation(recipientContactId);
+
         return view;
     }
 
@@ -82,7 +88,22 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
 
     @Override
     public void showConversation(List<ConversationDTO> conversation) {
-        Log.d(TAG, "Conversation to show: "+ conversation);
+        Log.d(TAG, "Conversation to show: " + conversation);
         mAdapter.setConversations(conversation);
+    }
+
+    @Override
+    public void addConversation(ConversationDTO conversation) {
+        mAdapter.addConversation(conversation);
+    }
+
+    @Override
+    public void clearEditText() {
+        mMessageToSentEditText.getText().clear();
+    }
+
+    @OnClick(R.id.image_view_send_message)
+    public void onViewClicked() {
+        mPresenter.sendMessage(mMessageToSentEditText.getText().toString(), recipientContactId);
     }
 }

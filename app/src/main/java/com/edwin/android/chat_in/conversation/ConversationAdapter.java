@@ -92,4 +92,9 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         this.mConversations = conversations;
         notifyDataSetChanged();
     }
+
+    public void addConversation(ConversationDTO conversation) {
+        mConversations.add(conversation);
+        notifyDataSetChanged();
+    }
 }

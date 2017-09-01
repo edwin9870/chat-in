@@ -1,6 +1,7 @@
 package com.edwin.android.chat_in.data.sync;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -29,6 +30,7 @@ import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 import static com.edwin.android.chat_in.util.FirebaseDatabaseUtil.Constants.CONVERSATION_ROOT_PATH;
@@ -161,7 +163,7 @@ public class SyncDatabase {
                                     conversation.setSenderContactId(contactDTO.getId());
                                     conversation.setRecipientContactId(ContactRepository.OWNER_CONTACT_ID);
                                     conversation.setMessage(conversationDataSnapShot.child("message").getValue(String.class));
-                                    conversation.setMessageDate(Long.valueOf(conversationDataSnapShot.getKey()) * 1000);
+                                    conversation.setMessageDate(Long.valueOf(conversationDataSnapShot.getKey()));
                                     Log.d(TAG, "Conversation: " + conversation);
                                     e.onNext(conversation);
                                 }
@@ -192,7 +194,9 @@ public class SyncDatabase {
                             .getMessageDate()).blockingGet();
             Log.d(TAG, "conversationReturned from filter: " + conversationReturned);
             return conversationReturned == null;
-        }).subscribe(mConversationRepository::persist);
+        }).subscribe(conversation -> mConversationRepository.persist(conversation)
+                .subscribeOn(Schedulers.computation())
+                .subscribe());
     }
 
     private void persistMeToTargetConversation(String ownerTelephoneNumber) {
@@ -215,6 +219,9 @@ public class SyncDatabase {
                                 final int receiveContactId = contactDTO.getId();
                                 for (DataSnapshot conversationDataSnapShot : dataSnapshot
                                         .getChildren()) {
+                                    if(!TextUtils.isDigitsOnly(conversationDataSnapShot.getKey())) {
+                                        continue;
+                                    }
                                     Log.d(TAG, "conversationDataSnapShot: " +
                                             conversationDataSnapShot);
                                     conversation.setSenderContactId(ContactRepository
@@ -223,7 +230,7 @@ public class SyncDatabase {
                                     conversation.setMessage(conversationDataSnapShot.child
                                             ("message").getValue(String.class));
                                     conversation.setMessageDate(Long.valueOf
-                                            (conversationDataSnapShot.getKey()) * 1000);
+                                            (conversationDataSnapShot.getKey()));
                                     Log.d(TAG, "Conversation: " + conversation);
                                     e.onNext(conversation);
                                 }
@@ -258,7 +265,9 @@ public class SyncDatabase {
                             .getMessageDate()).blockingGet();
             Log.d(TAG, "conversationReturned from filter: " + conversationReturned);
             return conversationReturned == null;
-        }).subscribe(mConversationRepository::persist);
+        }).subscribe(conversation -> mConversationRepository.persist(conversation)
+                .subscribeOn(Schedulers.computation())
+                .subscribe());
     }
 
 
