@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -73,12 +74,21 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
         mAdapter = new ConversationAdapter();
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false);
-        mRecyclerView.setLayoutManager(linearLayoutManager);
         linearLayoutManager.setStackFromEnd(true);
+        mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.setHasFixedSize(false);
         mRecyclerView.setAdapter(mAdapter);
         mPresenter.getConversation(recipientContactId);
+
+
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        scrollToBottom();
+
         return mView;
+    }
+
+    private void scrollToBottom() {
+        mScrollView.post(() -> mScrollView.fullScroll(ScrollView.FOCUS_DOWN));
     }
 
     @Override
@@ -97,20 +107,12 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
     public void showConversation(List<ConversationDTO> conversation) {
         Log.d(TAG, "Conversation to show: " + conversation);
         mAdapter.setConversations(conversation);
-        scrollDown();
-        closeKeyboard();
     }
 
-    private void scrollDown() {
-        mScrollView.getViewTreeObserver()
-                .addOnGlobalLayoutListener(() -> mScrollView.post(() ->
-                mScrollView.fullScroll(View.FOCUS_DOWN)));
-    }
 
     @Override
     public void addConversation(ConversationDTO conversation) {
         mAdapter.addConversation(conversation);
-        scrollDown();
         closeKeyboard();
     }
 
@@ -127,7 +129,7 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
     private void closeKeyboard() {
         InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService
                 (Context.INPUT_METHOD_SERVICE);
-        inputManager.hideSoftInputFromWindow(mView.getWindowToken(), InputMethodManager
+        inputManager.hideSoftInputFromWindow(mMessageToSentEditText.getWindowToken(), InputMethodManager
                 .HIDE_NOT_ALWAYS);
     }
 }
