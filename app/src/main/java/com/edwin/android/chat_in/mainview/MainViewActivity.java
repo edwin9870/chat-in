@@ -42,7 +42,8 @@ public class MainViewActivity extends AppCompatActivity {
     public static final String TAG = MainViewActivity.class.getSimpleName();
     public static final int CHAT_FRAGMENT_TAB = 0;
     public static final int CONTACT_FRAGMENT_TAB = 1;
-    public static final int PERMISSIONS_REQUEST_READ_CONTACTS = 54515;
+    public static final int REQUEST_PERMISSIONS_READ_CONTACTS = 54515;
+    public static final int REQUEST_PERMISSION_READ_PHONE_STATUS = 51212;
     @BindView(R.id.toolbar_settings_activity)
     Toolbar mToolbar;
     @BindView(R.id.tab_layout)
@@ -52,6 +53,8 @@ public class MainViewActivity extends AppCompatActivity {
     private ViewPagerAdapter mAdapter;
     private ChatFragment mChatFragment;
     private ContactFragment mContactFragment;
+    private boolean mIsReadPhoneStatusPermissionNotGranted;
+    private boolean mIsReadContactPermissionNotGranted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,31 +65,59 @@ public class MainViewActivity extends AppCompatActivity {
         setSupportActionBar(mToolbar);
         getSupportActionBar().setTitle(getString(R.string.app_name).toUpperCase());
 
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_CONTACTS)
-                != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions();
-        } else {
+        setupPermission();
+
+        if (!mIsReadPhoneStatusPermissionNotGranted &&
+                !mIsReadContactPermissionNotGranted) {
             setupActivity();
         }
     }
+
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         switch (requestCode) {
-            case PERMISSIONS_REQUEST_READ_CONTACTS:
+            case REQUEST_PERMISSIONS_READ_CONTACTS:
 
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d(TAG, "Permissions granted, showing activity");
-                    setupActivity();
+                    mIsReadContactPermissionNotGranted = false;
+
+                    if(!mIsReadPhoneStatusPermissionNotGranted) {
+                        setupActivity();
+                    }
                 } else {
 
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                 }
                 break;
+            case REQUEST_PERMISSION_READ_PHONE_STATUS:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "Permissions granted, showing activity");
+                    mIsReadPhoneStatusPermissionNotGranted = false;
+
+                    if(!mIsReadContactPermissionNotGranted) {
+                        setupActivity();
+                    }
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                break;
+
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main_view, menu);
+        return true;
     }
 
 
@@ -134,14 +165,14 @@ public class MainViewActivity extends AppCompatActivity {
         }
     }
 
-    private void requestPermissions() {
+    private void requestPermissions(String permission, String messagePermissionDenied, int requestPermisionId) {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                Manifest.permission.READ_CONTACTS)) {
-            Toast.makeText(this, R.string.permisson_read_contacts_explanation, Toast.LENGTH_LONG).show();
+                permission)) {
+            Toast.makeText(this, messagePermissionDenied, Toast.LENGTH_LONG).show();
         } else {
             ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_CONTACTS},
-                    PERMISSIONS_REQUEST_READ_CONTACTS);
+                    new String[]{permission},
+                    requestPermisionId);
         }
 
     }
@@ -172,13 +203,6 @@ public class MainViewActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main_view, menu);
-        return true;
-    }
-
     private static String getFragmentName(int viewPagerId, int index) {
         return "android:switcher:" + viewPagerId + ":" + index;
     }
@@ -195,5 +219,25 @@ public class MainViewActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    private void setupPermission() {
+        mIsReadPhoneStatusPermissionNotGranted = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED;
+
+        mIsReadContactPermissionNotGranted = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_CONTACTS)
+                != PackageManager.PERMISSION_GRANTED;
+
+        if (mIsReadContactPermissionNotGranted) {
+            requestPermissions(Manifest.permission.READ_CONTACTS,
+                    getString(R.string.permisson_read_contacts_explanation),
+                    REQUEST_PERMISSIONS_READ_CONTACTS);
+        } else if (mIsReadPhoneStatusPermissionNotGranted) {
+            requestPermissions(Manifest.permission.READ_PHONE_STATE,
+                    getString(R.string.permission_phone_number),
+                    REQUEST_PERMISSION_READ_PHONE_STATUS);
+        }
     }
 }
