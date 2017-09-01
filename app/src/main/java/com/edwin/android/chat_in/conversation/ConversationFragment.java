@@ -67,10 +67,10 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(linearLayoutManager);
+        linearLayoutManager.setStackFromEnd(true);
         mRecyclerView.setHasFixedSize(false);
         mRecyclerView.setAdapter(mAdapter);
         mPresenter.getConversation(recipientContactId);
-
         return view;
     }
 
@@ -90,11 +90,13 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
     public void showConversation(List<ConversationDTO> conversation) {
         Log.d(TAG, "Conversation to show: " + conversation);
         mAdapter.setConversations(conversation);
+        mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
     }
 
     @Override
     public void addConversation(ConversationDTO conversation) {
         mAdapter.addConversation(conversation);
+        mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
     }
 
     @Override

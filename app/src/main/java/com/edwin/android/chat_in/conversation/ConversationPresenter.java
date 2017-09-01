@@ -51,6 +51,10 @@ public class ConversationPresenter implements ConversationMVP.Presenter {
     @Override
     public void sendMessage(String message, int recipientContactId) {
         Log.d(TAG, "Message to sent:" + message);
+        if(message == null || message.isEmpty()) {
+            Log.d(TAG, "Avoid to send a empty message");
+            return;
+        }
         final ConversationDTO conversation = new ConversationDTO();
         conversation.setMessage(message);
         conversation.setMessageDate(new Date().getTime());

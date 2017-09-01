@@ -22,7 +22,8 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".conversation.ConversationActivity"/>
+        <activity android:name=".conversation.ConversationActivity"
+            android:windowSoftInputMode="adjustResize" />
         <activity android:name=".settings.SettingsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

@@ -1,47 +1,52 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
-
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_conversation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <FrameLayout
-            android:id="@+id/frame_layout_message_box"
-            android:layout_width="@dimen/frame_layout_message_box_width"
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_conversation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/frame_padding"
-            android:background="@drawable/ic_send_message"
-            android:minHeight="@dimen/frame_message_min_height">
+            android:layout_gravity="bottom|center"
+            android:orientation="horizontal">
 
-            <EditText
-                android:id="@+id/edit_text_message_to_sent"
-                style="@style/TextAppearance.AppCompat.Body1"
-                android:layout_width="match_parent"
+            <FrameLayout
+                android:id="@+id/frame_layout_message_box"
+                android:layout_width="@dimen/frame_layout_message_box_width"
                 android:layout_height="wrap_content"
-                android:hint="@string/type_a_message"
-                />
-        </FrameLayout>
+                android:layout_margin="@dimen/frame_padding"
+                android:background="@drawable/ic_send_message"
+                android:minHeight="@dimen/frame_message_min_height">
 
-        <ImageView
-            android:id="@+id/image_view_send_message"
-            android:layout_width="@dimen/message_send_button_width"
-            android:layout_height="@dimen/message_send_button_height"
-            android:layout_margin="@dimen/message_send_button_margin"
-            android:background="@drawable/ic_send_message"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_send"
-            android:clickable="true"
-            android:focusable="true"
-            android:layout_gravity="bottom"
-            />
+                <EditText
+                    android:id="@+id/edit_text_message_to_sent"
+                    style="@style/TextAppearance.AppCompat.Body1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/type_a_message"
+                    />
+            </FrameLayout>
+
+            <ImageView
+                android:id="@+id/image_view_send_message"
+                android:layout_width="@dimen/message_send_button_width"
+                android:layout_height="@dimen/message_send_button_height"
+                android:layout_gravity="bottom"
+                android:layout_margin="@dimen/message_send_button_margin"
+                android:background="@drawable/ic_send_message"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_send"
+                />
+        </LinearLayout>
     </LinearLayout>
-</FrameLayout>
+</ScrollView>
