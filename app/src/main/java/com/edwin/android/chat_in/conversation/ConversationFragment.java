@@ -2,6 +2,7 @@ package com.edwin.android.chat_in.conversation;
 
 
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -9,8 +10,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.data.dto.ConversationDTO;
@@ -33,9 +37,12 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
     ImageView mSendMessageImageView;
     @BindView(R.id.edit_text_message_to_sent)
     EditText mMessageToSentEditText;
+    @BindView(R.id.scroll_view_fragment_conversation)
+    ScrollView mScrollView;
     private int recipientContactId;
     private ConversationAdapter mAdapter;
     private ConversationMVP.Presenter mPresenter;
+    private View mView;
 
     public ConversationFragment() {
 
@@ -60,9 +67,9 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_conversation, container, false);
+        mView = inflater.inflate(R.layout.fragment_conversation, container, false);
         Log.d(TAG, "recipientContactId received:" + recipientContactId);
-        unbinder = ButterKnife.bind(this, view);
+        unbinder = ButterKnife.bind(this, mView);
         mAdapter = new ConversationAdapter();
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false);
@@ -71,7 +78,7 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
         mRecyclerView.setHasFixedSize(false);
         mRecyclerView.setAdapter(mAdapter);
         mPresenter.getConversation(recipientContactId);
-        return view;
+        return mView;
     }
 
     @Override
@@ -90,13 +97,21 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
     public void showConversation(List<ConversationDTO> conversation) {
         Log.d(TAG, "Conversation to show: " + conversation);
         mAdapter.setConversations(conversation);
-        mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
+        scrollDown();
+        closeKeyboard();
+    }
+
+    private void scrollDown() {
+        mScrollView.getViewTreeObserver()
+                .addOnGlobalLayoutListener(() -> mScrollView.post(() ->
+                mScrollView.fullScroll(View.FOCUS_DOWN)));
     }
 
     @Override
     public void addConversation(ConversationDTO conversation) {
         mAdapter.addConversation(conversation);
-        mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
+        scrollDown();
+        closeKeyboard();
     }
 
     @Override
@@ -107,5 +122,12 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
     @OnClick(R.id.image_view_send_message)
     public void onViewClicked() {
         mPresenter.sendMessage(mMessageToSentEditText.getText().toString(), recipientContactId);
+    }
+
+    private void closeKeyboard() {
+        InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService
+                (Context.INPUT_METHOD_SERVICE);
+        inputManager.hideSoftInputFromWindow(mView.getWindowToken(), InputMethodManager
+                .HIDE_NOT_ALWAYS);
     }
 }
