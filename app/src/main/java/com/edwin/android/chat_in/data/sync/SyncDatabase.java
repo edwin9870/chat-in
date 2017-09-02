@@ -120,20 +120,18 @@ public class SyncDatabase {
     }
 
     public Completable downloadProfileImage(String imageName) {
-        return Completable.create(emitter -> {
-                    mFirebaseStorage.getReference().child("images/profile/" + imageName).getDownloadUrl()
-                            .addOnSuccessListener(uri -> {
-                        try {
-                            Log.d(TAG, "Uri to download de image: " + uri);
-                            Completable.create(e ->
-                                    FileUtil.saveImage(mContext, new URL(uri.toString()), imageName))
-                                    .subscribeOn(Schedulers.io())
-                                    .subscribe(emitter::onComplete);
-                        } catch (Exception e1) {
-                            emitter.onError(e1);
-                        }
-                    });
-        }
+        return Completable.create(emitter -> mFirebaseStorage.getReference().child("images/profile/" + imageName).getDownloadUrl()
+                .addOnSuccessListener(uri -> {
+            try {
+                Log.d(TAG, "Uri to download de image: " + uri);
+                Completable.create(e ->
+                        FileUtil.saveImage(mContext, new URL(uri.toString()), imageName))
+                        .subscribeOn(Schedulers.io())
+                        .subscribe(emitter::onComplete);
+            } catch (Exception e1) {
+                emitter.onError(e1);
+            }
+        })
 
         );
     }
