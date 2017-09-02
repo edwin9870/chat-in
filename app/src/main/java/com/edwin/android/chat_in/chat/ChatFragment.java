@@ -69,6 +69,8 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
 
         Log.d(TAG, "finish onCreateView");
 
+        mPresenter.keepChatSync(getActivity());
+
         return view;
     }
 
@@ -83,6 +85,7 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
     public void onDestroyView() {
         super.onDestroyView();
         mUnbinder.unbind();
+        mPresenter.destroy();
     }
 
     @Override

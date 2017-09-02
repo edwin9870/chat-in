@@ -1,6 +1,7 @@
 package com.edwin.android.chat_in.chat;
 
 import com.edwin.android.chat_in.configuration.di.ApplicationModule;
+import com.edwin.android.chat_in.data.fcm.FcmModule;
 import com.edwin.android.chat_in.data.repositories.DatabaseModule;
 
 import javax.inject.Singleton;
@@ -12,7 +13,7 @@ import dagger.Component;
  */
 
 @Singleton
-@Component(modules = {ChatPresenterModule.class, DatabaseModule.class, ApplicationModule.class})
+@Component(modules = {ChatPresenterModule.class, DatabaseModule.class, ApplicationModule.class, FcmModule.class})
 public interface ChatComponent {
     ChatPresenter getChatPresenter();
 }

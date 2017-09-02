@@ -1,5 +1,7 @@
 package com.edwin.android.chat_in.chat;
 
+import android.content.Context;
+
 import java.util.List;
 
 /**
@@ -15,5 +17,7 @@ public interface ChatMVP {
 
     interface Presenter {
         void getChats();
+        void keepChatSync(Context context);
+        void destroy();
     }
 }

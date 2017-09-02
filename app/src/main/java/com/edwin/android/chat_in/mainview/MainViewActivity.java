@@ -141,6 +141,7 @@ public class MainViewActivity extends AppCompatActivity {
                 ChatPresenterModule(mChatFragment))
                 .applicationModule(new ApplicationModule(this))
                 .databaseModule(new DatabaseModule())
+                .fcmModule(new FcmModule())
                 .build().getChatPresenter();
 
         DaggerContactComponent.builder()
