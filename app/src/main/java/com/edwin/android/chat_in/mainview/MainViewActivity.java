@@ -114,8 +114,7 @@ public class MainViewActivity extends AppCompatActivity {
                 .fcmModule(new FcmModule())
                 .build();
         final SyncDatabase syncDatabase = syncComponent.getSyncDatabase();
-        syncDatabase.syncContact();
-        syncDatabase.syncConversation(ResourceUtil.getPhoneNumber(this));
+        syncDatabase.sync(ResourceUtil.getPhoneNumber(this));
 
         DaggerChatComponent.builder().chatPresenterModule(new
                 ChatPresenterModule(mChatFragment))
