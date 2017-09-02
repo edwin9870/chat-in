@@ -31,6 +31,7 @@ import javax.inject.Singleton;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
@@ -50,6 +51,7 @@ public class SyncDatabase {
     private final Context mContext;
     private final ContactRepositoryFcm mContactRepositoryFcm;
     private DatabaseReference mDatabase;
+    private Disposable conversationDisposable;
 
     @Inject
     public SyncDatabase(Context context,
@@ -159,12 +161,17 @@ public class SyncDatabase {
             @Override
             public void onComplete() {
                 Log.d(TAG, "Starting to persist conversation");
-                getConversation(ownerTelephoneNumber)
+                conversationDisposable = getConversation(ownerTelephoneNumber)
                         .subscribeOn(Schedulers.computation())
-                        .subscribe(conversationDTO -> mConversationRepository.persist(conversationDTO).subscribe());
+                        .subscribe(conversationDTO -> mConversationRepository.persist
+                                (conversationDTO).subscribe());
             }
         });
 
+    }
+
+    public Disposable getConversationDisposable() {
+        return conversationDisposable;
     }
 
     public Observable<ConversationDTO> getConversation(String ownerTelephoneNumber) {

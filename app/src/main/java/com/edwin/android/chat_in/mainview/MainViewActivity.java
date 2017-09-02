@@ -53,6 +53,8 @@ public class MainViewActivity extends AppCompatActivity {
     private ViewPagerAdapter mAdapter;
     private ChatFragment mChatFragment;
     private ContactFragment mContactFragment;
+    private SyncDatabase mSyncDatabase;
+    private SyncComponent syncComponent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +79,25 @@ public class MainViewActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(mSyncDatabase != null) {
+            Log.d(TAG, "Start to sync");
+            mSyncDatabase.sync(ResourceUtil.getPhoneNumber(this));
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mSyncDatabase != null &&
+                mSyncDatabase.getConversationDisposable() != null &&
+                !mSyncDatabase.getConversationDisposable().isDisposed()) {
+            Log.d(TAG, "Disposing sync database conversation");
+            mSyncDatabase.getConversationDisposable().dispose();
+        }
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -87,6 +108,7 @@ public class MainViewActivity extends AppCompatActivity {
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d(TAG, "Permissions granted, showing activity");
                         setupActivity();
+                    mSyncDatabase.sync(ResourceUtil.getPhoneNumber(this));
                 } else {
 
                     Toast.makeText(this, getString(R.string.permission_phone_number), Toast.LENGTH_LONG).show();
@@ -113,8 +135,7 @@ public class MainViewActivity extends AppCompatActivity {
                 .databaseModule(new DatabaseModule())
                 .fcmModule(new FcmModule())
                 .build();
-        final SyncDatabase syncDatabase = syncComponent.getSyncDatabase();
-        syncDatabase.sync(ResourceUtil.getPhoneNumber(this));
+        mSyncDatabase = syncComponent.getSyncDatabase();
 
         DaggerChatComponent.builder().chatPresenterModule(new
                 ChatPresenterModule(mChatFragment))
