@@ -22,6 +22,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -93,6 +95,10 @@ public class SyncDatabase {
                         .toList().subscribe(sparseArrays -> {
                             Log.d(TAG, "spaceArrays size: "+sparseArrays);
                             MutableInteger mutableInteger = new MutableInteger();
+
+                            if(sparseArrays.isEmpty()) {
+                                emitter.onComplete();
+                            }
                             for(SparseArray<String> sparseArray : sparseArrays) {
                                 final String contactName = sparseArray.get(ContactRepository.CONTACT_NAME);
                                 final String telephoneNumber = sparseArray.get(ContactRepository.TELEPHONE_NUMBER);
@@ -152,7 +158,7 @@ public class SyncDatabase {
 
             @Override
             public void onComplete() {
-                Log.d(TAG, "Contact persisted, Starting to persist conversation");
+                Log.d(TAG, "Starting to persist conversation");
                 getConversation(ownerTelephoneNumber)
                         .subscribeOn(Schedulers.computation())
                         .subscribe(conversationDTO -> mConversationRepository.persist(conversationDTO).subscribe());
@@ -162,57 +168,86 @@ public class SyncDatabase {
     }
 
     public Observable<ConversationDTO> getConversation(String ownerTelephoneNumber) {
-        final Query targetToMeConversation = mDatabase.child(CONVERSATION_ROOT_PATH);
+        final Query conversationPath = mDatabase.child(CONVERSATION_ROOT_PATH);
         Observable<ConversationDTO> targetToMeObservable = Observable.create(e -> {
             Log.d(TAG, "getConversation");
-            targetToMeConversation.addChildEventListener(new ChildEventListener() {
+            conversationPath.addChildEventListener(new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                    Log.d(TAG, "child dataSnapshot: " + dataSnapshot);
-                    if(dataSnapshot.getKey().endsWith(ownerTelephoneNumber)) {
-                        Log.d(TAG, "Skip conversation because isn't end with owner number");
-                        return;
-                    }
 
                     if(!dataSnapshot.getKey().contains(ownerTelephoneNumber)) {
                         Log.d(TAG, "Skip processing because is not valid dataSnapshot");
                         return;
                     }
 
-                    ConversationDTO conversation = new ConversationDTO();
+                    mDatabase.child(CONVERSATION_ROOT_PATH).child(dataSnapshot.getKey()).addChildEventListener(new ChildEventListener() {
 
-                    final String senderNumber = dataSnapshot.getKey().substring(0, dataSnapshot.getKey().indexOf("_"));
-                    final String recipientNumber = dataSnapshot.getKey().substring(dataSnapshot.getKey().indexOf("_") + 1);
-                    Log.d(TAG, "senderNumber: " + senderNumber+", recipientNumber: "+ recipientNumber);
-                    String numberToFindContact;
-                    if(recipientNumber.equals(ownerTelephoneNumber)) {
-                        conversation.setRecipientContactId(ContactRepository.OWNER_CONTACT_ID);
-                        numberToFindContact = senderNumber;
-                    } else {
-                        conversation.setSenderContactId(ContactRepository.OWNER_CONTACT_ID);
-                        numberToFindContact = recipientNumber;
-                    }
+                        @Override
+                        public void onChildAdded(DataSnapshot dataSnapshotConversationChild, String s) {
+                            ConversationDTO conversation = new ConversationDTO();
+                            Log.d(TAG, "dataSnapshotConversationChild: " + dataSnapshotConversationChild);
+                            if(!TextUtils.isDigitsOnly(dataSnapshotConversationChild.getKey())) {
+                                Log.d(TAG, "Skip message because is not valid");
+                                return;
+                            }
+                            final DatabaseReference referenceConversation = dataSnapshotConversationChild.getRef
+                                    ().getParent();
+                            final String conversationNumbers = referenceConversation.toString().substring(
+                                    referenceConversation.toString().lastIndexOf("/")+1
+                            );
+                            Log.d(TAG, "conversationNumbers: " +conversationNumbers);
 
-                    Log.d(TAG, "numberToFindContact: " + numberToFindContact);
-                    mContactRepository.getContactByNumber
-                            (numberToFindContact).subscribe(contact -> {
-                                for (DataSnapshot conversationDataSnapShot : dataSnapshot
-                                        .getChildren()) {
-                                    Log.d(TAG, "conversationDataSnapShot: " + conversationDataSnapShot);
-                                    if(!TextUtils.isDigitsOnly(conversationDataSnapShot.getKey())) {
-                                        continue;
+                            final String senderNumber = conversationNumbers.substring(0, conversationNumbers.indexOf("_"));
+                            final String recipientNumber = conversationNumbers.substring(conversationNumbers.indexOf("_") + 1);
+                            Log.d(TAG, "senderNumber: " + senderNumber+", recipientNumber: "+ recipientNumber);
+                            String numberToFindContact;
+                            if(recipientNumber.equals(ownerTelephoneNumber)) {
+                                conversation.setRecipientContactId(ContactRepository.OWNER_CONTACT_ID);
+                                numberToFindContact = senderNumber;
+                            } else {
+                                conversation.setSenderContactId(ContactRepository.OWNER_CONTACT_ID);
+                                numberToFindContact = recipientNumber;
+                            }
+
+                            Log.d(TAG, "numberToFindContact: " + numberToFindContact);
+                            mContactRepository.getContactByNumber
+                                    (numberToFindContact).subscribe(contact -> {
+                                    if(!TextUtils.isDigitsOnly(dataSnapshotConversationChild.getKey())) {
+                                        return;
                                     }
                                     if(conversation.getSenderContactId() <= 0) {
                                         conversation.setSenderContactId(contact.getId());
                                     } else {
                                         conversation.setRecipientContactId(contact.getId());
                                     }
-                                    conversation.setMessage(conversationDataSnapShot.child("message").getValue(String.class));
-                                    conversation.setMessageDate(Long.valueOf(conversationDataSnapShot.getKey()));
+                                    conversation.setMessage(dataSnapshotConversationChild.child("message").getValue(String.class));
+                                    conversation.setMessageDate(Long.valueOf(dataSnapshotConversationChild.getKey()));
                                     Log.d(TAG, "Conversation: " + conversation);
                                     e.onNext(conversation);
-                                }
                             });
+
+                        }
+
+                        @Override
+                        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                        }
+
+                        @Override
+                        public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                        }
+
+                        @Override
+                        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
 
                 }
 

@@ -52,7 +52,7 @@ public class ContactRepository {
                         new String[]{phoneNumber},
                         null);
                 if (contactCursor != null && contactCursor.moveToNext()) {
-                    Log.d(TAG, "Contact name exists");
+                    Log.d(TAG, "Contact number exists");
                     final ContactDTO contact = convertCursorToContact(contactCursor);
                     emitter.onSuccess(contact);
                 } else {
