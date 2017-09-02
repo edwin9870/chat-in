@@ -146,13 +146,23 @@ public class SyncDatabase {
     }
 
     private void persistTargetToMeConversation(String ownerTelephoneNumber) {
-        final Query targetToMeConversation = mDatabase.child(CONVERSATION_ROOT_PATH).endAt(null, ownerTelephoneNumber);
+        final Query targetToMeConversation = mDatabase.child(CONVERSATION_ROOT_PATH);
         Observable<ConversationDTO> targetToMeObservable = Observable.create(e -> {
             Log.d(TAG, "targetToMeObservable");
             targetToMeConversation.addChildEventListener(new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     Log.d(TAG, "child dataSnapshot: " + dataSnapshot);
+                    if(dataSnapshot.getKey().endsWith(ownerTelephoneNumber)) {
+                        Log.d(TAG, "Skip conversation because isn't end with owner number");
+                        return;
+                    }
+
+                    if(!dataSnapshot.getKey().contains(ownerTelephoneNumber)) {
+                        Log.d(TAG, "Skip processing because is not valid dataSnapshot");
+                        return;
+                    }
+
                     ConversationDTO conversation = new ConversationDTO();
 
                     final String senderNumber = dataSnapshot.getKey().substring(0, dataSnapshot.getKey().indexOf("_"));
@@ -161,8 +171,10 @@ public class SyncDatabase {
                             .subscribe(contactDTO -> {
                                 for (DataSnapshot conversationDataSnapShot : dataSnapshot
                                         .getChildren()) {
-                                    Log.d(TAG, "conversationDataSnapShot: " +
-                                            conversationDataSnapShot);
+                                    Log.d(TAG, "conversationDataSnapShot: " + conversationDataSnapShot);
+                                    if(!TextUtils.isDigitsOnly(conversationDataSnapShot.getKey())) {
+                                        continue;
+                                    }
                                     conversation.setSenderContactId(contactDTO.getId());
                                     conversation.setRecipientContactId(ContactRepository.OWNER_CONTACT_ID);
                                     conversation.setMessage(conversationDataSnapShot.child("message").getValue(String.class));
@@ -203,14 +215,17 @@ public class SyncDatabase {
     }
 
     private void persistMeToTargetConversation(String ownerTelephoneNumber) {
-        final Query meToTargetConversation = mDatabase.child(CONVERSATION_ROOT_PATH).startAt
-                (null, ownerTelephoneNumber);
+        final Query meToTargetConversation = mDatabase.child(CONVERSATION_ROOT_PATH);
         Observable<ConversationDTO> meToTargetObservable = Observable.create(e -> {
             Log.d(TAG, "meToTargetObservable");
             meToTargetConversation.addChildEventListener(new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     Log.d(TAG, "child dataSnapshot: " + dataSnapshot);
+                    if(!dataSnapshot.getKey().startsWith(ownerTelephoneNumber)) {
+                        Log.d(TAG, "Skip conversation from others numbers");
+                        return;
+                    }
                     ConversationDTO conversation = new ConversationDTO();
 
                     final String destinationNumber = dataSnapshot.getKey().substring(dataSnapshot

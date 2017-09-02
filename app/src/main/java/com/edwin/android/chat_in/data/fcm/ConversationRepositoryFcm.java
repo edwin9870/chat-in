@@ -66,7 +66,7 @@ public class ConversationRepositoryFcm {
                                         Log.d(TAG, "conversation path: " + conversationPath);
 
                                         if (!dataSnapshot.hasChild(conversationPath)) {
-                                            conversationDatabaseReference.setValue(conversationPath);
+                                            conversationDatabaseReference.push().setValue(conversationPath);
                                         }
                                         conversationDatabaseReference.child(conversationPath)
                                                 .push()
