@@ -84,7 +84,7 @@ public class MainViewActivity extends AppCompatActivity {
         super.onStart();
         if(mSyncDatabase != null) {
             Log.d(TAG, "Start to sync");
-            mSyncDatabase.sync(ResourceUtil.getPhoneNumber(this));
+            mSyncDatabase.sync();
         }
     }
 
@@ -108,7 +108,7 @@ public class MainViewActivity extends AppCompatActivity {
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d(TAG, "Permissions granted, showing activity");
                         setupActivity();
-                    mSyncDatabase.sync(ResourceUtil.getPhoneNumber(this));
+                    mSyncDatabase.sync();
                 } else {
 
                     Toast.makeText(this, getString(R.string.permission_phone_number), Toast.LENGTH_LONG).show();

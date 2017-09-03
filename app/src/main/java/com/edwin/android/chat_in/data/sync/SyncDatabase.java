@@ -22,8 +22,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -136,7 +134,8 @@ public class SyncDatabase {
         });
     }
 
-    public void sync(String ownerTelephoneNumber) {
+    public void sync() {
+        String ownerTelephoneNumber = ResourceUtil.getPhoneNumber(mContext);
         Log.d(TAG, "Executing sync method");
         Log.d(TAG, "ownerTelephoneNumber: " + ownerTelephoneNumber);
 
@@ -161,7 +160,7 @@ public class SyncDatabase {
             @Override
             public void onComplete() {
                 Log.d(TAG, "Starting to persist conversation");
-                conversationDisposable = getConversation(ownerTelephoneNumber)
+                conversationDisposable = getNewConversations()
                         .subscribeOn(Schedulers.computation())
                         .subscribe(conversationDTO -> mConversationRepository.persist
                                 (conversationDTO).subscribe());
@@ -174,10 +173,11 @@ public class SyncDatabase {
         return conversationDisposable;
     }
 
-    public Observable<ConversationDTO> getConversation(String ownerTelephoneNumber) {
+    public Observable<ConversationDTO> getNewConversations() {
+        String ownerTelephoneNumber = ResourceUtil.getPhoneNumber(mContext);
         final Query conversationPath = mDatabase.child(CONVERSATION_ROOT_PATH);
         Observable<ConversationDTO> targetToMeObservable = Observable.create(e -> {
-            Log.d(TAG, "getConversation");
+            Log.d(TAG, "getNewConversations");
             conversationPath.addChildEventListener(new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {

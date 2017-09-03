@@ -6,6 +6,7 @@ import com.edwin.android.chat_in.data.dto.ConversationDTO;
 import com.edwin.android.chat_in.data.fcm.ConversationRepositoryFcm;
 import com.edwin.android.chat_in.data.repositories.ContactRepository;
 import com.edwin.android.chat_in.data.repositories.ConversationRepository;
+import com.edwin.android.chat_in.data.sync.SyncDatabase;
 
 import java.util.Date;
 
@@ -25,14 +26,19 @@ public class ConversationPresenter implements ConversationMVP.Presenter {
     private final ConversationRepository mConversationRepository;
     private final ContactRepository mContactRepository;
     private final ConversationRepositoryFcm mConversationRepositoryFcm;
+    private final SyncDatabase mSyncDatabase;
 
     @Inject
-    public ConversationPresenter(ConversationMVP.View view, ConversationRepository
-            conversationRepository, ContactRepository contactRepository, ConversationRepositoryFcm conversationRepositoryFcm) {
+    public ConversationPresenter(ConversationMVP.View view,
+                                 ConversationRepository conversationRepository,
+                                 ContactRepository contactRepository,
+                                 ConversationRepositoryFcm conversationRepositoryFcm,
+                                 SyncDatabase syncDatabase) {
         this.mView = view;
         this.mConversationRepository = conversationRepository;
         this.mContactRepository = contactRepository;
         mConversationRepositoryFcm = conversationRepositoryFcm;
+        mSyncDatabase = syncDatabase;
     }
 
     @Inject
@@ -74,8 +80,19 @@ public class ConversationPresenter implements ConversationMVP.Presenter {
             mView.clearEditText();
         });
 
+    }
 
-
-
+    @Override
+    public void keepSyncConversation(int contactId) {
+        mSyncDatabase.sync();
+        mSyncDatabase.getNewConversations()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(conversation -> {
+                    Log.d(TAG, "New conversation received: "+ conversation);
+                    if(conversation.getSenderContactId() != ContactRepository.OWNER_CONTACT_ID) {
+                        Log.d(TAG, "If sender is not the owner, refresh chat");
+                        mView.addConversation(conversation);
+                    }
+                });
     }
 }

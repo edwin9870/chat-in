@@ -4,7 +4,6 @@ import android.content.Context;
 import android.util.Log;
 
 import com.edwin.android.chat_in.data.dto.ContactDTO;
-import com.edwin.android.chat_in.data.dto.ConversationDTO;
 import com.edwin.android.chat_in.data.repositories.ContactRepository;
 import com.edwin.android.chat_in.data.repositories.ConversationRepository;
 import com.edwin.android.chat_in.data.sync.SyncDatabase;
@@ -14,7 +13,6 @@ import javax.inject.Inject;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -69,7 +67,7 @@ public class ChatPresenter implements ChatMVP.Presenter {
     @Override
     public void keepChatSync(Context context) {
         Log.d(TAG, "Calling keepChatSync");
-        chatDisposable = mSyncDatabase.getConversation(ResourceUtil.getPhoneNumber(context))
+        chatDisposable = mSyncDatabase.getNewConversations()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(conversationDTO -> {

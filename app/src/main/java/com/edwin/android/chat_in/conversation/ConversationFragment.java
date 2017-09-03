@@ -79,6 +79,7 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
         mRecyclerView.setHasFixedSize(false);
         mRecyclerView.setAdapter(mAdapter);
         mPresenter.getConversation(recipientContactId);
+        mPresenter.keepSyncConversation(recipientContactId);
 
 
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
