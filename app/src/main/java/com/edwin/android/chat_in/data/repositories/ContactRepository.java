@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -148,6 +149,7 @@ public class ContactRepository {
                         null);
                 while (contactCursor != null && contactCursor.moveToNext()) {
                     final ContactDTO contact = convertCursorToContact(contactCursor);
+                    Log.d(TAG, "contact to emit: " + contact);
                     emitter.onNext(contact);
                 }
                     Log.d(TAG, "Calling onComplete");
@@ -187,6 +189,9 @@ public class ContactRepository {
                             while (phoneCursor != null && phoneCursor.moveToNext()) {
                                 String phoneNo = phoneCursor.getString(phoneCursor.getColumnIndex(
                                         ContactsContract.CommonDataKinds.Phone.NUMBER));
+                                if(!TextUtils.isDigitsOnly(phoneNo)) {
+                                    continue;
+                                }
                                 Log.d(TAG, "Name: " + name + ", Phone No: " + phoneNo);
                                 SparseArray<String> data = new SparseArray<>();
                                 data.put(TELEPHONE_NUMBER, phoneNo.replaceAll("[()\\s-]+", ""));

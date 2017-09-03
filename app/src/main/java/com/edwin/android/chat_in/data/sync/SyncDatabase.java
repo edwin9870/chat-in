@@ -119,6 +119,10 @@ public class SyncDatabase {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         Log.d(TAG, "user dataSnapshot: " + dataSnapshot);
+                                        if (dataSnapshot.getValue() == null) {
+                                            Log.d(TAG, "Skip user because value is null");
+                                            return;
+                                        }
                                         mutableInteger.setValue(mutableInteger.getValue() + 1);
                                         final ContactDTO contact = new ContactDTO();
                                         contact.setNumber(telephoneNumber);

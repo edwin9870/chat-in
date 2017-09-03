@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.edwin.android.chat_in.R;
+import com.edwin.android.chat_in.auth.AuthActivity;
 import com.edwin.android.chat_in.chat.ChatFragment;
 import com.edwin.android.chat_in.chat.ChatPresenterModule;
 import com.edwin.android.chat_in.chat.DaggerChatComponent;
@@ -33,6 +34,8 @@ import com.edwin.android.chat_in.settings.SettingsActivity;
 import com.edwin.android.chat_in.util.ResourceUtil;
 import com.edwin.android.chat_in.util.SecurityUtil;
 import com.edwin.android.chat_in.views.WrapContentViewPager;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -54,7 +57,6 @@ public class MainViewActivity extends AppCompatActivity {
     private ChatFragment mChatFragment;
     private ContactFragment mContactFragment;
     private SyncDatabase mSyncDatabase;
-    private SyncComponent syncComponent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +68,6 @@ public class MainViewActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(getString(R.string.app_name).toUpperCase());
 
         final String[] permissions = {
-                Manifest.permission.READ_PHONE_STATE,
                 Manifest.permission.READ_CONTACTS};
         final boolean hasPermissions = SecurityUtil.hasPermissions(this, permissions);
 
@@ -82,10 +83,6 @@ public class MainViewActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        if(mSyncDatabase != null) {
-            Log.d(TAG, "Start to sync");
-            mSyncDatabase.sync();
-        }
     }
 
     @Override
@@ -108,7 +105,6 @@ public class MainViewActivity extends AppCompatActivity {
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d(TAG, "Permissions granted, showing activity");
                         setupActivity();
-                    mSyncDatabase.sync();
                 } else {
 
                     Toast.makeText(this, getString(R.string.permission_phone_number), Toast.LENGTH_LONG).show();
@@ -127,6 +123,16 @@ public class MainViewActivity extends AppCompatActivity {
 
 
     private void setupActivity() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if(currentUser == null) {
+            final Intent intent = new Intent(this, AuthActivity.class);
+            Log.d(TAG, "User is not logged, starting AuthActivity");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            Log.d(TAG, "Closing MainViewActivity");
+            finish();
+            return;
+        }
 
         setupFragment();
 
@@ -153,6 +159,7 @@ public class MainViewActivity extends AppCompatActivity {
         setupViewPager();
 
         Log.d(TAG, "Phone number: "+ ResourceUtil.getPhoneNumber(this));
+        mSyncDatabase.sync();
     }
 
     private void setupFragment() {

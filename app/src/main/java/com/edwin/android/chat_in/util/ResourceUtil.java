@@ -6,6 +6,8 @@ import android.os.Build;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import javax.annotation.Nullable;
 
 /**
@@ -33,8 +35,7 @@ public final class ResourceUtil {
     @SuppressLint("MissingPermission")
     @Nullable
     public static String getPhoneNumber(Context context) {
-        TelephonyManager tMgr = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
-        return tMgr.getLine1Number();
+        return FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber().substring(2);
     }
 
 

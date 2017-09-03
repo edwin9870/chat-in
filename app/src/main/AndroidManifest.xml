@@ -3,7 +3,6 @@
           package="com.edwin.android.chat_in">
 
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <application
@@ -14,8 +13,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
         <activity
-            android:name=".mainview.MainViewActivity"
-            android:launchMode="singleTop">
+            android:name=".mainview.MainViewActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
         </activity>
         <activity
             android:name=".conversation.ConversationActivity"
@@ -31,13 +34,7 @@
             android:authorities="com.edwin.android.chat_in"
             android:exported="false"/>
 
-        <activity android:name=".auth.AuthActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
+        <activity android:name=".auth.AuthActivity" />
         <activity android:name=".auth.AuthVerificationActivity">
         </activity>
     </application>
