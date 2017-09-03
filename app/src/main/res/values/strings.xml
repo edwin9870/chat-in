@@ -21,4 +21,12 @@
     <string name="select_image_profile">Select Picture</string>
     <string name="type_a_message">Message</string>
     <string name="permission_phone_number">Get phone number is necessary to chat with others</string>
+
+    <!-- fragment_auth.xml-->
+    <string name="spinner_title">Choose a country</string>
+    <string name="spinner_country_label">Country</string>
+    <string name="edit_text_phone_number_hint">Phone number</string>
+    <string name="button_next_step_phone_number">Next</string>
+    <string name="country_code_required">Country code is required</string>
+    <string name="phone_number_required">Phone number is required</string>
 </resources>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:padding="@dimen/fragment_auth_container_padding">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/TextAppearance.AppCompat.Title"
+            android:layout_width="wrap_content"
+            android:visibility="gone"
+            android:layout_height="wrap_content"
+            android:text="@string/spinner_country_label"/>
+
+        <Spinner
+            android:id="@+id/spinner_country"
+            style="@style/TextAppearance.AppCompat.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/spinner_country_margin_left"
+            android:layout_marginStart="@dimen/spinner_country_margin_left"
+            android:entries="@array/spinner_country_number_items"
+            android:entryValues="@array/spinner_country_number_values"
+            android:prompt="@string/spinner_title"/>
+    </LinearLayout>
+
+    <EditText
+        style="@style/TextAppearance.AppCompat.Title"
+        android:id="@+id/edit_text_phone_number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="phone"
+        android:hint="@string/edit_text_phone_number_hint"/>
+    <Button
+        android:id="@+id/button_next_step_phone_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/button_next_step_phone_number"
+        >
+    </Button>
+
+</LinearLayout>

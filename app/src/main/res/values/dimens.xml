@@ -25,4 +25,8 @@
     <dimen name="message_send_button_width">56dp</dimen>
     <dimen name="message_send_button_height">56dp</dimen>
     <dimen name="message_send_button_margin">8dp</dimen>
+
+    <!-- fragment_auth.xml -->
+    <dimen name="spinner_country_margin_left">8dp</dimen>
+    <dimen name="fragment_auth_container_padding">8dp</dimen>
 </resources>

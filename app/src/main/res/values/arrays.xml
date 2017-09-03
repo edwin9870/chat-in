@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="spinner_country_number_items">
+        <item>Country code</item>
+        <item>Dominican Republic (+1)</item>
+        <item>United States (+1)</item>
+    </string-array>
+    <string-array name="spinner_country_number_values">
+        <item>N/A</item>
+        <item>+1</item>
+        <item>+1</item>
+    </string-array>
+
+</resources>
