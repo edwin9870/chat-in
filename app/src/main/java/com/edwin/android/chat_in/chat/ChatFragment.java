@@ -1,7 +1,6 @@
 package com.edwin.android.chat_in.chat;
 
 import android.app.Fragment;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -68,10 +67,19 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
         mPresenter.getChats();
 
         Log.d(TAG, "finish onCreateView");
-
-        mPresenter.keepChatSync(getActivity());
-
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mPresenter.keepChatSync(getActivity());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mPresenter.cleanResources();
     }
 
     @Override
@@ -85,7 +93,7 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
     public void onDestroyView() {
         super.onDestroyView();
         mUnbinder.unbind();
-        mPresenter.destroy();
+        mPresenter.cleanResources();
     }
 
     @Override

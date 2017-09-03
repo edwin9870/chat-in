@@ -18,6 +18,6 @@ public interface ChatMVP {
     interface Presenter {
         void getChats();
         void keepChatSync(Context context);
-        void destroy();
+        void cleanResources();
     }
 }

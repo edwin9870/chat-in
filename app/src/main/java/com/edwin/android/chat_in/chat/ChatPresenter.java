@@ -75,7 +75,7 @@ public class ChatPresenter implements ChatMVP.Presenter {
     }
 
     @Override
-    public void destroy() {
+    public void cleanResources() {
         Log.d(TAG, "Cleaning resources");
         if(chatDisposable != null && !chatDisposable.isDisposed()) {
             Log.d(TAG, "Disposing conversation");
