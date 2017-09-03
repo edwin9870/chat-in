@@ -129,6 +129,9 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
     }
 
     private void closeKeyboard() {
+        if (getActivity() == null) {
+            return;
+        }
         InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService
                 (Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(mMessageToSentEditText.getWindowToken(), InputMethodManager
