@@ -70,18 +70,30 @@ public class SyncDatabase {
         Log.d(TAG, "Executing getNewContacts");
         return Observable.create(emitter -> {
             final String phoneNumber = ResourceUtil.getPhoneNumber(mContext);
-            mContactRepository.getContactByNumber(phoneNumber).isEmpty().subscribe(isEmpty -> {
+            mContactRepository.getContactByNumber(phoneNumber).isEmpty()
+                    .subscribeOn(Schedulers.computation())
+                    .subscribe(isEmpty -> {
                 Log.d(TAG, "isEmpty: " + isEmpty);
                 if(isEmpty) {
                     Log.d(TAG, "Persisting owner contact");
                     final ContactDTO contact = new ContactDTO();
                     contact.setId(ContactRepository.OWNER_CONTACT_ID);
                     contact.setNumber(phoneNumber);
-                    mContactRepository.persist(contact);
-                    Log.d(TAG, "Persisted contact: "+ contact);
+                    Log.d(TAG, "Persisted contact on Firebase: "+ contact);
                     mContactRepositoryFcm.persist(contact)
                             .subscribeOn(Schedulers.io())
                             .subscribe();
+                    String profileImage = mContactRepositoryFcm.getProfileImage
+                            (phoneNumber)
+                            .subscribeOn(Schedulers.computation())
+                            .blockingGet();
+                    contact.setProfileImagePath(profileImage);
+                    Log.d(TAG, "contact to be persisted: "+ contact);
+                    mContactRepository.persist(contact);
+                    SyncDatabase.this.downloadProfileImage(contact.getProfileImagePath())
+                            .subscribeOn(Schedulers.io())
+                            .subscribe();
+
                 }
 
                 mContactRepository.getAllPhoneContacts()

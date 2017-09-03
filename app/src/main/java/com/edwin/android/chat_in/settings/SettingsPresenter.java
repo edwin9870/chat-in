@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.edwin.android.chat_in.R;
+import com.edwin.android.chat_in.data.fcm.ContactRepositoryFcm;
 import com.edwin.android.chat_in.data.repositories.ContactRepository;
 import com.edwin.android.chat_in.util.FileUtil;
 import com.edwin.android.chat_in.util.ResourceUtil;
@@ -31,15 +32,18 @@ public class SettingsPresenter implements SettingsMVP.Presenter {
     private final FirebaseStorage mFirebaseStorage;
     private final ContactRepository mContactRepository;
     private final Context mContext;
+    private final ContactRepositoryFcm mContactRepositoryFcm;
 
     @Inject
     public SettingsPresenter(Context context, SettingsMVP.View view,
                              FirebaseStorage firebaseStorage,
-                             ContactRepository contactRepository) {
+                             ContactRepository contactRepository,
+                             ContactRepositoryFcm contactRepositoryFcm) {
         mContext = context;
         mView = view;
         mFirebaseStorage = firebaseStorage;
         mContactRepository = contactRepository;
+        mContactRepositoryFcm = contactRepositoryFcm;
     }
 
     @Inject
@@ -71,13 +75,16 @@ public class SettingsPresenter implements SettingsMVP.Presenter {
             uploadTask.addOnFailureListener(emitter::onError);
         })
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(() -> {Log.d(TAG, "Upload completed");
-                    mContactRepository.getContactById(ContactRepository.OWNER_CONTACT_ID).subscribe(contact -> {
+                .subscribe(() -> {
+                    Log.d(TAG, "Upload completed");
+                    mContactRepository.getContactById(ContactRepository.OWNER_CONTACT_ID)
+                            .subscribe(contact -> {
                         contact.setProfileImagePath(imageFileNameToSave);
-
                         mContactRepository.updateContact(contact)
+                                .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(() -> SettingsPresenter.this.loadProfileImage(false));
+                        Log.d(TAG, "Start to update Firebase DB profile");
+                        mContactRepositoryFcm.update(contact).subscribeOn(Schedulers.io()).subscribe();
                     });
         });
     }
