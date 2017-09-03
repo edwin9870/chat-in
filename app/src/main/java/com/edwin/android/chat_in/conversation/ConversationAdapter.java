@@ -59,7 +59,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         holder.mMessageReceivedTextView.setText(conversation.getMessage());
 
         Picasso picasso = Picasso.with(mContext);
-        picasso.load(R.drawable.ic_women_image).fit().into(holder.mProfileImageView);
+        picasso.load(R.drawable.ic_faceless_man).fit().into(holder.mProfileImageView);
     }
 
     private void bindSentMessage(MessageSentViewHolder holder, ConversationDTO conversation) {

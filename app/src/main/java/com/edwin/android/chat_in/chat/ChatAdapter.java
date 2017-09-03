@@ -51,10 +51,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatAdapterVie
 
         Picasso picasso = Picasso.with(mContext);
 
-        //TODO:  Add correct image
         Log.d(TAG, "conversation contact: "+ conversation.getContact());
         if(conversation.getContact().getProfileImagePath() == null || conversation.getContact().getProfileImagePath().isEmpty()) {
-            picasso.load(R.drawable.ic_man_image).fit().into(holder.mProfileImageView);
+            picasso.load(R.drawable.ic_faceless_man).fit().into(holder.mProfileImageView);
         } else {
             picasso.load(FileUtil.getImageFile(mContext, conversation.getContact().getProfileImagePath()))
                     .fit().into(holder.mProfileImageView);

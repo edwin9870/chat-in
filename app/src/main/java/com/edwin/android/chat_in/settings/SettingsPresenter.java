@@ -90,7 +90,7 @@ public class SettingsPresenter implements SettingsMVP.Presenter {
                 .observeOn(AndroidSchedulers.mainThread())
                 .filter(contactDTO -> !(contactDTO.getProfileImagePath() == null ||
                                         contactDTO.getProfileImagePath().isEmpty()))
-                .switchIfEmpty(observer -> mView.showImageProfile(R.drawable.ic_man_image, true))
+                .switchIfEmpty(observer -> mView.showImageProfile(R.drawable.ic_faceless_man, true))
                 .subscribe(contactDTO -> mView.showImageProfile(
                         FileUtil.getImageFile(mContext, contactDTO.getProfileImagePath()),
                         enableCache));

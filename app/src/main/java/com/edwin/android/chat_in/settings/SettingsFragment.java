@@ -84,7 +84,7 @@ public class SettingsFragment extends Fragment implements SettingsMVP.View{
     @Override
     public void showImageProfile(int resourceId, boolean enableCache) {
 
-        final RequestCreator requestCreator = mPicasso.load(R.drawable.ic_man_image);
+        final RequestCreator requestCreator = mPicasso.load(resourceId);
 
         if(!enableCache) {
             requestCreator.memoryPolicy(MemoryPolicy.NO_CACHE);

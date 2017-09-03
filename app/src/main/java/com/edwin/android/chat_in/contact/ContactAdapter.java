@@ -47,10 +47,9 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactA
     public void onBindViewHolder(ContactAdapterViewHolder holder, int position) {
         ContactDTO contact = mContacts.get(position);
         Picasso picasso = Picasso.with(mContext);
-        //TODO: Add real image of user
 
         if(contact.getProfileImagePath() == null || contact.getProfileImagePath().isEmpty()) {
-            picasso.load(R.drawable.ic_man_image).fit().into(holder.mProfileImageView);
+            picasso.load(R.drawable.ic_faceless_man).fit().into(holder.mProfileImageView);
         } else {
             picasso.load(FileUtil.getImageFile(mContext, contact.getProfileImagePath())).fit().into(holder.mProfileImageView);
         }
