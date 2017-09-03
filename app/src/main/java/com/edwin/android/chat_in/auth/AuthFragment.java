@@ -2,6 +2,7 @@ package com.edwin.android.chat_in.auth;
 
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +21,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+
+import static com.edwin.android.chat_in.auth.AuthVerificationActivity.BUNDLE_PHONE_NUMBER;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -91,6 +94,9 @@ public class AuthFragment extends Fragment implements AdapterView.OnItemSelected
 
         final String phoneNumber = mCountryValueSelected + mPhoneNumberEditText.getText().toString();
         Log.d(TAG, "Opening next windows, phone number: " + phoneNumber);
+        final Intent intent = new Intent(getActivity(), AuthVerificationActivity.class);
+        intent.putExtra(BUNDLE_PHONE_NUMBER, phoneNumber);
+        startActivity(intent);
     }
 
     @Override

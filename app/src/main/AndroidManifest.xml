@@ -16,7 +16,6 @@
         <activity
             android:name=".mainview.MainViewActivity"
             android:launchMode="singleTop">
-
         </activity>
         <activity
             android:name=".conversation.ConversationActivity"
@@ -38,6 +37,8 @@
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+        </activity>
+        <activity android:name=".auth.AuthVerificationActivity">
         </activity>
     </application>
 
