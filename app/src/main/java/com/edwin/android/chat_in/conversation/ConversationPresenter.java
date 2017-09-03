@@ -1,7 +1,10 @@
 package com.edwin.android.chat_in.conversation;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.edwin.android.chat_in.chat.ConversationWrapper;
+import com.edwin.android.chat_in.data.dto.ContactDTO;
 import com.edwin.android.chat_in.data.dto.ConversationDTO;
 import com.edwin.android.chat_in.data.fcm.ConversationRepositoryFcm;
 import com.edwin.android.chat_in.data.repositories.ContactRepository;
@@ -12,6 +15,8 @@ import java.util.Date;
 
 import javax.inject.Inject;
 
+import io.reactivex.Single;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
@@ -49,9 +54,21 @@ public class ConversationPresenter implements ConversationMVP.Presenter {
     @Override
     public void getConversation(int contactId) {
         mConversationRepository.getConversations(contactId)
+                .map(this::convertToWrapper)
+                .toList()
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
-                .toList().subscribe(mView::showConversation);
+                .subscribe(mView::showConversation);
+    }
+
+    @NonNull
+    private ConversationWrapper convertToWrapper(ConversationDTO conversationDTO) {
+        int contactId1 = conversationDTO.getRecipientContactId() == ContactRepository.OWNER_CONTACT_ID
+                ? conversationDTO.getSenderContactId()
+                : conversationDTO.getRecipientContactId();
+        final ContactDTO contact = mContactRepository.getContactById
+                (contactId1).blockingGet();
+        return new ConversationWrapper(conversationDTO, contact);
     }
 
     @Override
@@ -76,8 +93,14 @@ public class ConversationPresenter implements ConversationMVP.Presenter {
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(aLong -> {
             Log.d(TAG, "Start to add conversation and clear editText");
-            mView.addConversation(conversation);
-            mView.clearEditText();
+            Single.create((SingleOnSubscribe<ConversationWrapper>) e -> e.onSuccess(convertToWrapper(conversation)))
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(conversationWrapper -> {
+                    mView.addConversation(conversationWrapper);
+                    mView.clearEditText();
+                });
+
         });
 
     }
@@ -86,12 +109,13 @@ public class ConversationPresenter implements ConversationMVP.Presenter {
     public void keepSyncConversation(int contactId) {
         mSyncDatabase.sync();
         mSyncDatabase.getNewConversations()
+                .map(this::convertToWrapper)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(conversation -> {
-                    Log.d(TAG, "New conversation received: "+ conversation);
-                    if(conversation.getSenderContactId() != ContactRepository.OWNER_CONTACT_ID) {
+                .subscribe(conversationWrapper -> {
+                    Log.d(TAG, "New conversationWrapper received: "+ conversationWrapper);
+                    if(conversationWrapper.getConversation().getSenderContactId() != ContactRepository.OWNER_CONTACT_ID) {
                         Log.d(TAG, "If sender is not the owner, refresh chat");
-                        mView.addConversation(conversation);
+                        mView.addConversation(conversationWrapper);
                     }
                 });
     }

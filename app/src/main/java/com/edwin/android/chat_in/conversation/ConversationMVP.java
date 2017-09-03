@@ -3,6 +3,7 @@ package com.edwin.android.chat_in.conversation;
 import android.app.Activity;
 import android.content.Context;
 
+import com.edwin.android.chat_in.chat.ConversationWrapper;
 import com.edwin.android.chat_in.data.dto.ConversationDTO;
 
 import java.util.List;
@@ -17,8 +18,8 @@ public interface ConversationMVP {
 
     interface View {
         void setPresenter(Presenter presenter);
-        void showConversation(List<ConversationDTO> conversation);
-        void addConversation(ConversationDTO conversation);
+        void showConversation(List<ConversationWrapper> conversationWrappers);
+        void addConversation(ConversationWrapper conversationWrapper);
         void clearEditText();
     }
 

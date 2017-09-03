@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.ScrollView;
 
 import com.edwin.android.chat_in.R;
+import com.edwin.android.chat_in.chat.ConversationWrapper;
 import com.edwin.android.chat_in.data.dto.ConversationDTO;
 
 import java.util.List;
@@ -105,15 +106,15 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
     }
 
     @Override
-    public void showConversation(List<ConversationDTO> conversation) {
-        Log.d(TAG, "Conversation to show: " + conversation);
-        mAdapter.setConversations(conversation);
+    public void showConversation(List<ConversationWrapper> conversationWrappers) {
+        Log.d(TAG, "Conversation to show: " + conversationWrappers);
+        mAdapter.setConversations(conversationWrappers);
     }
 
 
     @Override
-    public void addConversation(ConversationDTO conversation) {
-        mAdapter.addConversation(conversation);
+    public void addConversation(ConversationWrapper conversationWrapper) {
+        mAdapter.addConversation(conversationWrapper);
         closeKeyboard();
     }
 

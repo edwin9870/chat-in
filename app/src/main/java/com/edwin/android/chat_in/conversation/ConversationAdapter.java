@@ -8,8 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.edwin.android.chat_in.R;
+import com.edwin.android.chat_in.chat.ConversationWrapper;
 import com.edwin.android.chat_in.data.dto.ConversationDTO;
 import com.edwin.android.chat_in.data.repositories.ContactRepository;
+import com.edwin.android.chat_in.util.FileUtil;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -24,7 +26,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public static final int VIEW_TYPE_MESSAGE_SENT = 8877;
     public static final String TAG = ConversationAdapter.class.getSimpleName();
     private Context mContext;
-    private List<ConversationDTO> mConversations;
+    private List<ConversationWrapper> mConversations;
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -45,25 +47,32 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        ConversationDTO conversation = mConversations.get(position);
+        final ConversationWrapper conversationWrapper = mConversations.get(position);
         Log.d(TAG, "holder.getItemViewType(): " + holder.getItemViewType());
         if(holder.getItemViewType() == VIEW_TYPE_MESSAGE_RECEIVED) {
-            bindReceivedMessage((MessageReceivedViewHolder) holder, conversation);
+            bindReceivedMessage((MessageReceivedViewHolder) holder, conversationWrapper);
         } else {
-            bindSentMessage((MessageSentViewHolder) holder, conversation);
+            bindSentMessage((MessageSentViewHolder) holder, conversationWrapper);
         }
 
     }
 
-    private void bindReceivedMessage(MessageReceivedViewHolder holder, ConversationDTO conversation) {
-        holder.mMessageReceivedTextView.setText(conversation.getMessage());
+    private void bindReceivedMessage(MessageReceivedViewHolder holder, ConversationWrapper conversationWrapper) {
+        holder.mMessageReceivedTextView.setText(conversationWrapper.getConversation().getMessage());
 
         Picasso picasso = Picasso.with(mContext);
-        picasso.load(R.drawable.ic_faceless_man).fit().into(holder.mProfileImageView);
+        if(conversationWrapper.getContact().getProfileImagePath() == null ||
+                conversationWrapper.getContact().getProfileImagePath().isEmpty()) {
+            picasso.load(R.drawable.ic_faceless_man).fit().into(holder.mProfileImageView);
+        } else {
+            picasso.load(FileUtil.getImageFile(mContext, conversationWrapper.getContact().getProfileImagePath()))
+                    .fit()
+                    .into(holder.mProfileImageView);
+        }
     }
 
-    private void bindSentMessage(MessageSentViewHolder holder, ConversationDTO conversation) {
-        holder.mMessageSentViewText.setText(conversation.getMessage());
+    private void bindSentMessage(MessageSentViewHolder holder, ConversationWrapper conversationWrapper) {
+        holder.mMessageSentViewText.setText(conversationWrapper.getConversation().getMessage());
     }
 
     @Override
@@ -78,7 +87,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public int getItemViewType(int position) {
-        ConversationDTO conversation = mConversations.get(position);
+        ConversationDTO conversation = mConversations.get(position).getConversation();
         Log.d(TAG, "Messages: " + mConversations);
         if (conversation.getRecipientContactId() == ContactRepository.OWNER_CONTACT_ID) {
             return VIEW_TYPE_MESSAGE_RECEIVED;
@@ -88,12 +97,12 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     }
 
-    public void setConversations(List<ConversationDTO> conversations) {
+    public void setConversations(List<ConversationWrapper> conversations) {
         this.mConversations = conversations;
         notifyDataSetChanged();
     }
 
-    public void addConversation(ConversationDTO conversation) {
+    public void addConversation(ConversationWrapper conversation) {
         mConversations.add(conversation);
         notifyDataSetChanged();
     }

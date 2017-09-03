@@ -48,8 +48,6 @@ public class ChatPresenter implements ChatMVP.Presenter {
     public void getChats() {
         Log.d(TAG, "Calling getChats");
         mConversationRepository.getLastMessages()
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
                 .map(conversationDTO -> {
                     int contactId = conversationDTO.getRecipientContactId() == ContactRepository.OWNER_CONTACT_ID
                             ? conversationDTO.getSenderContactId()
