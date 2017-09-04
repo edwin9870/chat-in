@@ -4,22 +4,21 @@ package com.edwin.android.chat_in.conversation;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ScrollView;
+import android.widget.LinearLayout;
 
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.chat.ConversationWrapper;
-import com.edwin.android.chat_in.data.dto.ConversationDTO;
 
 import java.util.List;
 
@@ -39,9 +38,11 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
     ImageView mSendMessageImageView;
     @BindView(R.id.edit_text_message_to_sent)
     EditText mMessageToSentEditText;
-    @BindView(R.id.scroll_view_fragment_conversation)
-    ScrollView mScrollView;
-    private int recipientContactId;
+    @BindView(R.id.linear_layout_send_message)
+    LinearLayout mSendMessageLinearLayout;
+    @BindView(R.id.fragment_conversation)
+    LinearLayout mConversationFragment;
+    private int mContactId;
     private ConversationAdapter mAdapter;
     private ConversationMVP.Presenter mPresenter;
     private View mView;
@@ -62,7 +63,7 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            recipientContactId = getArguments().getInt(BUNDLE_CONTACT_ID);
+            mContactId = getArguments().getInt(BUNDLE_CONTACT_ID);
         }
     }
 
@@ -70,7 +71,7 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mView = inflater.inflate(R.layout.fragment_conversation, container, false);
-        Log.d(TAG, "recipientContactId received:" + recipientContactId);
+        Log.d(TAG, "mContactId received:" + mContactId);
         unbinder = ButterKnife.bind(this, mView);
         mAdapter = new ConversationAdapter();
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(),
@@ -79,20 +80,14 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.setHasFixedSize(false);
         mRecyclerView.setAdapter(mAdapter);
-        mPresenter.getConversation(recipientContactId);
-        mPresenter.keepSyncConversation(recipientContactId);
-
+        mPresenter.setTitle(mContactId);
+        mPresenter.getConversation(mContactId);
+        mPresenter.keepSyncConversation(mContactId);
 
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-        scrollToBottom();
 
         return mView;
     }
-
-    private void scrollToBottom() {
-        mScrollView.post(() -> mScrollView.fullScroll(ScrollView.FOCUS_DOWN));
-    }
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -123,9 +118,14 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
         mMessageToSentEditText.getText().clear();
     }
 
+    @Override
+    public void setTitle(String title) {
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(title);
+    }
+
     @OnClick(R.id.image_view_send_message)
     public void onViewClicked() {
-        mPresenter.sendMessage(mMessageToSentEditText.getText().toString(), recipientContactId);
+        mPresenter.sendMessage(mMessageToSentEditText.getText().toString(), mContactId);
     }
 
     private void closeKeyboard() {
@@ -134,7 +134,8 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
         }
         InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService
                 (Context.INPUT_METHOD_SERVICE);
-        inputManager.hideSoftInputFromWindow(mMessageToSentEditText.getWindowToken(), InputMethodManager
-                .HIDE_NOT_ALWAYS);
+        inputManager.hideSoftInputFromWindow(mMessageToSentEditText.getWindowToken(),
+                InputMethodManager
+                        .HIDE_NOT_ALWAYS);
     }
 }

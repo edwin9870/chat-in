@@ -1,53 +1,53 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:id="@+id/scroll_view_fragment_conversation"
-            android:layout_height="wrap_content">
+<LinearLayout
+    android:id="@+id/fragment_conversation"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_conversation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
     <LinearLayout
+        android:id="@+id/linear_layout_send_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycler_conversation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <FrameLayout
+            android:id="@+id/frame_layout_message_box"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center"
-            android:orientation="horizontal">
+            android:layout_margin="@dimen/frame_padding"
+            android:layout_weight="1"
+            android:background="@drawable/ic_send_message"
+            android:minHeight="@dimen/frame_message_min_height">
 
-            <FrameLayout
-                android:id="@+id/frame_layout_message_box"
+            <EditText
+                android:id="@+id/edit_text_message_to_sent"
+                style="@style/TextAppearance.AppCompat.Body1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_margin="@dimen/frame_padding"
-                android:background="@drawable/ic_send_message"
-                android:minHeight="@dimen/frame_message_min_height">
-
-                <EditText
-                    android:id="@+id/edit_text_message_to_sent"
-                    style="@style/TextAppearance.AppCompat.Body1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/type_a_message"
-                    />
-            </FrameLayout>
-
-            <ImageView
-                android:id="@+id/image_view_send_message"
-                android:layout_width="@dimen/message_send_button_width"
-                android:layout_height="@dimen/message_send_button_height"
-                android:layout_gravity="bottom"
-                android:layout_margin="@dimen/message_send_button_margin"
-                android:background="@drawable/ic_send_message"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_send"
+                android:hint="@string/type_a_message"
                 />
-        </LinearLayout>
+        </FrameLayout>
+
+        <ImageView
+            android:id="@+id/image_view_send_message"
+            android:layout_width="@dimen/message_send_button_width"
+            android:layout_height="@dimen/message_send_button_height"
+            android:layout_gravity="bottom"
+            android:layout_margin="@dimen/message_send_button_margin"
+            android:background="@drawable/ic_send_message"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_send"
+            />
     </LinearLayout>
-</ScrollView>
+</LinearLayout>

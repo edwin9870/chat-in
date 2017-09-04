@@ -10,8 +10,7 @@
         android:id="@+id/image_view_profile"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_gravity="center"
-        tools:background="@drawable/ic_women_image"/>
+        android:layout_gravity="center"/>
 
     <FrameLayout
         android:layout_width="match_parent"

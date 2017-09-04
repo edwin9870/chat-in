@@ -29,15 +29,13 @@ public class ConversationActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setTitle(getString(R.string.app_name).toUpperCase());
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         ConversationFragment fragment = (ConversationFragment) getFragmentManager()
                 .findFragmentById(R.id.fragment_conversation);
 
         if (fragment == null) {
-            int contactId = getIntent().getExtras().getInt(ConversationFragment
-                    .BUNDLE_CONTACT_ID);
+            int contactId = getIntent().getExtras().getInt(ConversationFragment.BUNDLE_CONTACT_ID);
             Log.d(TAG, "ConversationDTO received: " + contactId);
 
             fragment = ConversationFragment.newInstance(contactId);

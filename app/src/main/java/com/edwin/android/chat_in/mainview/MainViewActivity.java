@@ -17,7 +17,6 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.edwin.android.chat_in.R;
-import com.edwin.android.chat_in.auth.AuthActivity;
 import com.edwin.android.chat_in.chat.ChatFragment;
 import com.edwin.android.chat_in.chat.ChatPresenterModule;
 import com.edwin.android.chat_in.chat.DaggerChatComponent;

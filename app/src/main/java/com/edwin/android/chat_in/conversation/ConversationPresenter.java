@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -118,5 +119,13 @@ public class ConversationPresenter implements ConversationMVP.Presenter {
                         mView.addConversation(conversationWrapper);
                     }
                 });
+    }
+
+    @Override
+    public void setTitle(int contactId) {
+        mContactRepository.getContactById(contactId)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(contactDTO -> mView.setTitle(contactDTO.getUserName()));
     }
 }
