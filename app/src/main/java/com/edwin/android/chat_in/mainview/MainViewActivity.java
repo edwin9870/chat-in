@@ -90,7 +90,7 @@ public class MainViewActivity extends AppCompatActivity {
         if (mSyncDatabase != null &&
                 mSyncDatabase.getConversationDisposable() != null &&
                 !mSyncDatabase.getConversationDisposable().isDisposed()) {
-            Log.d(TAG, "Disposing sync database conversation");
+            Log.d(TAG, "Disposing syncConversation database conversation");
             mSyncDatabase.getConversationDisposable().dispose();
         }
     }
@@ -153,12 +153,13 @@ public class MainViewActivity extends AppCompatActivity {
                 .contactPresenterModule(new ContactPresenterModule(mContactFragment))
                 .applicationModule(new ApplicationModule(this))
                 .databaseModule(new DatabaseModule())
+                .fcmModule(new FcmModule())
                 .build().getPresenter();
 
         setupViewPager();
 
         Log.d(TAG, "Phone number: "+ ResourceUtil.getPhoneNumber(this));
-        mSyncDatabase.sync();
+        mSyncDatabase.syncConversation();
     }
 
     private void setupFragment() {

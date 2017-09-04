@@ -83,32 +83,13 @@ public class ConversationRepository {
             cv.put(ConversationEntry.COLUMN_NAME_SENDER, conversation.getSenderContactId());
             cv.put(ConversationEntry.COLUMN_NAME_RECIPIENT, conversation.getRecipientContactId());
             cv.put(ConversationEntry.COLUMN_NAME_NUMERIC_DATE, conversation.getMessageDate());
+            cv.put(ConversationEntry.COLUMN_NAME_CONVERSATION_GROUP_ID, conversation.getConversationGroupId());
 
-            Observable
-                    .fromArray(conversation.getSenderContactId(), conversation.getRecipientContactId())
-                    .map(integer -> mContactRepository.getContactById(integer).blockingGet())
-                    .toList()
-                    .map(contacts -> {
-                        Long conversationGroupId = 0L;
-                        Log.d(TAG, "contacts: "+ contacts);
-                        for(ContactDTO contact : contacts) {
-                            conversationGroupId += Long.valueOf(contact.getNumber());
-                        }
-                        Log.d(TAG, "Conversation group id: "+ conversationGroupId);
-                        return conversationGroupId.toString();
-                    })
-                    .subscribeOn(Schedulers.computation())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(conversationGroupId -> {
-                        Log.d(TAG, "Conversation group id to persist: "+ conversationGroupId);
-                        cv.put(ConversationEntry.COLUMN_NAME_CONVERSATION_GROUP_ID, conversationGroupId);
-                        final Uri insertedUri = mContentResolver.insert(ConversationEntry.CONTENT_URI, cv);
-                        final long idConversation = ContentUris.parseId(insertedUri);
-                        Log.d(TAG, "idConversation: " + idConversation);
-                        e.onSuccess(idConversation);
-                        e.onComplete();
-                    });
-
+            final Uri insertedUri = mContentResolver.insert(ConversationEntry.CONTENT_URI, cv);
+            final long idConversation = ContentUris.parseId(insertedUri);
+            Log.d(TAG, "idConversation: " + idConversation);
+            e.onSuccess(idConversation);
+            e.onComplete();
         });
     }
     public Observable<ConversationDTO> getLastMessages() {
@@ -149,8 +130,45 @@ public class ConversationRepository {
                     cursor.close();
                 }
             }
+        });
+    }
+    public Observable<ConversationDTO> getLastMessageByConversationGroupId(String conversationGroupId) {
+        Log.d(TAG, "conversationGroupId: "+ conversationGroupId);
+        return Observable.create(emitter -> {
+            Cursor cursor = null;
+            try {
+                cursor = mContentResolver.query(ConversationEntry.CONTENT_URI,
+                        new String[]{ConversationEntry._ID, ConversationEntry.COLUMN_NAME_MESSAGE,
+                                ConversationEntry.COLUMN_NAME_SENDER, "MAX(" + ConversationEntry
+                                .COLUMN_NAME_NUMERIC_DATE + ") AS " + ConversationEntry.COLUMN_NAME_NUMERIC_DATE,
+                                ConversationEntry.COLUMN_NAME_RECIPIENT, ConversationEntry.COLUMN_NAME_CONVERSATION_GROUP_ID},
+                        ConversationEntry.COLUMN_NAME_CONVERSATION_GROUP_ID + " = ? ",
+                        new String[]{conversationGroupId},
+                        null);
+                List<Integer> contactsIdProcessed = new ArrayList<>();
+                while(cursor != null && cursor.moveToNext()) {
+                    ConversationDTO conversation = getConversationFromCursor(cursor);
+                    Log.d(TAG, "getLastMessage. conversation: " + conversation);
 
+                    int contactId = conversation.getRecipientContactId() == ContactRepository.OWNER_CONTACT_ID
+                            ? conversation.getSenderContactId()
+                            : conversation.getRecipientContactId();
+                    Log.d(TAG, "contactId: " + contactId);
+                    if(!contactsIdProcessed.contains(contactId)) {
+                        contactsIdProcessed.add(contactId);
+                        Log.d(TAG, "getLastMessage. emitting conversation: "+ conversation);
+                        emitter.onNext(conversation);
+                    }
 
+                }
+
+            } finally {
+                Log.d(TAG, "Calling onComplete");
+                emitter.onComplete();
+                if(cursor != null) {
+                    cursor.close();
+                }
+            }
         });
     }
 

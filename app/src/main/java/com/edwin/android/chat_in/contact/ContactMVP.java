@@ -17,5 +17,6 @@ public interface ContactMVP {
 
     interface Presenter {
         void getContacts();
+        void syncContact();
     }
 }

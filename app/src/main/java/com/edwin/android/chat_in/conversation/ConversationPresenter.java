@@ -1,9 +1,13 @@
 package com.edwin.android.chat_in.conversation;
 
+import android.content.Context;
+import android.database.ContentObserver;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.edwin.android.chat_in.chat.ConversationWrapper;
+import com.edwin.android.chat_in.data.ChatInContract;
 import com.edwin.android.chat_in.data.dto.ContactDTO;
 import com.edwin.android.chat_in.data.dto.ConversationDTO;
 import com.edwin.android.chat_in.data.fcm.ConversationRepositoryFcm;
@@ -15,6 +19,7 @@ import java.util.Date;
 
 import javax.inject.Inject;
 
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -33,7 +38,7 @@ public class ConversationPresenter implements ConversationMVP.Presenter {
     private final ContactRepository mContactRepository;
     private final ConversationRepositoryFcm mConversationRepositoryFcm;
     private final SyncDatabase mSyncDatabase;
-    private Disposable mDisposableNewConversations;
+    private ContentObserver mConversationContentObserver;
 
     @Inject
     public ConversationPresenter(ConversationMVP.View view,
@@ -108,20 +113,42 @@ public class ConversationPresenter implements ConversationMVP.Presenter {
     }
 
     @Override
-    public void keepSyncConversation(int contactId) {
-        mSyncDatabase.sync();
-        mDisposableNewConversations = mSyncDatabase.getNewConversations()
-                .map(this::convertToWrapper)
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(conversationWrapper -> {
-                    Log.d(TAG, "New conversationWrapper received: " + conversationWrapper);
-                    if (conversationWrapper.getConversation().getSenderContactId() !=
-                            ContactRepository.OWNER_CONTACT_ID) {
-                        Log.d(TAG, "If sender is not the owner, refresh chat");
-                        mView.addConversation(conversationWrapper);
-                    }
-                });
+    public void keepSyncConversation(Context context, int contactId) {
+        mSyncDatabase.syncConversation();
+
+        mConversationContentObserver = new ContentObserver(new Handler()) {
+            @Override
+            public void onChange(boolean selfChange) {
+                super.onChange(selfChange);
+                Observable.fromArray(contactId, ContactRepository.OWNER_CONTACT_ID)
+                        .map(contactId1 -> mContactRepository.getContactById(contactId1)
+                                .blockingGet())
+                        .toList()
+                        .subscribeOn(Schedulers.computation())
+                        .subscribe(contacts -> {
+                            Long conversationGroupId = 0L;
+                            for (ContactDTO contact : contacts) {
+                                conversationGroupId += Long.valueOf(contact.getNumber());
+                            }
+                            Log.d(TAG, "conversationGroupId to find last message: " +
+                                    conversationGroupId);
+                            mConversationRepository.getLastMessageByConversationGroupId
+                                    (conversationGroupId.toString())
+                                    .map(ConversationPresenter.this::convertToWrapper)
+                                    .filter(conversationWrapper ->
+                                            conversationWrapper.getConversation()
+                                                    .getSenderContactId() !=
+                                                    ContactRepository.OWNER_CONTACT_ID)
+                                    .subscribeOn(Schedulers.computation())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(mView::addConversation);
+                        });
+
+
+            }
+        };
+        context.getContentResolver().registerContentObserver(ChatInContract.ConversationEntry.CONTENT_URI, true,
+                mConversationContentObserver);
     }
 
     @Override
@@ -133,11 +160,13 @@ public class ConversationPresenter implements ConversationMVP.Presenter {
     }
 
     @Override
-    public void destroy() {
+    public void destroy(Context context) {
         Log.d(TAG, "Calling onDestroy");
-        if(mDisposableNewConversations != null && !mDisposableNewConversations.isDisposed()) {
-            Log.d(TAG, "Disposing mDisposableNewConversations");
-            mDisposableNewConversations.dispose();
+
+        if(mConversationContentObserver != null) {
+            Log.d(TAG, "Unregister mConversationContentObserver");
+            context.getContentResolver().unregisterContentObserver(mConversationContentObserver);
         }
+
     }
 }

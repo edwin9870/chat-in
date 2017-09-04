@@ -1,6 +1,9 @@
 package com.edwin.android.chat_in.contact;
 
+import android.util.Log;
+
 import com.edwin.android.chat_in.data.repositories.ContactRepository;
+import com.edwin.android.chat_in.data.sync.SyncDatabase;
 
 import javax.inject.Inject;
 
@@ -13,13 +16,17 @@ import io.reactivex.schedulers.Schedulers;
 
 public class ContactPresenter implements ContactMVP.Presenter {
 
+    public static final String TAG = ContactPresenter.class.getSimpleName();
     private final ContactMVP.View mView;
     private final ContactRepository mContactRepository;
+    private final SyncDatabase mSyncDatabase;
 
     @Inject
-    public ContactPresenter(ContactMVP.View mView, ContactRepository contactRepository) {
+    public ContactPresenter(ContactMVP.View mView, ContactRepository contactRepository,
+                            SyncDatabase syncDatabase) {
         this.mView = mView;
         mContactRepository = contactRepository;
+        mSyncDatabase = syncDatabase;
     }
 
     @Inject
@@ -34,5 +41,11 @@ public class ContactPresenter implements ContactMVP.Presenter {
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .toList().subscribe(mView::showContacts);
+    }
+
+    @Override
+    public void syncContact() {
+        Log.d(TAG, "Calling syncContacts");
+        mSyncDatabase.syncContacts();
     }
 }

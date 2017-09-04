@@ -1,5 +1,7 @@
 package com.edwin.android.chat_in.conversation;
 
+import android.content.Context;
+
 import com.edwin.android.chat_in.chat.ConversationWrapper;
 
 import java.util.List;
@@ -23,8 +25,8 @@ public interface ConversationMVP {
     interface Presenter {
         void getConversation(int contactId);
         void sendMessage(@NonNull String message, @NonNull int recipientContactId);
-        void keepSyncConversation(int contactId);
+        void keepSyncConversation(Context context, int contactId);
         void setTitle(int contactId);
-        void destroy();
+        void destroy(Context context);
     }
 }

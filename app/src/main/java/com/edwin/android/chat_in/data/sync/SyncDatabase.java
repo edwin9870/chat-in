@@ -7,6 +7,7 @@ import android.util.SparseArray;
 
 import com.edwin.android.chat_in.data.dto.ContactDTO;
 import com.edwin.android.chat_in.data.dto.ConversationDTO;
+import com.edwin.android.chat_in.data.entity.Contact;
 import com.edwin.android.chat_in.data.fcm.ContactRepositoryFcm;
 import com.edwin.android.chat_in.data.repositories.ContactRepository;
 import com.edwin.android.chat_in.data.repositories.ConversationRepository;
@@ -22,6 +23,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -30,6 +33,9 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
@@ -95,16 +101,36 @@ public class SyncDatabase {
                             .subscribe();
 
                 }
-
+                final List<String> numberProcessed = new ArrayList<>();
                 mContactRepository.getAllPhoneContacts()
                         .filter(sparseArray -> {
                             final String telephoneNumber = sparseArray.get(ContactRepository.TELEPHONE_NUMBER);
-                            final Boolean isEmptyContact = mContactRepository.getContactByNumber(telephoneNumber)
-                                    .isEmpty().blockingGet();
-                            Log.d(TAG, "Number: " + telephoneNumber + ", number exists: " + isEmptyContact);
-                            return isEmptyContact;
+
+                            if(!numberProcessed.contains(telephoneNumber)) {
+                                numberProcessed.add(telephoneNumber);
+                                return true;
+                            }
+                            Log.d(TAG, "telephoneNumber has been processed previously, skip it");
+                            return false;
+                        })
+                        .filter(sparseArray -> {
+                            final String telephoneNumber = sparseArray.get(ContactRepository.TELEPHONE_NUMBER);
+                            final ContactDTO contact = mContactRepository.getContactByNumber
+                                    (telephoneNumber).blockingGet();
+                            if(contact == null) {
+                                return true;
+                            }
+
+                            if(contact.getUserName() == null || contact.getUserName().isEmpty()) {
+                                return true;
+                            }
+
+                            Log.d(TAG, "Number: " + telephoneNumber + ", contact exist, skip it. Contact: " + contact);
+                            return false;
                         })
                         .toList().subscribe(sparseArrays -> {
+                            Log.d(TAG, "Clear number processed contacts list");
+                            numberProcessed.clear();
                             Log.d(TAG, "spaceArrays size: "+sparseArrays);
                             MutableInteger mutableInteger = new MutableInteger();
 
@@ -150,49 +176,77 @@ public class SyncDatabase {
         });
     }
 
-    public void sync() {
+    public void syncConversation() {
         String ownerTelephoneNumber = ResourceUtil.getPhoneNumber(mContext);
-        Log.d(TAG, "Executing sync method");
+        Log.d(TAG, "Executing syncConversation method");
         Log.d(TAG, "ownerTelephoneNumber: " + ownerTelephoneNumber);
-
-        getNewContacts()
+        Log.d(TAG, "Starting to persist conversation");
+        conversationDisposable = getNewConversations()
                 .subscribeOn(Schedulers.computation())
-                .subscribe(new DisposableObserver<ContactDTO>() {
-            @Override
-            public void onNext(ContactDTO contact) {
-                Log.d(TAG, "Contact to persist: "+contact);
-                mContactRepository.persist(contact);
-                SyncDatabase.this.downloadProfileImage(contact.getProfileImagePath())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe();
-            }
+                .subscribe(messageWrapper -> {
+                    Log.d(TAG, "Conversation received: "+ messageWrapper);
+                    final ContactDTO senderContact = mContactRepository.getContactByNumber
+                            (messageWrapper.getSenderNumber()).blockingGet();
+                    final ContactDTO recipientContact = mContactRepository.getContactByNumber
+                            (messageWrapper.getRecipientNumber()).blockingGet();
 
-            @Override
-            public void onError(Throwable e) {
-                e.printStackTrace();
-            }
+                    ConversationDTO conversation = new ConversationDTO();
+                    conversation.setMessageDate(messageWrapper.getMessageDate());
+                    conversation.setMessage(messageWrapper.getMessage());
+                    conversation.setConversationGroupId(String.valueOf(
+                            Long.valueOf(messageWrapper.getRecipientNumber()) +
+                                    Long.valueOf(messageWrapper.getSenderNumber()))
+                    );
 
-            @Override
-            public void onComplete() {
-                Log.d(TAG, "Starting to persist conversation");
-                conversationDisposable = getNewConversations()
-                        .subscribeOn(Schedulers.computation())
-                        .subscribe(conversationDTO -> mConversationRepository.persist
-                                (conversationDTO).subscribe());
-            }
-        });
+                    if(senderContact == null) {
+                        ContactDTO contact = new ContactDTO();
+                        contact.setNumber(messageWrapper.getSenderNumber());
+                        final int contactId = mContactRepository.persist(contact);
+                        contact.setId(contactId);
+                        conversation.setSenderContactId(contactId);
+                    } else {
+                        conversation.setSenderContactId(senderContact.getId());
+                    }
 
+                    if(recipientContact == null) {
+                        ContactDTO contact = new ContactDTO();
+                        contact.setNumber(messageWrapper.getRecipientNumber());
+                        final int contactId = mContactRepository.persist(contact);
+                        contact.setId(contactId);
+                        conversation.setRecipientContactId(contactId);
+                    } else {
+                        conversation.setRecipientContactId(recipientContact.getId());
+                    }
+
+                    Log.d(TAG, "Conversation to persist: "+ conversation);
+                    mConversationRepository.persist(conversation).subscribe();
+                });
+    }
+
+    public void syncContacts() {
+        Log.d(TAG, "Calling syncContacts");
+        getNewContacts().subscribeOn(Schedulers.computation())
+                .subscribe(contact -> {
+                    final ContactDTO persistedContact = mContactRepository.getContactByNumber
+                            (contact.getNumber()).blockingGet();
+                    if(persistedContact == null) {
+                        Log.d(TAG, "Persisting new contact: "+ contact);
+                        mContactRepository.persist(contact);
+                    } else {
+                        Log.d(TAG, "Updating new contact: "+ contact);
+                        mContactRepository.updateContact(contact);
+                    }
+                });
     }
 
     public Disposable getConversationDisposable() {
         return conversationDisposable;
     }
 
-    public Observable<ConversationDTO> getNewConversations() {
+    public Observable<MessageWrapper> getNewConversations() {
         String ownerTelephoneNumber = ResourceUtil.getPhoneNumber(mContext);
         final Query conversationPath = mDatabase.child(CONVERSATION_ROOT_PATH);
-        Observable<ConversationDTO> targetToMeObservable = Observable.create(e -> {
+        Observable<MessageWrapper> targetToMeObservable = Observable.create(e -> {
             Log.d(TAG, "getNewConversations");
             conversationPath.addChildEventListener(new ChildEventListener() {
                 @Override
@@ -207,7 +261,7 @@ public class SyncDatabase {
 
                         @Override
                         public void onChildAdded(DataSnapshot dataSnapshotConversationChild, String s) {
-                            ConversationDTO conversation = new ConversationDTO();
+                            MessageWrapper conversation = new MessageWrapper();
                             Log.d(TAG, "dataSnapshotConversationChild: " + dataSnapshotConversationChild);
                             if(!TextUtils.isDigitsOnly(dataSnapshotConversationChild.getKey())) {
                                 Log.d(TAG, "Skip message because is not valid");
@@ -223,31 +277,14 @@ public class SyncDatabase {
                             final String senderNumber = conversationNumbers.substring(0, conversationNumbers.indexOf("_"));
                             final String recipientNumber = conversationNumbers.substring(conversationNumbers.indexOf("_") + 1);
                             Log.d(TAG, "senderNumber: " + senderNumber+", recipientNumber: "+ recipientNumber);
-                            String numberToFindContact;
-                            if(recipientNumber.equals(ownerTelephoneNumber)) {
-                                conversation.setRecipientContactId(ContactRepository.OWNER_CONTACT_ID);
-                                numberToFindContact = senderNumber;
-                            } else {
-                                conversation.setSenderContactId(ContactRepository.OWNER_CONTACT_ID);
-                                numberToFindContact = recipientNumber;
-                            }
 
-                            Log.d(TAG, "numberToFindContact: " + numberToFindContact);
-                            mContactRepository.getContactByNumber
-                                    (numberToFindContact).subscribe(contact -> {
-                                    if(!TextUtils.isDigitsOnly(dataSnapshotConversationChild.getKey())) {
-                                        return;
-                                    }
-                                    if(conversation.getSenderContactId() <= 0) {
-                                        conversation.setSenderContactId(contact.getId());
-                                    } else {
-                                        conversation.setRecipientContactId(contact.getId());
-                                    }
-                                    conversation.setMessage(dataSnapshotConversationChild.child("message").getValue(String.class));
-                                    conversation.setMessageDate(Long.valueOf(dataSnapshotConversationChild.getKey()));
-                                    Log.d(TAG, "Conversation: " + conversation);
-                                    e.onNext(conversation);
-                            });
+                            conversation.setRecipientNumber(recipientNumber);
+                            conversation.setSenderNumber(senderNumber);
+
+                            conversation.setMessage(dataSnapshotConversationChild.child("message").getValue(String.class));
+                            conversation.setMessageDate(Long.valueOf(dataSnapshotConversationChild.getKey()));
+                            Log.d(TAG, "Conversation: " + conversation);
+                            e.onNext(conversation);
 
                         }
 

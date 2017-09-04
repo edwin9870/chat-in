@@ -69,7 +69,6 @@ public class AuthFragment extends Fragment implements AdapterView.OnItemSelected
 
         mCountrySpinner.setOnItemSelectedListener(this);
 
-
         return view;
     }
 

@@ -85,7 +85,7 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
         mRecyclerView.setAdapter(mAdapter);
         mPresenter.setTitle(mContactId);
         mPresenter.getConversation(mContactId);
-        mPresenter.keepSyncConversation(mContactId);
+        mPresenter.keepSyncConversation(getActivity(), mContactId);
 
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         return mView;
@@ -101,7 +101,7 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
     public void onDestroyView() {
         super.onDestroyView();
         Log.d(TAG, "onDestroyView called");
-        mPresenter.destroy();
+        mPresenter.destroy(getActivity());
         unbinder.unbind();
     }
 
