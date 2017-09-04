@@ -35,7 +35,9 @@ public final class ResourceUtil {
     @SuppressLint("MissingPermission")
     @Nullable
     public static String getPhoneNumber(Context context) {
-        return FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber().substring(2);
+        //TODO: Change to firebase auth
+        //return FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber().substring(2);
+        return "8292779870";
     }
 
 

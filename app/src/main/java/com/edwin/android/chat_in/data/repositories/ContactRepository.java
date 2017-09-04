@@ -189,12 +189,14 @@ public class ContactRepository {
                             while (phoneCursor != null && phoneCursor.moveToNext()) {
                                 String phoneNo = phoneCursor.getString(phoneCursor.getColumnIndex(
                                         ContactsContract.CommonDataKinds.Phone.NUMBER));
+                                phoneNo = phoneNo.replaceAll("[()\\s-]+", "");
+                                Log.d(TAG, "Name: " + name + ", Phone No: " + phoneNo);
                                 if(!TextUtils.isDigitsOnly(phoneNo)) {
+                                    Log.d(TAG, "Skip phone number because is not only digits");
                                     continue;
                                 }
-                                Log.d(TAG, "Name: " + name + ", Phone No: " + phoneNo);
                                 SparseArray<String> data = new SparseArray<>();
-                                data.put(TELEPHONE_NUMBER, phoneNo.replaceAll("[()\\s-]+", ""));
+                                data.put(TELEPHONE_NUMBER, phoneNo);
                                 data.put(CONTACT_NAME, name);
                                 emitter.onNext(data);
                             }
@@ -205,7 +207,7 @@ public class ContactRepository {
                     }
                 }
             } finally {
-                Log.d(TAG, "Calling onComplete");
+                Log.d(TAG, "getAllPhoneContacts. Calling onComplete");
                 emitter.onComplete();
                 if(cursor != null) {
                     cursor.close();
