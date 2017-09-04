@@ -14,6 +14,7 @@ public class ConversationDTO implements Parcelable {
     private int recipientContactId;
     private String message;
     private long messageDate;
+    private String conversationGroupId;
 
     public long getId() {
         return id;
@@ -55,6 +56,14 @@ public class ConversationDTO implements Parcelable {
         this.messageDate = messageDate;
     }
 
+    public String getConversationGroupId() {
+        return conversationGroupId;
+    }
+
+    public void setConversationGroupId(String conversationGroupId) {
+        this.conversationGroupId = conversationGroupId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -70,6 +79,7 @@ public class ConversationDTO implements Parcelable {
         return (int) (id ^ (id >>> 32));
     }
 
+
     @Override
     public String toString() {
         return "ConversationDTO{" +
@@ -78,6 +88,7 @@ public class ConversationDTO implements Parcelable {
                 ", recipientContactId=" + recipientContactId +
                 ", message='" + message + '\'' +
                 ", messageDate=" + messageDate +
+                ", conversationGroupId='" + conversationGroupId + '\'' +
                 '}';
     }
 
@@ -94,6 +105,7 @@ public class ConversationDTO implements Parcelable {
         dest.writeInt(this.recipientContactId);
         dest.writeString(this.message);
         dest.writeLong(this.messageDate);
+        dest.writeString(this.conversationGroupId);
     }
 
     public ConversationDTO() {
@@ -105,6 +117,7 @@ public class ConversationDTO implements Parcelable {
         this.recipientContactId = in.readInt();
         this.message = in.readString();
         this.messageDate = in.readLong();
+        this.conversationGroupId = in.readString();
     }
 
     public static final Parcelable.Creator<ConversationDTO> CREATOR = new Parcelable

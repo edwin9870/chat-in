@@ -8,7 +8,9 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.edwin.android.chat_in.data.ChatInContract.ConversationEntry;
+import com.edwin.android.chat_in.data.dto.ContactDTO;
 import com.edwin.android.chat_in.data.dto.ConversationDTO;
+import com.edwin.android.chat_in.data.entity.Contact;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +22,11 @@ import io.reactivex.Maybe;
 import io.reactivex.MaybeEmitter;
 import io.reactivex.MaybeOnSubscribe;
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.BiFunction;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author Edwin Ramirez Ventur
@@ -30,11 +37,13 @@ import io.reactivex.Observable;
 public class ConversationRepository {
 
     public static final String TAG = ConversationRepository.class.getSimpleName();
+    private final ContactRepository mContactRepository;
     private ContentResolver mContentResolver;
 
     @Inject
-    public ConversationRepository(ContentResolver contentResolver) {
+    public ConversationRepository(ContentResolver contentResolver, ContactRepository contactRepository) {
         this.mContentResolver = contentResolver;
+        mContactRepository = contactRepository;
     }
 
     public Maybe<ConversationDTO> getConversationByDateTimeNumber(long dateTime) {
@@ -74,12 +83,32 @@ public class ConversationRepository {
             cv.put(ConversationEntry.COLUMN_NAME_SENDER, conversation.getSenderContactId());
             cv.put(ConversationEntry.COLUMN_NAME_RECIPIENT, conversation.getRecipientContactId());
             cv.put(ConversationEntry.COLUMN_NAME_NUMERIC_DATE, conversation.getMessageDate());
-            final Uri insertedUri = mContentResolver.insert(ConversationEntry
-                    .CONTENT_URI, cv);
-            final long idConversation = ContentUris.parseId(insertedUri);
-            Log.d(TAG, "idConversation: " + idConversation);
-            e.onSuccess(idConversation);
-            e.onComplete();
+
+            Observable
+                    .fromArray(conversation.getSenderContactId(), conversation.getRecipientContactId())
+                    .map(integer -> mContactRepository.getContactById(integer).blockingGet())
+                    .toList()
+                    .map(contacts -> {
+                        Long conversationGroupId = 0L;
+                        Log.d(TAG, "contacts: "+ contacts);
+                        for(ContactDTO contact : contacts) {
+                            conversationGroupId += Long.valueOf(contact.getNumber());
+                        }
+                        Log.d(TAG, "Conversation group id: "+ conversationGroupId);
+                        return conversationGroupId.toString();
+                    })
+                    .subscribeOn(Schedulers.computation())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(conversationGroupId -> {
+                        Log.d(TAG, "Conversation group id to persist: "+ conversationGroupId);
+                        cv.put(ConversationEntry.COLUMN_NAME_CONVERSATION_GROUP_ID, conversationGroupId);
+                        final Uri insertedUri = mContentResolver.insert(ConversationEntry.CONTENT_URI, cv);
+                        final long idConversation = ContentUris.parseId(insertedUri);
+                        Log.d(TAG, "idConversation: " + idConversation);
+                        e.onSuccess(idConversation);
+                        e.onComplete();
+                    });
+
         });
     }
     public Observable<ConversationDTO> getLastMessages() {
@@ -87,10 +116,12 @@ public class ConversationRepository {
             Cursor cursor = null;
             try {
                 cursor = mContentResolver.query(ConversationEntry.CONTENT_URI,
-                        null,
+                        new String[]{ConversationEntry._ID, ConversationEntry.COLUMN_NAME_MESSAGE,
+                                ConversationEntry.COLUMN_NAME_SENDER, "MAX(" + ConversationEntry
+                                .COLUMN_NAME_NUMERIC_DATE + ") AS " + ConversationEntry.COLUMN_NAME_NUMERIC_DATE,
+                        ConversationEntry.COLUMN_NAME_RECIPIENT, ConversationEntry.COLUMN_NAME_CONVERSATION_GROUP_ID},
                         ConversationEntry.COLUMN_NAME_MESSAGE + " IS NOT NULL GROUP BY " +
-                                ConversationEntry.COLUMN_NAME_RECIPIENT + ", " +
-                                ConversationEntry.COLUMN_NAME_SENDER + " ORDER BY " +
+                                ConversationEntry.COLUMN_NAME_CONVERSATION_GROUP_ID + " ORDER BY " +
                                 ConversationEntry.COLUMN_NAME_NUMERIC_DATE + " DESC",
                         null,
                         null);
@@ -170,6 +201,9 @@ public class ConversationRepository {
         conversation.setMessage(conversationCursor.getString(conversationCursor
                 .getColumnIndex(ConversationEntry.COLUMN_NAME_MESSAGE)));
         conversation.setId(conversationCursor.getInt(conversationCursor.getColumnIndex(ConversationEntry._ID)));
+        conversation.setConversationGroupId(
+                conversationCursor.getString(conversationCursor
+                .getColumnIndex(ConversationEntry.COLUMN_NAME_CONVERSATION_GROUP_ID)));
 
         return conversation;
     }
