@@ -15,7 +15,7 @@ import com.edwin.android.chat_in.data.ChatInContract.ConversationEntry;
 public class ChatInDbHelper extends SQLiteOpenHelper {
 
     public static final int DATABASE_VERSION = 1;
-    public static final String DATABASE_NAME = "chat-in17.db";
+    public static final String DATABASE_NAME = "chat-in18.db";
     public static final String TAG = ChatInDbHelper.class.getSimpleName();
 
     public ChatInDbHelper(Context context) {
@@ -43,6 +43,7 @@ public class ChatInDbHelper extends SQLiteOpenHelper {
                 "\"" + ConversationEntry.COLUMN_NAME_SENDER + "\" INTEGER NOT NULL, " +
                 "\"" + ConversationEntry.COLUMN_NAME_NUMERIC_DATE + "\" LONG NOT NULL, " +
                 "\"" + ConversationEntry.COLUMN_NAME_RECIPIENT + "\" INTEGER NOT NULL, " +
+                ConversationEntry.COLUMN_NAME_CONVERSATION_GROUP_ID + " TEXT NOT NULL, " +
                 "CONSTRAINT CONVERSATION_CONTACT__ID_fk FOREIGN KEY (\"" +
                 ConversationEntry.COLUMN_NAME_SENDER + "\") REFERENCES " +
                 ContactEntry.TABLE_NAME + " (" +

@@ -34,5 +34,6 @@ public class ChatInContract {
         public static final String COLUMN_NAME_SENDER = "SENDER";
         public static final String COLUMN_NAME_RECIPIENT = "RECIPIENT";
         public static final String COLUMN_NAME_NUMERIC_DATE = "NUMERIC_DATE";
+        public static final String COLUMN_NAME_CONVERSATION_GROUP_ID = "CONVERSATION_GROUP_ID";
     }
 }
