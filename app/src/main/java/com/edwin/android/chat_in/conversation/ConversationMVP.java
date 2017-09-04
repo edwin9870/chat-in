@@ -25,5 +25,6 @@ public interface ConversationMVP {
         void sendMessage(@NonNull String message, @NonNull int recipientContactId);
         void keepSyncConversation(int contactId);
         void setTitle(int contactId);
+        void destroy();
     }
 }

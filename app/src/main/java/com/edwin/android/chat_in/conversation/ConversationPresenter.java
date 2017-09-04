@@ -18,7 +18,7 @@ import javax.inject.Inject;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -33,6 +33,7 @@ public class ConversationPresenter implements ConversationMVP.Presenter {
     private final ContactRepository mContactRepository;
     private final ConversationRepositoryFcm mConversationRepositoryFcm;
     private final SyncDatabase mSyncDatabase;
+    private Disposable mDisposableNewConversations;
 
     @Inject
     public ConversationPresenter(ConversationMVP.View view,
@@ -109,12 +110,14 @@ public class ConversationPresenter implements ConversationMVP.Presenter {
     @Override
     public void keepSyncConversation(int contactId) {
         mSyncDatabase.sync();
-        mSyncDatabase.getNewConversations()
+        mDisposableNewConversations = mSyncDatabase.getNewConversations()
                 .map(this::convertToWrapper)
+                .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(conversationWrapper -> {
-                    Log.d(TAG, "New conversationWrapper received: "+ conversationWrapper);
-                    if(conversationWrapper.getConversation().getSenderContactId() != ContactRepository.OWNER_CONTACT_ID) {
+                    Log.d(TAG, "New conversationWrapper received: " + conversationWrapper);
+                    if (conversationWrapper.getConversation().getSenderContactId() !=
+                            ContactRepository.OWNER_CONTACT_ID) {
                         Log.d(TAG, "If sender is not the owner, refresh chat");
                         mView.addConversation(conversationWrapper);
                     }
@@ -127,5 +130,14 @@ public class ConversationPresenter implements ConversationMVP.Presenter {
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(contactDTO -> mView.setTitle(contactDTO.getUserName()));
+    }
+
+    @Override
+    public void destroy() {
+        Log.d(TAG, "Calling onDestroy");
+        if(mDisposableNewConversations != null && !mDisposableNewConversations.isDisposed()) {
+            Log.d(TAG, "Disposing mDisposableNewConversations");
+            mDisposableNewConversations.dispose();
+        }
     }
 }

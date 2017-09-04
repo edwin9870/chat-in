@@ -90,9 +90,18 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         return mView;
     }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop called");
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        Log.d(TAG, "onDestroyView called");
+        mPresenter.destroy();
         unbinder.unbind();
     }
 
@@ -115,8 +124,10 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
         mAdapter.addConversation(conversationWrapper);
         closeKeyboard();
         Log.d(TAG, "Scrolling to bottom");
-        Log.d(TAG, "itemCount: " + mRecyclerView.getAdapter().getItemCount());
-        scrollToBottom();
+        if(mRecyclerView.getAdapter() != null) {
+            Log.d(TAG, "itemCount: " + mRecyclerView.getAdapter().getItemCount());
+            scrollToBottom();
+        }
     }
 
     private void scrollToBottom() {

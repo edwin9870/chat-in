@@ -34,4 +34,12 @@ public class ConversationWrapper {
     public void setContact(ContactDTO contact) {
         this.contact = contact;
     }
+
+    @Override
+    public String toString() {
+        return "ConversationWrapper{" +
+                "conversation=" + conversation +
+                ", contact=" + contact +
+                '}';
+    }
 }

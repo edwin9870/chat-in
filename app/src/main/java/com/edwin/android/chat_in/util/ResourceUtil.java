@@ -37,7 +37,8 @@ public final class ResourceUtil {
     public static String getPhoneNumber(Context context) {
         //TODO: Change to firebase auth
         //return FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber().substring(2);
-        return "8292779870";
+        //return "8292779870"; Edwin number
+        return "8292779870"; //Cindy number
     }
 
 

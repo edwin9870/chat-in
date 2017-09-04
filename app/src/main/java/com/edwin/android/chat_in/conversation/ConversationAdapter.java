@@ -14,6 +14,7 @@ import com.edwin.android.chat_in.data.repositories.ContactRepository;
 import com.edwin.android.chat_in.util.FileUtil;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -103,6 +104,9 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
     public void addConversation(ConversationWrapper conversation) {
+        if(mConversations  == null) {
+            mConversations = new ArrayList<>();
+        }
         mConversations.add(conversation);
         notifyDataSetChanged();
     }
