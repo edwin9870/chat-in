@@ -3,7 +3,9 @@ package com.edwin.android.chat_in.conversation;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.database.ContentObserver;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +21,7 @@ import android.widget.LinearLayout;
 
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.chat.ConversationWrapper;
+import com.edwin.android.chat_in.data.ChatInContract;
 
 import java.util.List;
 
@@ -85,7 +88,6 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
         mPresenter.keepSyncConversation(mContactId);
 
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-
         return mView;
     }
     @Override

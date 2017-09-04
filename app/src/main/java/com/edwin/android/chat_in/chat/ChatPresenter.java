@@ -1,8 +1,11 @@
 package com.edwin.android.chat_in.chat;
 
 import android.content.Context;
+import android.database.ContentObserver;
+import android.os.Handler;
 import android.util.Log;
 
+import com.edwin.android.chat_in.data.ChatInContract;
 import com.edwin.android.chat_in.data.dto.ContactDTO;
 import com.edwin.android.chat_in.data.repositories.ContactRepository;
 import com.edwin.android.chat_in.data.repositories.ConversationRepository;
@@ -65,12 +68,14 @@ public class ChatPresenter implements ChatMVP.Presenter {
     @Override
     public void keepChatSync(Context context) {
         Log.d(TAG, "Calling keepChatSync");
-        chatDisposable = mSyncDatabase.getNewConversations()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(conversationDTO -> {
-                    Log.d(TAG, "New conversation: " + conversationDTO + ", updating chats");
-                    getChats();
+        context.getContentResolver().registerContentObserver(ChatInContract.ConversationEntry.CONTENT_URI,
+                true, new ContentObserver(new Handler()) {
+                    @Override
+                    public void onChange(boolean selfChange) {
+                        super.onChange(selfChange);
+                        Log.d(TAG, "New conversation changes, updating chat....");
+                        getChats();
+                    }
                 });
     }
 

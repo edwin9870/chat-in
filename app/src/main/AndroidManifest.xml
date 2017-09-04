@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <application
+        android:name=".configuration.MyApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -34,7 +35,7 @@
             android:authorities="com.edwin.android.chat_in"
             android:exported="false"/>
 
-        <activity android:name=".auth.AuthActivity" />
+        <activity android:name=".auth.AuthActivity"/>
         <activity android:name=".auth.AuthVerificationActivity">
         </activity>
     </application>

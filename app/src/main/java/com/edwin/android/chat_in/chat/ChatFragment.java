@@ -32,7 +32,6 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
     RecyclerView mRecyclerView;
     Unbinder mUnbinder;
     private ChatAdapter mChatAdapter;
-    private DatabaseReference mDatabase;
     private ChatMVP.Presenter mPresenter;
 
     public ChatFragment() {
@@ -54,7 +53,6 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
         View view = inflater.inflate(R.layout.fragment_chat, container, false);
         mUnbinder = ButterKnife.bind(this, view);
         mChatAdapter = new ChatAdapter(this);
-        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false);
