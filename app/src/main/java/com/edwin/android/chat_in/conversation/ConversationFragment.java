@@ -76,7 +76,7 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
         mAdapter = new ConversationAdapter();
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false);
-        linearLayoutManager.setStackFromEnd(true);
+        //linearLayoutManager.setStackFromEnd(true);
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.setHasFixedSize(false);
         mRecyclerView.setAdapter(mAdapter);
@@ -104,6 +104,7 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
     public void showConversation(List<ConversationWrapper> conversationWrappers) {
         Log.d(TAG, "Conversation to show: " + conversationWrappers);
         mAdapter.setConversations(conversationWrappers);
+        scrollToBottom();
     }
 
 
@@ -111,6 +112,13 @@ public class ConversationFragment extends Fragment implements ConversationMVP.Vi
     public void addConversation(ConversationWrapper conversationWrapper) {
         mAdapter.addConversation(conversationWrapper);
         closeKeyboard();
+        Log.d(TAG, "Scrolling to bottom");
+        Log.d(TAG, "itemCount: " + mRecyclerView.getAdapter().getItemCount());
+        scrollToBottom();
+    }
+
+    private void scrollToBottom() {
+        mRecyclerView.scrollToPosition(mRecyclerView.getAdapter().getItemCount()-1);
     }
 
     @Override
