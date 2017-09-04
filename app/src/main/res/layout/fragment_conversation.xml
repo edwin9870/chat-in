@@ -7,7 +7,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_conversation"
             android:layout_width="match_parent"
@@ -21,8 +20,9 @@
 
             <FrameLayout
                 android:id="@+id/frame_layout_message_box"
-                android:layout_width="@dimen/frame_layout_message_box_width"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:layout_margin="@dimen/frame_padding"
                 android:background="@drawable/ic_send_message"
                 android:minHeight="@dimen/frame_message_min_height">
