@@ -30,4 +30,9 @@
     <string name="button_next_step_phone_number">Next</string>
     <string name="country_code_required">Country code is required</string>
     <string name="phone_number_required">Phone number is required</string>
+
+    <!-- fragment_auth.xml -->
+
+    <string name="verify_mobile_label">Verify mobile</string>
+    <string name="verify_mobile_description">Please enter your mobile number</string>
 </resources>

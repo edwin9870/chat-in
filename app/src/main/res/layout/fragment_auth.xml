@@ -1,47 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              android:padding="@dimen/fragment_auth_container_padding">
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimaryLight">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/auth_app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/auth_app_bar_layout_padding_bottom"
+        android:paddingLeft="@dimen/auth_app_bar_layout_padding_left"
+        android:paddingRight="@dimen/auth_app_bar_layout_padding_right"
+        android:paddingTop="@dimen/auth_app_bar_layout_padding_top"
+        app:contentScrim="?attr/colorPrimary">
+
+        <LinearLayout
+            android:id="@+id/linear_layout_verify_mobile_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/TextAppearance.AppCompat.Headline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/verify_mobile_label"/>
+
+            <TextView
+                style="@style/TextAppearance.AppCompat.Subhead"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/verify_mobile_description"/>
+        </LinearLayout>
+
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_phone"
+        app:layout_anchor="@id/auth_app_bar_layout"
+        app:layout_anchorGravity="bottom|center"
+        />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="@dimen/fragment_auth_container_padding"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <TextView
-            style="@style/TextAppearance.AppCompat.Title"
-            android:layout_width="wrap_content"
-            android:visibility="gone"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/spinner_country_label"/>
+            android:orientation="horizontal">
 
-        <Spinner
-            android:id="@+id/spinner_country"
+            <TextView
+                style="@style/TextAppearance.AppCompat.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/spinner_country_label"
+                android:visibility="gone"/>
+
+            <Spinner
+                android:id="@+id/spinner_country"
+                style="@style/TextAppearance.AppCompat.Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/spinner_country_margin_left"
+                android:layout_marginStart="@dimen/spinner_country_margin_left"
+                android:entries="@array/spinner_country_number_items"
+                android:entryValues="@array/spinner_country_number_values"
+                android:prompt="@string/spinner_title"/>
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/edit_text_phone_number"
             style="@style/TextAppearance.AppCompat.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/spinner_country_margin_left"
-            android:layout_marginStart="@dimen/spinner_country_margin_left"
-            android:entries="@array/spinner_country_number_items"
-            android:entryValues="@array/spinner_country_number_values"
-            android:prompt="@string/spinner_title"/>
+            android:hint="@string/edit_text_phone_number_hint"
+            android:inputType="phone"/>
+
+        <Button
+            android:id="@+id/button_next_step_phone_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/button_next_step_phone_number"
+            >
+        </Button>
+
     </LinearLayout>
-
-    <EditText
-        style="@style/TextAppearance.AppCompat.Title"
-        android:id="@+id/edit_text_phone_number"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="phone"
-        android:hint="@string/edit_text_phone_number_hint"/>
-    <Button
-        android:id="@+id/button_next_step_phone_number"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/button_next_step_phone_number"
-        >
-    </Button>
-
-</LinearLayout>
+</android.support.design.widget.CoordinatorLayout>

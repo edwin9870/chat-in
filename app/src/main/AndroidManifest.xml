@@ -15,11 +15,6 @@
         android:theme="@style/AppTheme.NoActionBar">
         <activity
             android:name=".mainview.MainViewActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
         </activity>
         <activity
             android:name=".conversation.ConversationActivity"
@@ -35,7 +30,13 @@
             android:authorities="com.edwin.android.chat_in"
             android:exported="false"/>
 
-        <activity android:name=".auth.AuthActivity"/>
+        <activity android:name=".auth.AuthActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
         <activity android:name=".auth.AuthVerificationActivity">
         </activity>
     </application>
