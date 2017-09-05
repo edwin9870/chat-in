@@ -3,6 +3,7 @@ package com.edwin.android.chat_in.chat;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -67,8 +68,12 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatAdapterVie
 
         final Date messageDate = new Date(conversation.getConversation().getMessageDate());
         Log.d(TAG, "Message date: " + messageDate);
-        //TODO: If date is not today, show date with time instead of time
-        CharSequence dateMessage = DateFormat.format(mContext.getString(R.string.time_format), messageDate);
+        CharSequence dateMessage;
+        if(DateUtils.isToday(messageDate.getTime())) {
+            dateMessage = DateFormat.format(mContext.getString(R.string.time_format), messageDate);
+        } else {
+            dateMessage = DateFormat.format(mContext.getString(R.string.date_format), messageDate);
+        }
         holder.mContactMessageDateTextView.setText(dateMessage);
         holder.mContactMessageTextView.setText(conversation.getConversation().getMessage());
 
