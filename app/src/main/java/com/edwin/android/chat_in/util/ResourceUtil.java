@@ -32,6 +32,7 @@ public final class ResourceUtil {
         return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
 
+    //TODO: Delete context parameter because is not utilized
     @SuppressLint("MissingPermission")
     @Nullable
     public static String getPhoneNumber(Context context) {

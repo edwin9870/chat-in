@@ -144,7 +144,15 @@ public class ConversationPresenter implements ConversationMVP.Presenter {
         mContactRepository.getContactById(contactId)
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(contactDTO -> mView.setTitle(contactDTO.getUserName()));
+                .subscribe(contactDTO -> {
+                    if(contactDTO.getUserName() != null && !contactDTO.getUserName().isEmpty()) {
+                        mView.setTitle(contactDTO.getUserName());
+                    } else {
+                        mView.setTitle(contactDTO.getNumber());
+                    }
+                }
+
+                );
     }
 
     @Override
