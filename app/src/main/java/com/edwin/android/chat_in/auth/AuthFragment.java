@@ -16,6 +16,11 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.edwin.android.chat_in.R;
+import com.google.firebase.FirebaseException;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthProvider;
+
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -41,6 +46,7 @@ public class AuthFragment extends Fragment implements AdapterView.OnItemSelected
     @BindView(R.id.button_next_step_phone_number)
     Button mNextStepPhoneNumberButton;
     private String mCountryValueSelected;
+    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacksAuth;
 
     public AuthFragment() {
         // Required empty public constructor
@@ -92,6 +98,35 @@ public class AuthFragment extends Fragment implements AdapterView.OnItemSelected
         }
 
         final String phoneNumber = mCountryValueSelected + mPhoneNumberEditText.getText().toString();
+
+        mCallbacksAuth = new
+                PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+                    @Override
+                    public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
+                        Log.d(TAG, "onVerificationCompleted:" + phoneAuthCredential);
+                        Log.d(TAG, "Calling signInWithPhoneAuthCredential from " +
+                                "onVerificationCompleted");
+                        signInWithPhoneAuthCredential(phoneAuthCredential);
+
+                    }
+
+                    @Override
+                    public void onVerificationFailed(FirebaseException e) {
+                        Log.e(TAG, "onVerificationFailed", e);
+                    }
+
+                    @Override
+                    public void onCodeSent(String verificationId,
+                                           PhoneAuthProvider.ForceResendingToken token) {
+                        Log.d(TAG, "onCodeSent.verificationId:" + verificationId);
+                        showManualVerificationView();
+
+                        mVerificationId = verificationId;
+                        mResendToken = token;
+                    }
+                };
+        PhoneAuthProvider.getInstance().verifyPhoneNumber(phoneNumber, 2, TimeUnit.MINUTES, getActivity(), mCallbacksAuth);
+
         Log.d(TAG, "Opening next windows, phone number: " + phoneNumber);
         final Intent intent = new Intent(getActivity(), AuthVerificationActivity.class);
         intent.putExtra(BUNDLE_PHONE_NUMBER, phoneNumber);

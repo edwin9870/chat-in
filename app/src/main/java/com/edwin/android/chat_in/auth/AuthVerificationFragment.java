@@ -2,7 +2,6 @@ package com.edwin.android.chat_in.auth;
 
 
 import android.app.Fragment;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,11 +12,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.edwin.android.chat_in.R;
-import com.edwin.android.chat_in.mainview.MainViewActivity;
+import com.edwin.android.chat_in.util.AuthUtil;
 import com.google.firebase.FirebaseException;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.auth.PhoneAuthProvider.OnVerificationStateChangedCallbacks;
@@ -103,7 +99,7 @@ public class AuthVerificationFragment extends Fragment {
                         Log.d(TAG, "onVerificationCompleted:" + phoneAuthCredential);
                         Log.d(TAG, "Calling signInWithPhoneAuthCredential from " +
                                 "onVerificationCompleted");
-                        signInWithPhoneAuthCredential(phoneAuthCredential);
+                        AuthUtil.signInWithPhoneAuthCredential(getActivity(), phoneAuthCredential);
 
                     }
 
@@ -168,7 +164,7 @@ public class AuthVerificationFragment extends Fragment {
                 final PhoneAuthCredential credential = PhoneAuthProvider.getCredential
                         (mVerificationId, verificationCode);
                 Log.d(TAG, "Calling signInWithPhoneAuthCredential with manual credential");
-                signInWithPhoneAuthCredential(credential);
+                AuthUtil.signInWithPhoneAuthCredential(getActivity(), credential);
                 break;
             case R.id.button_resend_verification_code:
                 Log.d(TAG, "Re-send code button clicked");
@@ -179,28 +175,6 @@ public class AuthVerificationFragment extends Fragment {
                 break;
         }
 
-    }
-
-    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
-        Log.d(TAG, "Calling signInWithPhoneAuthCredential");
-        FirebaseAuth.getInstance().signInWithCredential(credential)
-                .addOnCompleteListener(getActivity(), task -> {
-                    if (task.isSuccessful()) {
-                        // Sign in success, update UI with the signed-in user's information
-                        Log.d(TAG, "signInWithCredential:success");
-                        FirebaseUser user = task.getResult().getUser();
-                        final Intent intent = new Intent(getActivity(), MainViewActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(intent);
-                    } else {
-                        // Sign in failed, display a message and update the UI
-                        Log.w(TAG, "signInWithCredential:failure", task.getException());
-                        if (task.getException() instanceof
-                                FirebaseAuthInvalidCredentialsException) {
-                            // The verification code entered was invalid
-                        }
-                    }
-                });
     }
 
 
