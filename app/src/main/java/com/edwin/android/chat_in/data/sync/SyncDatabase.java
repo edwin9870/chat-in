@@ -236,6 +236,13 @@ public class SyncDatabase {
                         Log.d(TAG, "Updating new contact: "+ contact);
                         mContactRepository.updateContact(contact);
                     }
+                    if(contact.getProfileImagePath() != null && !contact.getProfileImagePath().isEmpty()) {
+                        Log.d(TAG, "Downloading profile image");
+                        SyncDatabase.this.downloadProfileImage(contact.getProfileImagePath())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe();
+                    }
                 });
     }
 

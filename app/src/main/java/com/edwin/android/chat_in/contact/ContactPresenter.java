@@ -2,12 +2,14 @@ package com.edwin.android.chat_in.contact;
 
 import android.util.Log;
 
+import com.edwin.android.chat_in.data.dto.ContactDTO;
 import com.edwin.android.chat_in.data.repositories.ContactRepository;
 import com.edwin.android.chat_in.data.sync.SyncDatabase;
 
 import javax.inject.Inject;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -37,6 +39,7 @@ public class ContactPresenter implements ContactMVP.Presenter {
     @Override
     public void getContacts() {
         mContactRepository.getAllContacts()
+                .filter(contactDTO -> !(contactDTO.getUserName() == null || contactDTO.getUserName().isEmpty()))
                 .filter(contact -> contact.getId() != ContactRepository.OWNER_CONTACT_ID)
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
