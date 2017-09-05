@@ -1,7 +1,12 @@
 package com.edwin.android.chat_in.contact;
 
+import android.content.Context;
+import android.database.ContentObserver;
+import android.net.Uri;
+import android.os.Handler;
 import android.util.Log;
 
+import com.edwin.android.chat_in.data.ChatInContract;
 import com.edwin.android.chat_in.data.dto.ContactDTO;
 import com.edwin.android.chat_in.data.repositories.ContactRepository;
 import com.edwin.android.chat_in.data.sync.SyncDatabase;
@@ -22,6 +27,7 @@ public class ContactPresenter implements ContactMVP.Presenter {
     private final ContactMVP.View mView;
     private final ContactRepository mContactRepository;
     private final SyncDatabase mSyncDatabase;
+    private ContentObserver mContactoContentObserver;
 
     @Inject
     public ContactPresenter(ContactMVP.View mView, ContactRepository contactRepository,
@@ -47,8 +53,27 @@ public class ContactPresenter implements ContactMVP.Presenter {
     }
 
     @Override
-    public void syncContact() {
-        Log.d(TAG, "Calling syncContacts");
+    public void syncContact(Context context) {
         mSyncDatabase.syncContacts();
+        Log.d(TAG, "Calling syncContacts");
+        mContactoContentObserver = new ContentObserver(new Handler()) {
+            @Override
+            public void onChange(boolean selfChange, Uri uri) {
+                super.onChange(selfChange, uri);
+                Log.d(TAG, "Syncing contacts");
+                getContacts();
+            }
+        };
+        context.getContentResolver().registerContentObserver(ChatInContract.ContactEntry.CONTENT_URI, true, mContactoContentObserver);
+
+    }
+
+    @Override
+    public void cleanResource(Context context) {
+        Log.d(TAG, "Calling cleanResource");
+        if(mContactoContentObserver != null) {
+            Log.d(TAG, "unregister mContactoContentObserver");
+            context.getContentResolver().unregisterContentObserver(mContactoContentObserver);
+        }
     }
 }

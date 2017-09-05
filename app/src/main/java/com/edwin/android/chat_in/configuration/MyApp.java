@@ -17,6 +17,7 @@ public class MyApp extends Application {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "Executing onCreate");
+        Log.d(TAG, "Enabling Firebase persistence");
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
     }
 }

@@ -1,5 +1,8 @@
 package com.edwin.android.chat_in.contact;
 
+import android.app.Activity;
+import android.content.Context;
+
 import com.edwin.android.chat_in.data.dto.ContactDTO;
 
 import java.util.List;
@@ -17,6 +20,7 @@ public interface ContactMVP {
 
     interface Presenter {
         void getContacts();
-        void syncContact();
+        void syncContact(Context context);
+        void cleanResource(Context context);
     }
 }
