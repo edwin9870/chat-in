@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -38,6 +39,8 @@ public class ConversationPresenter implements ConversationMVP.Presenter {
     private final ConversationRepositoryFcm mConversationRepositoryFcm;
     private final SyncDatabase mSyncDatabase;
     private ContentObserver mConversationContentObserver;
+    private Disposable mShowAllConversationDisposable;
+    private Disposable mChangeTitleDisposable;
 
     @Inject
     public ConversationPresenter(ConversationMVP.View view,
@@ -59,12 +62,13 @@ public class ConversationPresenter implements ConversationMVP.Presenter {
 
     @Override
     public void getConversation(int contactId) {
-        mConversationRepository.getConversations(contactId)
+        mShowAllConversationDisposable = mConversationRepository.getConversations(contactId)
                 .map(this::convertToWrapper)
                 .toList()
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mView::showConversation);
+
     }
 
     @NonNull
@@ -141,16 +145,17 @@ public class ConversationPresenter implements ConversationMVP.Presenter {
 
     @Override
     public void setTitle(int contactId) {
-        mContactRepository.getContactById(contactId)
+        mChangeTitleDisposable = mContactRepository.getContactById(contactId)
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(contactDTO -> {
-                    if(contactDTO.getUserName() != null && !contactDTO.getUserName().isEmpty()) {
-                        mView.setTitle(contactDTO.getUserName());
-                    } else {
-                        mView.setTitle(contactDTO.getNumber());
-                    }
-                }
+                            if (contactDTO.getUserName() != null && !contactDTO.getUserName()
+                                    .isEmpty()) {
+                                mView.setTitle(contactDTO.getUserName());
+                            } else {
+                                mView.setTitle(contactDTO.getNumber());
+                            }
+                        }
 
                 );
     }
@@ -162,6 +167,16 @@ public class ConversationPresenter implements ConversationMVP.Presenter {
         if(mConversationContentObserver != null) {
             Log.d(TAG, "Unregister mConversationContentObserver");
             context.getContentResolver().unregisterContentObserver(mConversationContentObserver);
+        }
+
+        if(mShowAllConversationDisposable != null && !mShowAllConversationDisposable.isDisposed()) {
+            Log.d(TAG, "Disposing mShowAllConversationDisposable");
+            mShowAllConversationDisposable.dispose();
+        }
+
+        if(mChangeTitleDisposable != null && !mChangeTitleDisposable.isDisposed()) {
+            Log.d(TAG, "Disposing mChangeTitleDisposable");
+            mChangeTitleDisposable.dispose();
         }
 
     }

@@ -2,9 +2,9 @@
 <android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/colorPrimaryLight">
 
     <android.support.design.widget.AppBarLayout
@@ -61,20 +61,14 @@
         android:paddingTop="@dimen/fragment_auth_body_padding_top"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <LinearLayout
+        <Spinner
+            android:id="@+id/spinner_country"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:entries="@array/spinner_country_number_items"
+            android:entryValues="@array/spinner_country_number_values"
+            android:prompt="@string/spinner_title"/>
 
-            <Spinner
-                android:id="@+id/spinner_country"
-                style="@style/TextAppearance.AppCompat.Title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:entries="@array/spinner_country_number_items"
-                android:entryValues="@array/spinner_country_number_values"
-                android:prompt="@string/spinner_title"/>
-        </LinearLayout>
 
         <EditText
             android:id="@+id/edit_text_phone_number"
@@ -94,13 +88,6 @@
         android:layout_gravity="center|bottom"
         android:background="@color/colorAccent"
         android:text="@string/button_next_step_phone_number"
-        android:textColor="#ffffff" />
+        android:textColor="#ffffff"/>
 
-    <ProgressBar
-        android:id="@+id/progress_bar_auth"
-        android:layout_width="wrap_content"
-        android:layout_gravity="center"
-        android:layout_height="wrap_content"
-        android:visibility="invisible"
-        tools:visibility="visible"/>
 </android.support.design.widget.CoordinatorLayout>

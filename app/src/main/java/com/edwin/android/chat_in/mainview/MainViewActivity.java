@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.edwin.android.chat_in.R;
+import com.edwin.android.chat_in.auth.AuthActivity;
 import com.edwin.android.chat_in.chat.ChatFragment;
 import com.edwin.android.chat_in.chat.ChatPresenterModule;
 import com.edwin.android.chat_in.chat.DaggerChatComponent;
@@ -123,7 +124,7 @@ public class MainViewActivity extends AppCompatActivity {
 
     private void setupActivity() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        /*if(currentUser == null) {
+        if(currentUser == null) {
             final Intent intent = new Intent(this, AuthActivity.class);
             Log.d(TAG, "User is not logged, starting AuthActivity");
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -131,7 +132,7 @@ public class MainViewActivity extends AppCompatActivity {
             Log.d(TAG, "Closing MainViewActivity");
             finish();
             return;
-        }*/
+        }
 
         setupFragment();
 

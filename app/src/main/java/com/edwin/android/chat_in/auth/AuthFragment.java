@@ -13,17 +13,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.edwin.android.chat_in.R;
-import com.edwin.android.chat_in.util.AuthUtil;
-import com.google.firebase.FirebaseException;
-import com.google.firebase.auth.PhoneAuthCredential;
-import com.google.firebase.auth.PhoneAuthProvider;
-
-import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -50,11 +43,7 @@ public class AuthFragment extends Fragment implements AdapterView.OnItemSelected
     Button mNextStepPhoneNumberButton;
     @BindView(R.id.fragment_auth_body)
     LinearLayout mAuthBodyLinearLayout;
-    @BindView(R.id.progress_bar_auth)
-    ProgressBar mAuthProgressBar;
     private String mCountryValueSelected;
-    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacksAuth;
-    private PhoneAuthProvider.ForceResendingToken mResendToken;
 
     public AuthFragment() {
         // Required empty public constructor
@@ -110,7 +99,6 @@ public class AuthFragment extends Fragment implements AdapterView.OnItemSelected
         Log.d(TAG, "Opening next windows, phone number: " + phoneNumber);
         final Intent intent = new Intent(getActivity(), AuthVerificationActivity.class);
         intent.putExtra(BUNDLE_PHONE_NUMBER, phoneNumber);
-        intent.putExtra(AuthVerificationActivity.BUNDLE_TOKEN_VERIFICATION, mResendToken);
         startActivity(intent);
     }
 

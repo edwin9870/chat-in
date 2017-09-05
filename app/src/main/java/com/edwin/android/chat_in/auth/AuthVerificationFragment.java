@@ -2,6 +2,7 @@ package com.edwin.android.chat_in.auth;
 
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,11 +10,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.edwin.android.chat_in.R;
-import com.edwin.android.chat_in.util.AuthUtil;
+import com.edwin.android.chat_in.mainview.MainViewActivity;
 import com.google.firebase.FirebaseException;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.auth.PhoneAuthProvider.OnVerificationStateChangedCallbacks;
@@ -35,6 +39,10 @@ public class AuthVerificationFragment extends Fragment {
     Button mVerifyCodeButton;
     @BindView(R.id.button_resend_verification_code)
     Button mResendVerificationCodeButton;
+    @BindView(R.id.linear_layout_fragment_auth)
+    LinearLayout mFragmentAuthLinearLayout;
+    @BindView(R.id.progress_bar_auth_verification)
+    ProgressBar mAuthVerificationProgressBar;
     private String phoneNumber;
     private String mVerificationId;
     private PhoneAuthProvider.ForceResendingToken mResendToken;
@@ -82,7 +90,6 @@ public class AuthVerificationFragment extends Fragment {
         unbinder = ButterKnife.bind(this, view);
 
 
-
         mCallbacksAuth = new
                 OnVerificationStateChangedCallbacks() {
                     @Override
@@ -90,13 +97,24 @@ public class AuthVerificationFragment extends Fragment {
                         Log.d(TAG, "onVerificationCompleted:" + phoneAuthCredential);
                         Log.d(TAG, "Calling signInWithPhoneAuthCredential from " +
                                 "onVerificationCompleted");
-                        AuthUtil.signInWithPhoneAuthCredential(getActivity(), phoneAuthCredential);
-
+                        signInWithPhoneAuthCredential(phoneAuthCredential);
                     }
 
                     @Override
                     public void onVerificationFailed(FirebaseException e) {
                         Log.e(TAG, "onVerificationFailed", e);
+
+                        Toast.makeText(getActivity(), "Error in verification", Toast.LENGTH_LONG).show();
+                        final Intent intent = new Intent(getActivity(), AuthActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        getActivity().startActivity(intent);
+                    }
+
+                    @Override
+                    public void onCodeAutoRetrievalTimeOut(String verificationId) {
+                        super.onCodeAutoRetrievalTimeOut(verificationId);
+                        mAuthVerificationProgressBar.setVisibility(View.INVISIBLE);
+                        mFragmentAuthLinearLayout.setVisibility(View.VISIBLE);
                     }
 
                     @Override
@@ -108,14 +126,13 @@ public class AuthVerificationFragment extends Fragment {
                         mVerificationId = verificationId;
                         mResendToken = token;
                     }
+
                 };
 
-        /*if (mVerificationInProgress == null || mVerificationInProgress) {
             PhoneAuthProvider.getInstance().verifyPhoneNumber(
                     phoneNumber, 2, TimeUnit.MINUTES, getActivity(),
                     mCallbacksAuth);
-            mVerificationInProgress = true;
-        }*/
+
 
         return view;
     }
@@ -154,7 +171,7 @@ public class AuthVerificationFragment extends Fragment {
                 final PhoneAuthCredential credential = PhoneAuthProvider.getCredential
                         (mVerificationId, verificationCode);
                 Log.d(TAG, "Calling signInWithPhoneAuthCredential with manual credential");
-                AuthUtil.signInWithPhoneAuthCredential(getActivity(), credential);
+                signInWithPhoneAuthCredential(credential);
                 break;
             case R.id.button_resend_verification_code:
                 Log.d(TAG, "Re-send code button clicked");
@@ -165,6 +182,31 @@ public class AuthVerificationFragment extends Fragment {
         }
     }
 
+    public void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
 
+        Log.d(AuthVerificationFragment.TAG, "Calling signInWithPhoneAuthCredential");
+        FirebaseAuth.getInstance().signInWithCredential(credential)
+                .addOnCompleteListener(getActivity(), task -> {
+
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d(TAG, "signInWithCredential:success");
+                        final Intent intent = new Intent(getActivity(), MainViewActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        getActivity().startActivity(intent);
+                    } else {
+
+                        Log.d(TAG, "signInWithCredential:unsuccessful");
+                        Toast.makeText(getActivity(), "Error in verification", Toast.LENGTH_LONG).show();
+                        final Intent intent = new Intent(getActivity(), AuthActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        getActivity().startActivity(intent);
+
+                        // Sign in failed, display a message and update the UI
+                        Log.w(AuthVerificationFragment.TAG, "signInWithCredential:failure", task
+                                .getException());
+                    }
+                });
+    }
 
 }
