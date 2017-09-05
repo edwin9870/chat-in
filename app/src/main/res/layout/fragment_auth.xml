@@ -48,10 +48,16 @@
         />
 
     <LinearLayout
+        android:id="@+id/fragment_auth_body"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="@dimen/fragment_auth_container_padding"
+        android:paddingBottom="@dimen/fragment_auth_body_padding_bottom"
+        android:paddingEnd="@dimen/fragment_auth_body_padding_right"
+        android:paddingLeft="@dimen/fragment_auth_body_padding_left"
+        android:paddingRight="@dimen/fragment_auth_body_padding_right"
+        android:paddingStart="@dimen/fragment_auth_body_padding_left"
+        android:paddingTop="@dimen/fragment_auth_body_padding_top"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
@@ -59,20 +65,11 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <TextView
-                style="@style/TextAppearance.AppCompat.Title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/spinner_country_label"
-                android:visibility="gone"/>
-
             <Spinner
                 android:id="@+id/spinner_country"
                 style="@style/TextAppearance.AppCompat.Title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/spinner_country_margin_left"
-                android:layout_marginStart="@dimen/spinner_country_margin_left"
                 android:entries="@array/spinner_country_number_items"
                 android:entryValues="@array/spinner_country_number_values"
                 android:prompt="@string/spinner_title"/>
@@ -86,13 +83,17 @@
             android:hint="@string/edit_text_phone_number_hint"
             android:inputType="phone"/>
 
-        <Button
-            android:id="@+id/button_next_step_phone_number"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/button_next_step_phone_number"
-            >
-        </Button>
-
     </LinearLayout>
+
+    <Button
+        android:id="@+id/button_next_step_phone_number"
+        style="@style/TextAppearance.AppCompat.Button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|bottom"
+        android:background="@color/colorAccent"
+        android:text="@string/button_next_step_phone_number"
+        android:textColor="#ffffff"
+        >
+    </Button>
 </android.support.design.widget.CoordinatorLayout>
