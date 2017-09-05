@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/colorPrimaryLight">
 
     <android.support.design.widget.AppBarLayout
@@ -82,8 +83,8 @@
             android:layout_height="wrap_content"
             android:hint="@string/edit_text_phone_number_hint"
             android:inputType="phone"/>
-
     </LinearLayout>
+
 
     <Button
         android:id="@+id/button_next_step_phone_number"
@@ -93,7 +94,13 @@
         android:layout_gravity="center|bottom"
         android:background="@color/colorAccent"
         android:text="@string/button_next_step_phone_number"
-        android:textColor="#ffffff"
-        >
-    </Button>
+        android:textColor="#ffffff" />
+
+    <ProgressBar
+        android:id="@+id/progress_bar_auth"
+        android:layout_width="wrap_content"
+        android:layout_gravity="center"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        tools:visibility="visible"/>
 </android.support.design.widget.CoordinatorLayout>

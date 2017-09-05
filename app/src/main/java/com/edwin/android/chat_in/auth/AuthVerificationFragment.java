@@ -27,18 +27,15 @@ import butterknife.Unbinder;
 
 public class AuthVerificationFragment extends Fragment {
 
-
-    public static final String VERIFICATION_IN_PROGRESS = "VERIFICATION_IN_PROGRESS";
     public static final String TAG = AuthVerificationFragment.class.getSimpleName();
     @BindView(R.id.edit_text_verification_code)
     EditText mVerificationCodeEditText;
     Unbinder unbinder;
-    @BindView(R.id.button_verify_number)
-    Button mVerifyNumberButton;
+    @BindView(R.id.button_verify_code)
+    Button mVerifyCodeButton;
     @BindView(R.id.button_resend_verification_code)
     Button mResendVerificationCodeButton;
     private String phoneNumber;
-    private Boolean mVerificationInProgress;
     private String mVerificationId;
     private PhoneAuthProvider.ForceResendingToken mResendToken;
     private OnVerificationStateChangedCallbacks mCallbacksAuth;
@@ -51,14 +48,14 @@ public class AuthVerificationFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
+     * @param phoneNumber Parameter 1.
      * @return A new instance of fragment AuthVerificationFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static AuthVerificationFragment newInstance(String param1) {
+    public static AuthVerificationFragment newInstance(String phoneNumber) {
         AuthVerificationFragment fragment = new AuthVerificationFragment();
         Bundle args = new Bundle();
-        args.putString(AuthVerificationActivity.BUNDLE_PHONE_NUMBER, param1);
+        args.putString(AuthVerificationActivity.BUNDLE_PHONE_NUMBER, phoneNumber);
         fragment.setArguments(args);
         return fragment;
     }
@@ -67,12 +64,6 @@ public class AuthVerificationFragment extends Fragment {
     @Override
     public void onViewStateRestored(Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-        if (savedInstanceState == null) {
-            return;
-        }
-        if (savedInstanceState.containsKey(VERIFICATION_IN_PROGRESS)) {
-            mVerificationInProgress = savedInstanceState.getBoolean(VERIFICATION_IN_PROGRESS);
-        }
     }
 
     @Override
@@ -91,11 +82,11 @@ public class AuthVerificationFragment extends Fragment {
         unbinder = ButterKnife.bind(this, view);
 
 
+
         mCallbacksAuth = new
                 OnVerificationStateChangedCallbacks() {
                     @Override
                     public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
-                        mVerificationInProgress = false;
                         Log.d(TAG, "onVerificationCompleted:" + phoneAuthCredential);
                         Log.d(TAG, "Calling signInWithPhoneAuthCredential from " +
                                 "onVerificationCompleted");
@@ -119,19 +110,19 @@ public class AuthVerificationFragment extends Fragment {
                     }
                 };
 
-        if (mVerificationInProgress == null || mVerificationInProgress) {
+        /*if (mVerificationInProgress == null || mVerificationInProgress) {
             PhoneAuthProvider.getInstance().verifyPhoneNumber(
                     phoneNumber, 2, TimeUnit.MINUTES, getActivity(),
                     mCallbacksAuth);
             mVerificationInProgress = true;
-        }
+        }*/
 
         return view;
     }
 
     private void showManualVerificationView() {
         mVerificationCodeEditText.setVisibility(View.VISIBLE);
-        mVerifyNumberButton.setVisibility(View.VISIBLE);
+        mVerifyCodeButton.setVisibility(View.VISIBLE);
         mResendVerificationCodeButton.setVisibility(View.VISIBLE);
     }
 
@@ -144,14 +135,13 @@ public class AuthVerificationFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(VERIFICATION_IN_PROGRESS, mVerificationInProgress);
     }
 
-    @OnClick({R.id.button_verify_number, R.id.button_resend_verification_code})
+    @OnClick({R.id.button_verify_code, R.id.button_resend_verification_code})
     public void onViewClicked(View view) {
         switch (view.getId()) {
 
-            case R.id.button_verify_number:
+            case R.id.button_verify_code:
 
                 if (mVerificationCodeEditText.getText() == null ||
                         mVerificationCodeEditText.getText().length() < 1) {
@@ -171,11 +161,10 @@ public class AuthVerificationFragment extends Fragment {
                 PhoneAuthProvider.getInstance().verifyPhoneNumber(
                         phoneNumber, 2, TimeUnit.MINUTES, getActivity(),
                         mCallbacksAuth, mResendToken);
-                mVerificationInProgress = true;
                 break;
         }
-
     }
+
 
 
 }
