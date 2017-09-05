@@ -2,6 +2,7 @@ package com.edwin.android.chat_in.conversation;
 
 import android.content.Context;
 import android.database.ContentObserver;
+import android.net.Uri;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -19,11 +20,9 @@ import java.util.Date;
 
 import javax.inject.Inject;
 
-import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -117,35 +116,24 @@ public class ConversationPresenter implements ConversationMVP.Presenter {
         mSyncDatabase.syncConversation();
 
         mConversationContentObserver = new ContentObserver(new Handler()) {
+
             @Override
-            public void onChange(boolean selfChange) {
+            public void onChange(boolean selfChange, Uri uri) {
                 super.onChange(selfChange);
-                Observable.fromArray(contactId, ContactRepository.OWNER_CONTACT_ID)
-                        .map(contactId1 -> mContactRepository.getContactById(contactId1)
-                                .blockingGet())
-                        .toList()
-                        .subscribeOn(Schedulers.computation())
-                        .subscribe(contacts -> {
-                            Long conversationGroupId = 0L;
-                            for (ContactDTO contact : contacts) {
-                                conversationGroupId += Long.valueOf(contact.getNumber());
-                            }
-                            Log.d(TAG, "conversationGroupId to find last message: " +
-                                    conversationGroupId);
-                            mConversationRepository.getLastMessageByConversationGroupId
-                                    (conversationGroupId.toString())
-                                    .map(ConversationPresenter.this::convertToWrapper)
+                Log.d(TAG, "Uri: "+ uri);
+                String id = uri.getPathSegments().get(1);
+                mConversationRepository.getConversationById(Long.valueOf(id))
                                     .filter(conversationWrapper ->
-                                            conversationWrapper.getConversation()
-                                                    .getSenderContactId() !=
+                                            conversationWrapper.getSenderContactId() !=
                                                     ContactRepository.OWNER_CONTACT_ID)
+                                    .map(conversationDTO -> convertToWrapper(conversationDTO))
                                     .subscribeOn(Schedulers.computation())
                                     .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(mView::addConversation);
-                        });
-
-
-            }
+                                    .subscribe(conversationWrapper -> {
+                                        Log.d(TAG, "Adding conversation: "+ conversationWrapper);
+                                        mView.addConversation(conversationWrapper);
+                                    });
+                            }
         };
         context.getContentResolver().registerContentObserver(ChatInContract.ConversationEntry.CONTENT_URI, true,
                 mConversationContentObserver);

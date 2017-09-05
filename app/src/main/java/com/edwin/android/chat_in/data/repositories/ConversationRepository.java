@@ -172,6 +172,35 @@ public class ConversationRepository {
         });
     }
 
+    public Maybe<ConversationDTO> getConversationById(long conversationId) {
+        Log.d(TAG, "getConversationById.id: " + conversationId);
+        return Maybe.create(emitter -> {
+            Cursor conversationCursor = null;
+            try {
+                conversationCursor = mContentResolver.query(ConversationEntry.CONTENT_URI,
+                        null,
+                        ConversationEntry._ID +" = ?",
+                        new String[]{String.valueOf(conversationId)}, null);
+
+                if(conversationCursor != null && conversationCursor.moveToNext()) {
+                    ConversationDTO conversation = getConversationFromCursor(conversationCursor);
+                    Log.d(TAG, "Conversation to return: " + conversation);
+                    emitter.onSuccess(conversation);
+                } else {
+                    emitter.onComplete();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                emitter.onError(e);
+            }
+            finally {
+                if(conversationCursor != null) {
+                    conversationCursor.close();
+                }
+            }
+        });
+    }
+
     /**
      * Get the a list of conversations with a contact
      *
