@@ -85,7 +85,7 @@ public class ContactRepositoryFcm {
             }
             final HashMap<String, Object> profile = new HashMap<>();
             profile.put(USER_PROFILE_IMAGE_PATH, contact.getProfileImagePath());
-            mDatabaseReference.child("users").child(ResourceUtil.getPhoneNumber(mContext)).updateChildren(profile);
+            mDatabaseReference.child("users").child(ResourceUtil.getPhoneNumber()).updateChildren(profile);
         });
     }
     public Maybe<String> getProfileImage(String phoneNumber) {

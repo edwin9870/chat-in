@@ -75,7 +75,7 @@ public class SyncDatabase {
     public Observable<ContactDTO> getNewContacts() {
         Log.d(TAG, "Executing getNewContacts");
         return Observable.create(emitter -> {
-            final String phoneNumber = ResourceUtil.getPhoneNumber(mContext);
+            final String phoneNumber = ResourceUtil.getPhoneNumber();
             mContactRepository.getContactByNumber(phoneNumber).isEmpty()
                     .subscribeOn(Schedulers.computation())
                     .subscribe(isEmpty -> {
@@ -177,7 +177,7 @@ public class SyncDatabase {
     }
 
     public void syncConversation() {
-        String ownerTelephoneNumber = ResourceUtil.getPhoneNumber(mContext);
+        String ownerTelephoneNumber = ResourceUtil.getPhoneNumber();
         Log.d(TAG, "Executing syncConversation method");
         Log.d(TAG, "ownerTelephoneNumber: " + ownerTelephoneNumber);
         Log.d(TAG, "Starting to persist conversation");
@@ -251,7 +251,7 @@ public class SyncDatabase {
     }
 
     public Observable<MessageWrapper> getNewConversations() {
-        String ownerTelephoneNumber = ResourceUtil.getPhoneNumber(mContext);
+        String ownerTelephoneNumber = ResourceUtil.getPhoneNumber();
         final Query conversationPath = mDatabase.child(CONVERSATION_ROOT_PATH);
         Observable<MessageWrapper> targetToMeObservable = Observable.create(e -> {
             Log.d(TAG, "getNewConversations");

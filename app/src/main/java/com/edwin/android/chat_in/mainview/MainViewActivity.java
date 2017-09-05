@@ -158,7 +158,7 @@ public class MainViewActivity extends AppCompatActivity {
 
         setupViewPager();
 
-        Log.d(TAG, "Phone number: "+ ResourceUtil.getPhoneNumber(this));
+        Log.d(TAG, "Phone number: "+ ResourceUtil.getPhoneNumber());
         mSyncDatabase.syncConversation();
     }
 

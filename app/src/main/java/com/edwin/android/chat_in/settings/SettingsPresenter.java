@@ -57,7 +57,7 @@ public class SettingsPresenter implements SettingsMVP.Presenter {
         final String fileImagePath = "file://"+fullPathImage;
         final String extension = fileImagePath.substring(fileImagePath.lastIndexOf(".") +1,
                 fileImagePath.length());
-        final String imageFileNameToSave = ResourceUtil.getPhoneNumber(mContext) + "." + extension;
+        final String imageFileNameToSave = ResourceUtil.getPhoneNumber() + "." + extension;
         Completable.create(emitter -> {
             final String pathToSaveImage = "images/profile/" + imageFileNameToSave;
             Log.d(TAG, "Path to save image: " + pathToSaveImage);

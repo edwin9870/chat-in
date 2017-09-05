@@ -32,10 +32,9 @@ public final class ResourceUtil {
         return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
 
-    //TODO: Delete context parameter because is not utilized
     @SuppressLint("MissingPermission")
     @Nullable
-    public static String getPhoneNumber(Context context) {
+    public static String getPhoneNumber() {
         //TODO: Change to firebase auth
         //return FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber().substring(2);
         //return "8292779870";// Edwin number
