@@ -42,4 +42,5 @@
     <string name="text_view_verification_code_label_description">SMS Verification code has been sent</string>
     <string name="button_verify_code_text">Verify</string>
     <string name="button_resend_verification_code_text">Re-send</string>
+    <string name="item_refresh_action_title">Refresh</string>
 </resources>

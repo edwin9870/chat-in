@@ -8,13 +8,18 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.conversation.ConversationActivity;
 import com.edwin.android.chat_in.conversation.ConversationFragment;
 import com.edwin.android.chat_in.data.dto.ContactDTO;
+import com.edwin.android.chat_in.settings.SettingsActivity;
 import com.edwin.android.chat_in.util.ResourceUtil;
 import com.edwin.android.chat_in.views.SpacesItemDecoration;
 
@@ -48,6 +53,7 @@ public class ContactFragment extends Fragment implements ContactListener, Contac
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_contact, container, false);
+        setHasOptionsMenu(true);
         mUnbinder = ButterKnife.bind(this, view);
         mAdapter = new ContactAdapter(this);
 
@@ -86,6 +92,28 @@ public class ContactFragment extends Fragment implements ContactListener, Contac
     }
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_contact, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.item_setting_action:
+                final Intent intent = new Intent(getActivity(), SettingsActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.item_refresh_action:
+                mPresenter.refreshContacts();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
+
+    @Override
     public void setPresenter(ContactMVP.Presenter presenter) {
         Log.d(TAG, "Setting presenter");
         mPresenter = presenter;
@@ -95,6 +123,11 @@ public class ContactFragment extends Fragment implements ContactListener, Contac
     public void showContacts(List<ContactDTO> contacts) {
         Log.d(TAG, "contacts to show: "+ contacts);
         mAdapter.setContacts(contacts);
+    }
+
+    @Override
+    public void showMessage(String message) {
+        Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
     }
 
     @Override

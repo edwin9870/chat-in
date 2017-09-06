@@ -11,13 +11,10 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.edwin.android.chat_in.R;
-import com.edwin.android.chat_in.auth.AuthActivity;
 import com.edwin.android.chat_in.chat.ChatFragment;
 import com.edwin.android.chat_in.chat.ChatPresenterModule;
 import com.edwin.android.chat_in.chat.DaggerChatComponent;
@@ -84,7 +81,6 @@ public class MainViewActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
     }
-
     @Override
     protected void onStop() {
         super.onStop();
@@ -113,18 +109,9 @@ public class MainViewActivity extends AppCompatActivity {
 
         }
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main_view, menu);
-        return true;
-    }
-
-
     private void setupActivity() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if(currentUser == null) {
+        /*if(currentUser == null) {
             final Intent intent = new Intent(this, AuthActivity.class);
             Log.d(TAG, "User is not logged, starting AuthActivity");
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -132,7 +119,7 @@ public class MainViewActivity extends AppCompatActivity {
             Log.d(TAG, "Closing MainViewActivity");
             finish();
             return;
-        }
+        }*/
 
         setupFragment();
 
@@ -207,20 +194,6 @@ public class MainViewActivity extends AppCompatActivity {
 
     private static String getFragmentName(int viewPagerId, int index) {
         return "android:switcher:" + viewPagerId + ":" + index;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.item_setting_action:
-                final Intent intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-
-        }
-
     }
 
 }

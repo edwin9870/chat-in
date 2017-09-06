@@ -7,16 +7,18 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.edwin.android.chat_in.R;
 import com.edwin.android.chat_in.conversation.ConversationActivity;
 import com.edwin.android.chat_in.conversation.ConversationFragment;
+import com.edwin.android.chat_in.settings.SettingsActivity;
 import com.edwin.android.chat_in.util.ResourceUtil;
 import com.edwin.android.chat_in.views.SpacesItemDecoration;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 
@@ -51,6 +53,7 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chat, container, false);
+        setHasOptionsMenu(true);
         mUnbinder = ButterKnife.bind(this, view);
         mChatAdapter = new ChatAdapter(this);
 
@@ -78,6 +81,25 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
     public void onStop() {
         super.onStop();
         mPresenter.cleanResources();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_main_view, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.item_setting_action:
+                final Intent intent = new Intent(getActivity(), SettingsActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+
+        }
     }
 
     @Override

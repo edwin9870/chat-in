@@ -75,4 +75,11 @@ public class ContactPresenter implements ContactMVP.Presenter {
             context.getContentResolver().unregisterContentObserver(mContactoContentObserver);
         }
     }
+
+    @Override
+    public void refreshContacts() {
+        Log.d(TAG, "Starting to refresh contacts");
+        getContacts();
+        mView.showMessage("Refreshing");
+    }
 }
