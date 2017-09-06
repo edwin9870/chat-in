@@ -3,6 +3,7 @@ package com.edwin.android.chat_in.data;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.edwin.android.chat_in.data.ChatInContract.ContactEntry;
@@ -15,7 +16,7 @@ import com.edwin.android.chat_in.data.ChatInContract.ConversationEntry;
 public class ChatInDbHelper extends SQLiteOpenHelper {
 
     public static final int DATABASE_VERSION = 1;
-    public static final String DATABASE_NAME = "chat-in25.db";
+    public static final String DATABASE_NAME = "chat-in28.db";
     public static final String TAG = ChatInDbHelper.class.getSimpleName();
 
     public ChatInDbHelper(Context context) {

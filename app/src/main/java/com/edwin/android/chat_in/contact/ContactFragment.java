@@ -61,6 +61,7 @@ public class ContactFragment extends Fragment implements ContactListener, Contac
                 .getActivity(), getResources().getInteger(R.integer.space_between_chat_list))));
         //mAdapter.setContacts(MessageUtil.getContacts());
         mPresenter.getContacts();
+        mPresenter.syncContact(getActivity());
 
 
         return view;
@@ -69,7 +70,6 @@ public class ContactFragment extends Fragment implements ContactListener, Contac
     @Override
     public void onStart() {
         super.onStart();
-        mPresenter.syncContact(getActivity());
     }
 
     @Override

@@ -1,10 +1,13 @@
 package com.edwin.android.chat_in.data.sync;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.edwin.android.chat_in.configuration.MyApp;
 import com.edwin.android.chat_in.data.dto.ContactDTO;
 import com.edwin.android.chat_in.data.dto.ConversationDTO;
 import com.edwin.android.chat_in.data.entity.Contact;
@@ -30,6 +33,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -177,8 +182,29 @@ public class SyncDatabase {
     }
 
     public void syncConversation() {
-        String ownerTelephoneNumber = ResourceUtil.getPhoneNumber();
         Log.d(TAG, "Executing syncConversation method");
+        String ownerTelephoneNumber = ResourceUtil.getPhoneNumber();
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+
+        final boolean isFirstTime = sharedPreferences.getBoolean(MyApp.PREF_FIRST_TIME, true);
+        Log.d(TAG, "sharedPreferences.PREF_FIRST_TIME:  " + isFirstTime);
+        if(isFirstTime) {
+            Log.d(TAG, "Fist time, executing SyncContact");
+            final SharedPreferences.Editor editor = sharedPreferences.edit();
+            this.syncContacts().subscribe(() -> {
+                syncDatabaseLogic(ownerTelephoneNumber);
+                Log.d(TAG, "Change preference first time to false");
+                editor.putBoolean(MyApp.PREF_FIRST_TIME, false);
+                editor.apply();
+            });
+        } else {
+            syncDatabaseLogic(ownerTelephoneNumber);
+        }
+
+
+    }
+
+    private void syncDatabaseLogic(String ownerTelephoneNumber) {
         Log.d(TAG, "ownerTelephoneNumber: " + ownerTelephoneNumber);
         Log.d(TAG, "Starting to persist conversation");
         conversationDisposable = getNewConversations()
@@ -223,27 +249,33 @@ public class SyncDatabase {
                 });
     }
 
-    public void syncContacts() {
+    public Completable syncContacts() {
         Log.d(TAG, "Calling syncContacts");
-        getNewContacts().subscribeOn(Schedulers.computation())
-                .subscribe(contact -> {
-                    final ContactDTO persistedContact = mContactRepository.getContactByNumber
-                            (contact.getNumber()).blockingGet();
-                    if(persistedContact == null) {
-                        Log.d(TAG, "Persisting new contact: "+ contact);
-                        mContactRepository.persist(contact);
-                    } else {
-                        Log.d(TAG, "Updating new contact: "+ contact);
-                        mContactRepository.updateContact(contact);
-                    }
-                    if(contact.getProfileImagePath() != null && !contact.getProfileImagePath().isEmpty()) {
-                        Log.d(TAG, "Downloading profile image");
-                        SyncDatabase.this.downloadProfileImage(contact.getProfileImagePath())
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe();
-                    }
-                });
+        return Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(CompletableEmitter emitter) throws Exception {
+                getNewContacts().subscribeOn(Schedulers.computation())
+                        .subscribe(contact -> {
+                            final ContactDTO persistedContact = mContactRepository.getContactByNumber
+                                    (contact.getNumber()).blockingGet();
+                            if(persistedContact == null) {
+                                Log.d(TAG, "Persisting new contact: "+ contact);
+                                mContactRepository.persist(contact);
+                            } else {
+                                Log.d(TAG, "Updating new contact: "+ contact);
+                                mContactRepository.updateContact(contact);
+                            }
+                            if(contact.getProfileImagePath() != null && !contact.getProfileImagePath().isEmpty()) {
+                                Log.d(TAG, "Downloading profile image");
+                                SyncDatabase.this.downloadProfileImage(contact.getProfileImagePath())
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe();
+                                emitter.onComplete();
+                            }
+                        });
+            }
+        });
     }
 
     public Disposable getConversationDisposable() {

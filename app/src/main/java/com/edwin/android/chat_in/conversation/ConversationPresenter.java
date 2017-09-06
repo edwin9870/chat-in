@@ -1,13 +1,16 @@
 package com.edwin.android.chat_in.conversation;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.edwin.android.chat_in.chat.ConversationWrapper;
+import com.edwin.android.chat_in.configuration.MyApp;
 import com.edwin.android.chat_in.data.ChatInContract;
 import com.edwin.android.chat_in.data.dto.ContactDTO;
 import com.edwin.android.chat_in.data.dto.ConversationDTO;
@@ -24,6 +27,7 @@ import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -118,7 +122,6 @@ public class ConversationPresenter implements ConversationMVP.Presenter {
     @Override
     public void keepSyncConversation(Context context, int contactId) {
         mSyncDatabase.syncConversation();
-
         mConversationContentObserver = new ContentObserver(new Handler()) {
 
             @Override

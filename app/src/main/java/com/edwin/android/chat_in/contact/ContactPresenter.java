@@ -54,7 +54,6 @@ public class ContactPresenter implements ContactMVP.Presenter {
 
     @Override
     public void syncContact(Context context) {
-        mSyncDatabase.syncContacts();
         Log.d(TAG, "Calling syncContacts");
         mContactoContentObserver = new ContentObserver(new Handler()) {
             @Override
