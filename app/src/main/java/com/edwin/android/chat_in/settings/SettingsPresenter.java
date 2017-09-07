@@ -14,6 +14,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import javax.inject.Inject;
 
@@ -57,7 +58,7 @@ public class SettingsPresenter implements SettingsMVP.Presenter {
         final String fileImagePath = "file://"+fullPathImage;
         final String extension = fileImagePath.substring(fileImagePath.lastIndexOf(".") +1,
                 fileImagePath.length());
-        final String imageFileNameToSave = ResourceUtil.getPhoneNumber() + "." + extension;
+        final String imageFileNameToSave = UUID.randomUUID().toString() + "." + extension;
         Completable.create(emitter -> {
             final String pathToSaveImage = "images/profile/" + imageFileNameToSave;
             Log.d(TAG, "Path to save image: " + pathToSaveImage);

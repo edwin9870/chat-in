@@ -251,31 +251,26 @@ public class SyncDatabase {
 
     public Completable syncContacts() {
         Log.d(TAG, "Calling syncContacts");
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(CompletableEmitter emitter) throws Exception {
-                getNewContacts().subscribeOn(Schedulers.computation())
-                        .subscribe(contact -> {
-                            final ContactDTO persistedContact = mContactRepository.getContactByNumber
-                                    (contact.getNumber()).blockingGet();
-                            if(persistedContact == null) {
-                                Log.d(TAG, "Persisting new contact: "+ contact);
-                                mContactRepository.persist(contact);
-                            } else {
-                                Log.d(TAG, "Updating new contact: "+ contact);
-                                mContactRepository.updateContact(contact);
-                            }
-                            if(contact.getProfileImagePath() != null && !contact.getProfileImagePath().isEmpty()) {
-                                Log.d(TAG, "Downloading profile image");
-                                SyncDatabase.this.downloadProfileImage(contact.getProfileImagePath())
-                                        .subscribeOn(Schedulers.io())
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe();
-                                emitter.onComplete();
-                            }
-                        });
-            }
-        });
+        return Completable.create(emitter ->
+                getNewContacts().subscribeOn(Schedulers.computation()).subscribe(contact -> {
+                    final ContactDTO persistedContact = mContactRepository.getContactByNumber
+                            (contact.getNumber()).blockingGet();
+                    if(persistedContact == null) {
+                        Log.d(TAG, "Persisting new contact: "+ contact);
+                        mContactRepository.persist(contact);
+                    } else {
+                        Log.d(TAG, "Updating new contact: "+ contact);
+                        mContactRepository.updateContact(contact);
+                    }
+                    if(contact.getProfileImagePath() != null && !contact.getProfileImagePath().isEmpty()) {
+                        Log.d(TAG, "Downloading profile image");
+                        SyncDatabase.this.downloadProfileImage(contact.getProfileImagePath())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe();
+                        emitter.onComplete();
+                    }
+                }));
     }
 
     public Disposable getConversationDisposable() {
