@@ -14,6 +14,8 @@ import com.edwin.android.chat_in.data.sync.SyncDatabase;
 import javax.inject.Inject;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
 
@@ -28,6 +30,7 @@ public class ContactPresenter implements ContactMVP.Presenter {
     private final ContactRepository mContactRepository;
     private final SyncDatabase mSyncDatabase;
     private ContentObserver mContactoContentObserver;
+    private Disposable mUpdatingContactsImage;
 
     @Inject
     public ContactPresenter(ContactMVP.View mView, ContactRepository contactRepository,
@@ -74,12 +77,21 @@ public class ContactPresenter implements ContactMVP.Presenter {
             Log.d(TAG, "unregister mContactoContentObserver");
             context.getContentResolver().unregisterContentObserver(mContactoContentObserver);
         }
+
+        if(mUpdatingContactsImage != null && !mUpdatingContactsImage.isDisposed()) {
+            Log.d(TAG, "mUpdatingContactsImage.dispose();");
+            mUpdatingContactsImage.dispose();
+        }
     }
 
     @Override
     public void refreshContacts() {
         Log.d(TAG, "Starting to refresh contacts");
-        getContacts();
+        Log.d(TAG, "updateContactsImage");
+        mUpdatingContactsImage = mSyncDatabase.updateContactsImage().subscribe(() -> {
+            Log.d(TAG, "Updating contacts");
+            getContacts();
+        });
         mView.showMessage("Refreshing");
     }
 }

@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v13.app.FragmentCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -135,14 +136,22 @@ public class SettingsFragment extends Fragment implements SettingsMVP.View{
         }
     }
 
+    @Nullable
     public String getImageFullPathFromUri(Uri uri) {
         Cursor cursor = null;
         try {
             cursor = getActivity().getContentResolver().query(uri, null, null, null, null);
-            cursor.moveToFirst();
-            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-            final String path = cursor.getString(idx);
-            return path;
+            if(cursor.moveToFirst()) {
+                int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+                if(!cursor.isNull(idx)) {
+                    final String path = cursor.getString(idx);
+                    return path;
+                }else {
+                    return null;
+                }
+            } else {
+                return null;
+            }
         } finally {
             if(cursor!= null) {
                 cursor.close();
