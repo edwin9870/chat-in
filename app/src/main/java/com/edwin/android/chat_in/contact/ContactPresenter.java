@@ -7,16 +7,14 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.edwin.android.chat_in.data.ChatInContract;
-import com.edwin.android.chat_in.data.dto.ContactDTO;
 import com.edwin.android.chat_in.data.repositories.ContactRepository;
 import com.edwin.android.chat_in.data.sync.SyncDatabase;
+import com.edwin.android.chat_in.util.FileUtil;
 
 import javax.inject.Inject;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
 
 /**

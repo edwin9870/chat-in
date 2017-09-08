@@ -37,6 +37,7 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Predicate;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
@@ -192,49 +193,50 @@ public class SyncDatabase {
 
     public Completable updateContactsImage() {
         return Completable.create(e ->
-                mContactRepository.getAllContacts().subscribeOn(Schedulers.computation())
-                        .subscribe(new DisposableObserver<ContactDTO>() {
-                            @Override
-                            public void onNext(ContactDTO contact) {
-                                Log.d(TAG, "updateContactsImage.Processing contact: " + contact);
-                                final String contactProfileImagePath = mContactRepositoryFcm
-                                        .getProfileImage(contact
-                                        .getNumber()).blockingGet();
-                                Log.d(TAG, "contactProfileImagePath: " + contactProfileImagePath);
-                                if (contactProfileImagePath == null) {
-                                    Log.d(TAG, "image is null, finish the process");
-                                    return;
+                mContactRepository.getAllContacts()
+                        .toList()
+                        .subscribeOn(Schedulers.computation())
+                .subscribe(contacts -> {
+                    MutableInteger mutableInteger = new MutableInteger();
+                    Log.d(TAG, "contacts size: "+ contacts.size());
+                for(ContactDTO contact : contacts) {
+                    mutableInteger.setValue(mutableInteger.getValue()+1);
+                    Log.d(TAG, "Index: "+ mutableInteger.getValue());
+                    Log.d(TAG, "updateContactsImage.Processing contact: " + contact);
+                    final String contactProfileImagePath = mContactRepositoryFcm
+                            .getProfileImage(contact
+                                    .getNumber()).blockingGet();
+                    Log.d(TAG, "contactProfileImagePath: " + contactProfileImagePath);
+                    if (contactProfileImagePath == null) {
+                        Log.d(TAG, "image is null, finish the process");
+                        continue;
+                    }
+
+                    if (contact.getProfileImagePath().equals(contactProfileImagePath)) {
+                        Log.d(TAG, "the contact image path and the firebase are the " +
+                                "same, finish the process");
+                        continue;
+                    }
+
+                    SyncDatabase.this.downloadProfileImage(contactProfileImagePath)
+                            .timeout(TIMEOUT_DOWNLOAD_IMAGE, TimeUnit.SECONDS)
+                            .onErrorComplete(throwable -> true)
+                            .subscribe(() -> {
+                                Log.d(TAG, "Image downloaded");
+                                contact.setProfileImagePath(contactProfileImagePath);
+                                Log.d(TAG, "Updating profileImage");
+                                mContactRepository.updateContact(contact).subscribe();
+                                if (mutableInteger.getValue() == contacts.size()) {
+                                    Log.d(TAG, "Calling onComplete");
+                                    e.onComplete();
                                 }
 
-                                if (contact.getProfileImagePath().equals(contactProfileImagePath)) {
-                                    Log.d(TAG, "the contact image path and the firebase are the " +
-                                            "same, finish the process");
-                                }
+                            });
+                }
+                }));
 
-                                SyncDatabase.this.downloadProfileImage(contactProfileImagePath)
-                                        .timeout(TIMEOUT_DOWNLOAD_IMAGE, TimeUnit.SECONDS)
-                                        .onErrorComplete(throwable -> true)
-                                        .subscribe(() -> {
-                                            contact.setProfileImagePath(contactProfileImagePath);
-                                            Log.d(TAG, "Updating profileImage");
-                                            mContactRepository.updateContact(contact);
-                                        });
-                            }
 
-                            @Override
-                            public void onError(Throwable e) {
-
-                            }
-
-                            @Override
-                            public void onComplete() {
-                                Log.d(TAG, "updateContactsImage. Calling onCompleted");
-                                e.onComplete();
-                            }
-                        }));
     }
-
-    ;
 
     public void syncConversation() {
         Log.d(TAG, "Executing syncConversation method");

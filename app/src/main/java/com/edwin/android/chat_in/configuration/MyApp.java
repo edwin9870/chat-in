@@ -22,5 +22,7 @@ public class MyApp extends Application {
         Log.d(TAG, "Executing onCreate");
         Log.d(TAG, "Enabling Firebase persistence");
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        Log.d(TAG, "Keep user synced");
+        FirebaseDatabase.getInstance().getReference("users").keepSynced(true);
     }
 }

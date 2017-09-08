@@ -80,7 +80,7 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
     @Override
     public void onStop() {
         super.onStop();
-        mPresenter.cleanResources();
+        mPresenter.cleanResources(getActivity());
     }
 
     @Override
@@ -113,7 +113,7 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
     public void onDestroyView() {
         super.onDestroyView();
         mUnbinder.unbind();
-        mPresenter.cleanResources();
+        mPresenter.cleanResources(getActivity());
     }
 
     @Override

@@ -129,7 +129,8 @@ public class SettingsFragment extends Fragment implements SettingsMVP.View{
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE_PICK_IMAGE) {
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE_PICK_IMAGE &&
+                data != null) {
             Uri imageUri = data.getData();
             Log.d(TAG, "Image obtained, uri: " + imageUri);
             mPresenter.uploadImage(getImageFullPathFromUri(imageUri));
@@ -141,14 +142,11 @@ public class SettingsFragment extends Fragment implements SettingsMVP.View{
         Cursor cursor = null;
         try {
             cursor = getActivity().getContentResolver().query(uri, null, null, null, null);
-            if(cursor.moveToFirst()) {
-                int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-                if(!cursor.isNull(idx)) {
-                    final String path = cursor.getString(idx);
-                    return path;
-                }else {
-                    return null;
-                }
+            cursor.moveToFirst();
+            int idx = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+            if (!cursor.isNull(idx)) {
+                final String path = cursor.getString(idx);
+                return path;
             } else {
                 return null;
             }
@@ -169,8 +167,6 @@ public class SettingsFragment extends Fragment implements SettingsMVP.View{
                     PERMISSION_REQUEST_READ_EXTERNAL_STORAGE);
         }
     }
-
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
