@@ -86,10 +86,9 @@ public class ContactPresenter implements ContactMVP.Presenter {
     public void refreshContacts() {
         Log.d(TAG, "Starting to refresh contacts");
         Log.d(TAG, "updateContactsImage");
-        mUpdatingContactsImage = mSyncDatabase.updateContactsImage().subscribe(() -> {
-            Log.d(TAG, "Updating contacts");
-            getContacts();
-        });
+        mUpdatingContactsImage = mSyncDatabase.updateContactsImage()
+                .subscribeOn(Schedulers.io())
+                .subscribe(() -> Log.d(TAG, "Contact profile images updated"));
         mView.showMessage("Refreshing");
     }
 }

@@ -14,6 +14,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -85,10 +86,11 @@ public class SettingsPresenter implements SettingsMVP.Presenter {
                 .subscribe(() -> {
                     Log.d(TAG, "Starting to upload file to firebase");
             final String pathToSaveImage = "images/profile/" + imageFileNameToSave;
-            Log.d(TAG, "Path to save image: " + pathToSaveImage);
-            final StorageReference imageReference = mFirebaseStorage.getReference().child(pathToSaveImage);
+            final URI imageFileSaved = FileUtil.getImageFile(mContext, imageFileNameToSave).toURI();
+            Log.d(TAG, "New saved file Uri: " + imageFileSaved);
 
-            final UploadTask fileToUpload = imageReference.putFile(Uri.parse(fileImagePath));
+            final StorageReference imageReference = mFirebaseStorage.getReference().child(pathToSaveImage);
+            final UploadTask fileToUpload = imageReference.putFile(Uri.parse(imageFileSaved.toString()));
                     fileToUpload.addOnSuccessListener(taskSnapshot -> {
                 Log.d(TAG, "Upload completed");
                 mContactRepository.getContactById(ContactRepository.OWNER_CONTACT_ID)
