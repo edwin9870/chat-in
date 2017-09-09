@@ -31,6 +31,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -59,7 +60,7 @@ import static com.edwin.android.chat_in.util.FirebaseDatabaseUtil.Constants.CONV
 public class SyncDatabase {
 
     public static final String TAG = SyncDatabase.class.getSimpleName();
-    public static final int TIMEOUT_DOWNLOAD_IMAGE = 1;
+    public static final int DOWNLOAD_IMAGES_TIMEOUT = 10;
     private final ContactRepository mContactRepository;
     private final ConversationRepository mConversationRepository;
     private final FirebaseStorage mFirebaseStorage;
@@ -243,7 +244,10 @@ public class SyncDatabase {
                             return;
                         }
 
-                        SyncDatabase.this.downloadProfileImage(contactProfileImagePath).blockingAwait();
+                        SyncDatabase.this.downloadProfileImage(contactProfileImagePath)
+                                .timeout(DOWNLOAD_IMAGES_TIMEOUT, TimeUnit.SECONDS)
+                                .onErrorComplete(throwable -> throwable instanceof TimeoutException)
+                                .blockingAwait();
                         Log.d(TAG, "Image downloaded");
                         contact.setProfileImagePath(contactProfileImagePath);
                         Log.d(TAG, "Updating profileImage");
