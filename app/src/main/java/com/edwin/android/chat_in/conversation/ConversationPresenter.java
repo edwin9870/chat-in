@@ -127,7 +127,7 @@ public class ConversationPresenter implements ConversationMVP.Presenter {
             @Override
             public void onChange(boolean selfChange, Uri uri) {
                 super.onChange(selfChange);
-                Log.d(TAG, "Uri: "+ uri);
+                Log.d(TAG, "Uri mConversationContentObserver: "+ uri);
                 String id = uri.getPathSegments().get(1);
                 mConversationRepository.getConversationById(Long.valueOf(id))
                                     .filter(conversationWrapper ->

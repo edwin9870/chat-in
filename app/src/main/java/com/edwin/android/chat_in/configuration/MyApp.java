@@ -23,6 +23,25 @@ public class MyApp extends Application {
         Log.d(TAG, "Enabling Firebase persistence");
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         Log.d(TAG, "Keep user synced");
+
+
+
         FirebaseDatabase.getInstance().getReference("users").keepSynced(true);
+
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if(!sharedPreferences.contains(PREF_FIRST_TIME)) {
+            final SharedPreferences.Editor editor = sharedPreferences.edit();
+            Log.d(TAG, "Setting shared preference to true because is the first time");
+            editor.putBoolean(PREF_FIRST_TIME, true);
+            editor.apply();
+        }
+
     }
+
+
+
 }
+
+
+

@@ -1,10 +1,13 @@
 package com.edwin.android.chat_in.data.sync;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.edwin.android.chat_in.configuration.MyApp;
 import com.edwin.android.chat_in.data.dto.ContactDTO;
 import com.edwin.android.chat_in.data.dto.ConversationDTO;
 import com.edwin.android.chat_in.data.fcm.ContactRepositoryFcm;
@@ -30,9 +33,13 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 import static com.edwin.android.chat_in.util.FirebaseDatabaseUtil.Constants.CONVERSATION_ROOT_PATH;
@@ -69,118 +76,123 @@ public class SyncDatabase {
         mContactRepositoryFcm = contactRepositoryFcm;
     }
 
+    public Completable persistOwnerContact() {
+      return Completable.create(e -> {
+          Log.d(TAG, "Calling persistOwnerContact");
+          final String phoneNumber = ResourceUtil.getPhoneNumber();
+          mContactRepository.getContactByNumber(phoneNumber)
+                  .isEmpty()
+                  .subscribeOn(Schedulers.computation())
+          .subscribe(isEmpty -> {
+              Log.d(TAG, "isEmpty: " + isEmpty);
+              if (isEmpty) {
+                  Log.d(TAG, "Persisting owner contact");
+                  final ContactDTO contact = new ContactDTO();
+                  contact.setId(ContactRepository.OWNER_CONTACT_ID);
+                  contact.setNumber(phoneNumber);
+                  Log.d(TAG, "Persisted contact on Firebase: " + contact);
+                  mContactRepositoryFcm.persist(contact)
+                          .subscribeOn(Schedulers.io())
+                          .subscribe();
+                  Log.d(TAG, "contact to be persisted: " + contact);
+                  mContactRepository.persist(contact);
+                  Log.d(TAG,"persistOwnerContact. Calling onComplete");
+                  e.onComplete();
+              }else {
+                  Log.d(TAG,"persistOwnerContact. Calling onComplete");
+                  e.onComplete();
+              }
+          });
+      });
+    }
+
     public Observable<ContactDTO> getNewContacts() {
         Log.d(TAG, "Executing getNewContacts");
         return Observable.create(emitter -> {
-            final String phoneNumber = ResourceUtil.getPhoneNumber();
-            mContactRepository.getContactByNumber(phoneNumber).isEmpty()
-                    .subscribeOn(Schedulers.computation())
-                    .subscribe(isEmpty -> {
-                        Log.d(TAG, "isEmpty: " + isEmpty);
-                        if (isEmpty) {
-                            Log.d(TAG, "Persisting owner contact");
-                            final ContactDTO contact = new ContactDTO();
-                            contact.setId(ContactRepository.OWNER_CONTACT_ID);
-                            contact.setNumber(phoneNumber);
-                            Log.d(TAG, "Persisted contact on Firebase: " + contact);
-                            mContactRepositoryFcm.persist(contact)
-                                    .subscribeOn(Schedulers.io())
-                                    .subscribe();
-                            String profileImage = mContactRepositoryFcm.getProfileImage
-                                    (phoneNumber)
-                                    .subscribeOn(Schedulers.computation())
-                                    .blockingGet();
-                            contact.setProfileImagePath(profileImage);
-                            Log.d(TAG, "contact to be persisted: " + contact);
-                            mContactRepository.persist(contact);
-                            SyncDatabase.this.downloadProfileImage(contact.getProfileImagePath())
-                                    .subscribeOn(Schedulers.io())
-                                    .subscribe();
+            persistOwnerContact().blockingAwait();
+                    final List<String> numberProcessed = new ArrayList<>();
+                    mContactRepository.getAllPhoneContacts()
+                            .filter(sparseArray -> {
+                                final String telephoneNumber = sparseArray.get
+                                        (ContactRepository.TELEPHONE_NUMBER);
 
+                                if (!numberProcessed.contains(telephoneNumber)) {
+                                    numberProcessed.add(telephoneNumber);
+                                    return true;
+                                }
+                                Log.d(TAG, "telephoneNumber has been processed previously, " +
+                                        "skip it");
+                                return false;
+                            })
+                            .filter(sparseArray -> {
+                                final String telephoneNumber = sparseArray.get
+                                        (ContactRepository.TELEPHONE_NUMBER);
+                                final ContactDTO contact = mContactRepository.getContactByNumber
+                                        (telephoneNumber).blockingGet();
+                                if (contact == null) {
+                                    return true;
+                                }
+
+                                if (contact.getUserName() == null || contact.getUserName()
+                                        .isEmpty()) {
+                                    return true;
+                                }
+
+                                Log.d(TAG, "Number: " + telephoneNumber + ", contact exist, " +
+                                        "skip it. Contact: " + contact);
+                                return false;
+                            })
+                            .toList().subscribe(sparseArrays -> {
+                        Log.d(TAG, "Clear number processed contacts list");
+                        numberProcessed.clear();
+                        Log.d(TAG, "spaceArrays size: " + sparseArrays);
+                        MutableInteger mutableInteger = new MutableInteger();
+
+                        if (sparseArrays.isEmpty()) {
+                            emitter.onComplete();
                         }
-                        final List<String> numberProcessed = new ArrayList<>();
-                        mContactRepository.getAllPhoneContacts()
-                                .filter(sparseArray -> {
-                                    final String telephoneNumber = sparseArray.get
-                                            (ContactRepository.TELEPHONE_NUMBER);
-
-                                    if (!numberProcessed.contains(telephoneNumber)) {
-                                        numberProcessed.add(telephoneNumber);
-                                        return true;
+                        for (SparseArray<String> sparseArray : sparseArrays) {
+                            final String contactName = sparseArray.get(ContactRepository
+                                    .CONTACT_NAME);
+                            final String telephoneNumber = sparseArray.get(ContactRepository
+                                    .TELEPHONE_NUMBER);
+                            Log.d(TAG, "Contact name received: " + contactName + ", number: "
+                                    + telephoneNumber);
+                            mDatabase.child("/users/" + telephoneNumber)
+                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    Log.d(TAG, "user dataSnapshot: " + dataSnapshot);
+                                    if (dataSnapshot.getValue() == null) {
+                                        Log.d(TAG, "Skip user because value is null");
+                                        return;
                                     }
-                                    Log.d(TAG, "telephoneNumber has been processed previously, " +
-                                            "skip it");
-                                    return false;
-                                })
-                                .filter(sparseArray -> {
-                                    final String telephoneNumber = sparseArray.get
-                                            (ContactRepository.TELEPHONE_NUMBER);
-                                    final ContactDTO contact = mContactRepository.getContactByNumber
-                                            (telephoneNumber).blockingGet();
-                                    if (contact == null) {
-                                        return true;
+                                    mutableInteger.setValue(mutableInteger.getValue() + 1);
+                                    final ContactDTO contact = new ContactDTO();
+                                    contact.setNumber(telephoneNumber);
+                                    contact.setUserName(contactName);
+                                    final String profileFileImage = dataSnapshot.child
+                                            ("profileImage").getValue(String.class);
+                                    contact.setProfileImagePath(profileFileImage);
+                                    Log.d(TAG, "Contact onNext: " + contact);
+                                    emitter.onNext(contact);
+                                    Log.d(TAG, "mutableInteger.getValue(): " + mutableInteger
+                                            .getValue());
+                                    if (mutableInteger.getValue() == sparseArrays.size()) {
+                                        Log.d(TAG, "Calling onComplete in spaceArray");
+                                        emitter.onComplete();
                                     }
+                                }
 
-                                    if (contact.getUserName() == null || contact.getUserName()
-                                            .isEmpty()) {
-                                        return true;
-                                    }
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+                                    emitter.onError(databaseError.toException());
+                                }
+                            });
+                        }
 
-                                    Log.d(TAG, "Number: " + telephoneNumber + ", contact exist, " +
-                                            "skip it. Contact: " + contact);
-                                    return false;
-                                })
-                                .toList().subscribe(sparseArrays -> {
-                            Log.d(TAG, "Clear number processed contacts list");
-                            numberProcessed.clear();
-                            Log.d(TAG, "spaceArrays size: " + sparseArrays);
-                            MutableInteger mutableInteger = new MutableInteger();
-
-                            if (sparseArrays.isEmpty()) {
-                                emitter.onComplete();
-                            }
-                            for (SparseArray<String> sparseArray : sparseArrays) {
-                                final String contactName = sparseArray.get(ContactRepository
-                                        .CONTACT_NAME);
-                                final String telephoneNumber = sparseArray.get(ContactRepository
-                                        .TELEPHONE_NUMBER);
-                                Log.d(TAG, "Contact name received: " + contactName + ", number: "
-                                        + telephoneNumber);
-                                mDatabase.child("/users/" + telephoneNumber)
-                                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                        Log.d(TAG, "user dataSnapshot: " + dataSnapshot);
-                                        if (dataSnapshot.getValue() == null) {
-                                            Log.d(TAG, "Skip user because value is null");
-                                            return;
-                                        }
-                                        mutableInteger.setValue(mutableInteger.getValue() + 1);
-                                        final ContactDTO contact = new ContactDTO();
-                                        contact.setNumber(telephoneNumber);
-                                        contact.setUserName(contactName);
-                                        final String profileFileImage = dataSnapshot.child
-                                                ("profileImage").getValue(String.class);
-                                        contact.setProfileImagePath(profileFileImage);
-                                        Log.d(TAG, "Contact onNext: " + contact);
-                                        emitter.onNext(contact);
-                                        Log.d(TAG, "mutableInteger.getValue(): " + mutableInteger
-                                                .getValue());
-                                        if (mutableInteger.getValue() == sparseArrays.size()) {
-                                            Log.d(TAG, "Calling onComplete in spaceArray");
-                                            emitter.onComplete();
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
-                                        emitter.onError(databaseError.toException());
-                                    }
-                                });
-                            }
-
-                        });
                     });
+
         });
     }
 
@@ -236,6 +248,7 @@ public class SyncDatabase {
         conversationDisposable = getNewConversations()
                 .subscribeOn(Schedulers.computation())
                 .subscribe(messageWrapper -> {
+                    persistOwnerContact().blockingAwait();
                     Log.d(TAG, "Conversation received: " + messageWrapper);
                     final ContactDTO senderContact = mContactRepository.getContactByNumber
                             (messageWrapper.getSenderNumber()).blockingGet();

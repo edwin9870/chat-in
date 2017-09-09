@@ -2,8 +2,10 @@ package com.edwin.android.chat_in.mainview;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v13.app.ActivityCompat;
@@ -37,6 +39,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.functions.Action;
 
 public class MainViewActivity extends AppCompatActivity {
 
@@ -149,6 +152,7 @@ public class MainViewActivity extends AppCompatActivity {
 
         Log.d(TAG, "Phone number: "+ ResourceUtil.getPhoneNumber());
         mSyncDatabase.syncConversation();
+
     }
 
     private void setupFragment() {
