@@ -88,6 +88,7 @@ public class SyncDatabase {
       return Completable.create(e -> {
           Log.d(TAG, "Calling persistOwnerContact");
           final String phoneNumber = ResourceUtil.getPhoneNumber();
+          Log.d(TAG, "Phone number: "+ phoneNumber);
           mContactRepository.getContactByNumber(phoneNumber)
                   .isEmpty()
                   .subscribeOn(Schedulers.computation())
@@ -111,7 +112,7 @@ public class SyncDatabase {
                   e.onComplete();
               }
           });
-      });
+      }).cache();
     }
 
     public Observable<ContactDTO> getNewContacts() {
@@ -278,7 +279,7 @@ public class SyncDatabase {
         conversationDisposable = getNewConversations()
                 .subscribeOn(Schedulers.computation())
                 .subscribe(messageWrapper -> {
-                    persistOwnerContact().blockingAwait();
+                    persistOwnerContact().subscribe();
                     Log.d(TAG, "Conversation received: " + messageWrapper);
                     final ContactDTO senderContact = mContactRepository.getContactByNumber
                             (messageWrapper.getSenderNumber()).blockingGet();

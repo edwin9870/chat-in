@@ -3,7 +3,9 @@ package com.edwin.android.chat_in.contact;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -41,7 +43,6 @@ public class ContactFragment extends Fragment implements ContactListener, Contac
     private ContactMVP.Presenter mPresenter;
 
     public ContactFragment() {
-        // Required empty public constructor
     }
 
     public static ContactFragment newInstance() {
@@ -65,7 +66,7 @@ public class ContactFragment extends Fragment implements ContactListener, Contac
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.addItemDecoration(new SpacesItemDecoration(ResourceUtil.dpToPx(this
                 .getActivity(), getResources().getInteger(R.integer.space_between_chat_list))));
-        mPresenter.getContacts();
+        mPresenter.syncContacts();
 
         return view;
     }
@@ -102,6 +103,7 @@ public class ContactFragment extends Fragment implements ContactListener, Contac
                 startActivity(intent);
                 return true;
             case R.id.item_refresh_action:
+                showMessage(getActivity().getString(R.string.refreshing_contact_message));
                 mPresenter.refreshContacts();
                 return true;
             default:

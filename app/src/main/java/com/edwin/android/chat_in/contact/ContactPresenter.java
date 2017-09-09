@@ -1,6 +1,8 @@
 package com.edwin.android.chat_in.contact;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.edwin.android.chat_in.R;
@@ -23,6 +25,7 @@ import io.reactivex.schedulers.Schedulers;
 public class ContactPresenter implements ContactMVP.Presenter {
 
     public static final String TAG = ContactPresenter.class.getSimpleName();
+    public static final String PREF_FIRST_TIME = "PREF_FIRST_TIME";
     private final ContactMVP.View mView;
     private final ContactRepository mContactRepository;
     private final SyncDatabase mSyncDatabase;
@@ -67,7 +70,6 @@ public class ContactPresenter implements ContactMVP.Presenter {
     public void refreshContacts() {
         Log.d(TAG, "Starting to refresh contacts");
         Log.d(TAG, "updateContactsImage");
-        mView.showMessage(mContext.getString(R.string.refreshing_contact_message));
         mSyncDatabase.syncContacts()
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -82,5 +84,23 @@ public class ContactPresenter implements ContactMVP.Presenter {
                 getContacts();
             });
         });
+    }
+
+    @Override
+    public void syncContacts() {
+        Log.d(TAG, "Executing syncContacts");
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences
+                (mContext);
+
+        if(!sharedPreferences.contains(PREF_FIRST_TIME)) {
+            final SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(PREF_FIRST_TIME, false);
+            editor.apply();
+            Log.d(TAG, "First time pref change to false. Refreshing contacts");
+            refreshContacts();
+        } else {
+            Log.d(TAG, "Is not first time, calling getcontacts");
+            getContacts();
+        }
     }
 }

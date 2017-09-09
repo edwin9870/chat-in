@@ -23,5 +23,6 @@ public interface ContactMVP {
         void getContacts();
         void cleanResource(Context context);
         void refreshContacts();
+        void syncContacts();
     }
 }

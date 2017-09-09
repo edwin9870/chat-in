@@ -41,17 +41,18 @@ public class ContactRepository {
     }
 
     public Maybe<ContactDTO> getContactByNumber(String phoneNumber) {
-
+        Log.d(TAG, "Finding contact with phoneNumber: " + phoneNumber);
         return Maybe.create(emitter -> {
             Cursor contactCursor = null;
             try {
-                Log.d(TAG, "Finding contact with phoneNumber: " + phoneNumber);
+                Log.d(TAG, "Creating cursor");
                 contactCursor = mContentResolver.query(
                         ContactEntry.CONTENT_URI,
                         null,
                         ContactEntry.COLUMN_NAME_NUMBER + " = ?",
                         new String[]{phoneNumber},
                         null);
+                Log.d(TAG, "Validating contact cursor");
                 if (contactCursor != null && contactCursor.moveToNext()) {
                     Log.d(TAG, "Contact number exists");
                     final ContactDTO contact = convertCursorToContact(contactCursor);
@@ -61,9 +62,11 @@ public class ContactRepository {
                     emitter.onComplete();
                 }
             } catch (Exception e) {
+                Log.e(TAG, "Error while finding contact", e);
                 emitter.onError(e);
             } finally {
                 if (contactCursor != null) {
+                    Log.d(TAG, "Closing cursor");
                     contactCursor.close();
                 }
             }
