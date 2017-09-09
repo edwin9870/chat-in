@@ -71,6 +71,8 @@ public class ChatPresenter implements ChatMVP.Presenter {
     @Override
     public void keepChatSync(Context context) {
         Log.d(TAG, "Calling keepChatSync");
+        Log.d(TAG, "Calling syncConversation");
+        mSyncDatabase.syncConversation();
         conversationContentObserver = new ContentObserver(new Handler()) {
             @Override
             public void onChange(boolean selfChange) {

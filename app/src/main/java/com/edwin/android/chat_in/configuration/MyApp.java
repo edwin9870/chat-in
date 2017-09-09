@@ -14,7 +14,6 @@ import com.google.firebase.database.FirebaseDatabase;
 public class MyApp extends Application {
 
     public static final String TAG = MyApp.class.getSimpleName();
-    public static final String PREF_FIRST_TIME = "firstTime";
 
     @Override
     public void onCreate() {
@@ -27,16 +26,6 @@ public class MyApp extends Application {
 
 
         FirebaseDatabase.getInstance().getReference("users").keepSynced(true);
-
-        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-        if(!sharedPreferences.contains(PREF_FIRST_TIME)) {
-            final SharedPreferences.Editor editor = sharedPreferences.edit();
-            Log.d(TAG, "Setting shared preference to true because is the first time");
-            editor.putBoolean(PREF_FIRST_TIME, true);
-            editor.apply();
-        }
-
     }
 
 

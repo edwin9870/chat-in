@@ -65,7 +65,6 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
         mRecyclerView.setAdapter(mChatAdapter);
         mRecyclerView.addItemDecoration(new SpacesItemDecoration(ResourceUtil.dpToPx(this
                 .getActivity(), getResources().getInteger(R.integer.space_between_chat_list))));
-        mPresenter.getChats();
 
         Log.d(TAG, "finish onCreateView");
         return view;
@@ -74,6 +73,7 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
     @Override
     public void onResume() {
         super.onResume();
+        mPresenter.getChats();
         mPresenter.keepChatSync(getActivity());
     }
 
