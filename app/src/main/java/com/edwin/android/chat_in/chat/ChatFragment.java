@@ -72,8 +72,8 @@ public class ChatFragment extends Fragment implements ChatListener , ChatMVP.Vie
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onResume() {
+        super.onResume();
         mPresenter.keepChatSync(getActivity());
     }
 

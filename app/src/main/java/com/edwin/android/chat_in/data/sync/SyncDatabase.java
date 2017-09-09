@@ -1,13 +1,10 @@
 package com.edwin.android.chat_in.data.sync;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
-import com.edwin.android.chat_in.configuration.MyApp;
 import com.edwin.android.chat_in.data.dto.ContactDTO;
 import com.edwin.android.chat_in.data.dto.ConversationDTO;
 import com.edwin.android.chat_in.data.fcm.ContactRepositoryFcm;
@@ -36,10 +33,6 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Predicate;
-import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 import static com.edwin.android.chat_in.util.FirebaseDatabaseUtil.Constants.CONVERSATION_ROOT_PATH;
@@ -239,31 +232,6 @@ public class SyncDatabase {
     }
 
     public void syncConversation() {
-        Log.d(TAG, "Executing syncConversation method");
-        String ownerTelephoneNumber = ResourceUtil.getPhoneNumber();
-        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences
-                (mContext);
-
-        final boolean isFirstTime = sharedPreferences.getBoolean(MyApp.PREF_FIRST_TIME, true);
-        Log.d(TAG, "sharedPreferences.PREF_FIRST_TIME:  " + isFirstTime);
-        if (isFirstTime) {
-            Log.d(TAG, "Fist time, executing SyncContact");
-            final SharedPreferences.Editor editor = sharedPreferences.edit();
-            this.syncContacts().subscribe(() -> {
-                syncDatabaseLogic(ownerTelephoneNumber);
-                Log.d(TAG, "Change preference first time to false");
-                editor.putBoolean(MyApp.PREF_FIRST_TIME, false);
-                editor.apply();
-            });
-        } else {
-            syncDatabaseLogic(ownerTelephoneNumber);
-        }
-
-
-    }
-
-    private void syncDatabaseLogic(String ownerTelephoneNumber) {
-        Log.d(TAG, "ownerTelephoneNumber: " + ownerTelephoneNumber);
         Log.d(TAG, "Starting to persist conversation");
         conversationDisposable = getNewConversations()
                 .subscribeOn(Schedulers.computation())
