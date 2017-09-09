@@ -67,7 +67,6 @@ public class ContactFragment extends Fragment implements ContactListener, Contac
                 .getActivity(), getResources().getInteger(R.integer.space_between_chat_list))));
         mPresenter.getContacts();
 
-
         return view;
     }
 
