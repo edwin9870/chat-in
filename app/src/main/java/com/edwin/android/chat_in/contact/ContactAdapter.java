@@ -91,6 +91,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactA
 
     public void setContacts(List<ContactDTO> contacts) {
         this.mContacts = contacts;
+        Log.d(TAG, "Contacts received: "+ contacts);
         notifyDataSetChanged();
     }
 }

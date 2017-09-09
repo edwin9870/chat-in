@@ -24,6 +24,9 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
@@ -41,6 +45,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Predicate;
+import io.reactivex.internal.observers.SubscriberCompletableObserver;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
@@ -208,46 +213,58 @@ public class SyncDatabase {
     public Completable updateContactsImage() {
         return Completable.create(e ->
                 mContactRepository.getAllContacts()
-                        .toList()
-                        .subscribeOn(Schedulers.computation())
-                .subscribe(contacts -> {
-                    MutableInteger mutableInteger = new MutableInteger();
-                    Log.d(TAG, "contacts size: "+ contacts.size());
-                for(ContactDTO contact : contacts) {
-                    mutableInteger.setValue(mutableInteger.getValue()+1);
-                    Log.d(TAG, "Index: "+ mutableInteger.getValue());
-                    Log.d(TAG, "updateContactsImage.Processing contact: " + contact);
-                    final String contactProfileImagePath = mContactRepositoryFcm
-                            .getProfileImage(contact
-                                    .getNumber()).blockingGet();
-                    Log.d(TAG, "contactProfileImagePath: " + contactProfileImagePath);
-                    if (contactProfileImagePath == null || contact.getProfileImagePath() == null ) {
-                        Log.d(TAG, "image is null, finish the process");
-                        continue;
+                .toFlowable(BackpressureStrategy.BUFFER)
+                .subscribe(new Subscriber<ContactDTO>() {
+                    private Subscription subscriber;
+
+                    @Override
+                    public void onSubscribe(Subscription s) {
+                        subscriber = s;
+                        subscriber.request(1);
                     }
 
-                    if (contact.getProfileImagePath().equals(contactProfileImagePath)) {
-                        Log.d(TAG, "the contact image path and the firebase are the " +
-                                "same, finish the process");
-                        continue;
+                    @Override
+                    public void onNext(ContactDTO contact) {
+                        Log.d(TAG, "updateContactsImage.Processing contact: " + contact);
+                        final String contactProfileImagePath =
+                                mContactRepositoryFcm.getProfileImage(contact.getNumber()).blockingGet();
+                        Log.d(TAG, "contactProfileImagePath: " + contactProfileImagePath);
+                        if (contactProfileImagePath == null) {
+                            Log.d(TAG, "image is null, finish the process");
+                            subscriber.request(1);
+                            return;
+                        }
+
+                        if (contact.getProfileImagePath() != null &&
+                                contact.getProfileImagePath().equals(contactProfileImagePath)) {
+                            Log.d(TAG, "the contact image path and the firebase are the " +
+                                    "same, finish the process");
+                            subscriber.request(1);
+                            return;
+                        }
+
+                        SyncDatabase.this.downloadProfileImage(contactProfileImagePath).blockingAwait();
+                        Log.d(TAG, "Image downloaded");
+                        contact.setProfileImagePath(contactProfileImagePath);
+                        Log.d(TAG, "Updating profileImage");
+                        mContactRepository.updateContact(contact).subscribe();
+                        subscriber.request(1);
                     }
 
-                    SyncDatabase.this.downloadProfileImage(contactProfileImagePath)
-                            .timeout(TIMEOUT_DOWNLOAD_IMAGE, TimeUnit.SECONDS)
-                            .onErrorComplete(throwable -> true)
-                            .subscribe(() -> {
-                                Log.d(TAG, "Image downloaded");
-                                contact.setProfileImagePath(contactProfileImagePath);
-                                Log.d(TAG, "Updating profileImage");
-                                mContactRepository.updateContact(contact).subscribe();
-                                if (mutableInteger.getValue() == contacts.size()) {
-                                    Log.d(TAG, "Calling onComplete");
-                                    e.onComplete();
-                                }
+                    @Override
+                    public void onError(Throwable t) {
+                        e.onError(t);
 
-                            });
-                }
-                }));
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.d(TAG, "Finish to update contacts's image profile, calling onComplete");
+                        e.onComplete();
+                    }
+                })
+        );
+
 
 
     }
@@ -444,8 +461,10 @@ public class SyncDatabase {
                 .addOnSuccessListener(uri -> {
                     try {
                         Log.d(TAG, "Uri to download de image: " + uri);
-                        Completable.create(e ->
-                                FileUtil.saveImage(mContext, new URL(uri.toString()), imageName))
+                        Completable.create(e ->{
+                            FileUtil.saveImage(mContext, new URL(uri.toString()), imageName);
+                            e.onComplete();
+                        })
                                 .subscribeOn(Schedulers.io())
                                 .subscribe(emitter::onComplete);
                     } catch (Exception e1) {
