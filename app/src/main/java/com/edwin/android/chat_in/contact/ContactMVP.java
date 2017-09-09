@@ -21,7 +21,6 @@ public interface ContactMVP {
 
     interface Presenter {
         void getContacts();
-        void syncContact(Context context);
         void cleanResource(Context context);
         void refreshContacts();
     }

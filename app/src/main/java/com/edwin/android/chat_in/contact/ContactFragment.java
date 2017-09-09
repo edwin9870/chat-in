@@ -66,7 +66,6 @@ public class ContactFragment extends Fragment implements ContactListener, Contac
         mRecyclerView.addItemDecoration(new SpacesItemDecoration(ResourceUtil.dpToPx(this
                 .getActivity(), getResources().getInteger(R.integer.space_between_chat_list))));
         mPresenter.getContacts();
-        mPresenter.syncContact(getActivity());
 
 
         return view;

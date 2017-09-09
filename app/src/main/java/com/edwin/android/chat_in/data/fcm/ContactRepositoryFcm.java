@@ -17,6 +17,9 @@ import javax.inject.Singleton;
 
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
 
 /**
  * Created by Edwin Ramirez Ventura on 9/1/2017.
@@ -37,6 +40,29 @@ public class ContactRepositoryFcm {
         mDatabaseReference = databaseReference;
     }
 
+    public Single<Boolean> contactExist(String phoneNumber){
+        return Single.create(e -> {
+            Log.d(TAG, "Executing contactExist with the phone number: "+ phoneNumber);
+            mDatabaseReference.child(USERS_PATH).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Log.d(TAG,"user dataSnapshot: " + dataSnapshot);
+                    if(dataSnapshot.hasChild(phoneNumber)) {
+                        Log.d(TAG,"Phone number exist in Firebase");
+                        e.onSuccess(true);
+                    }else{
+                        Log.d(TAG,"Phone number does not in Firebase");
+                        e.onSuccess(false);
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        });
+    }
     public Completable persist(ContactDTO contact) {
         return Completable.create(emitter ->
         {

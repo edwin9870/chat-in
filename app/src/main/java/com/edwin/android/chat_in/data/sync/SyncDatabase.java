@@ -40,6 +40,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Predicate;
+import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 import static com.edwin.android.chat_in.util.FirebaseDatabaseUtil.Constants.CONVERSATION_ROOT_PATH;
@@ -133,6 +135,11 @@ public class SyncDatabase {
                                     return true;
                                 }
 
+                                if(contact.getId() == ContactRepository.OWNER_CONTACT_ID) {
+                                    Log.d(TAG, "Is owner contact, skip returning it");
+                                    return false;
+                                }
+
                                 if (contact.getUserName() == null || contact.getUserName()
                                         .isEmpty()) {
                                     return true;
@@ -142,10 +149,15 @@ public class SyncDatabase {
                                         "skip it. Contact: " + contact);
                                 return false;
                             })
+                            .filter(sparseArray -> {
+                                final String telephoneNumber = sparseArray.get
+                                        (ContactRepository.TELEPHONE_NUMBER);
+                                return mContactRepositoryFcm.contactExist(telephoneNumber).blockingGet();
+                            })
                             .toList().subscribe(sparseArrays -> {
                         Log.d(TAG, "Clear number processed contacts list");
                         numberProcessed.clear();
-                        Log.d(TAG, "spaceArrays size: " + sparseArrays);
+                        Log.d(TAG, "spaceArrays size: " + sparseArrays.size());
                         MutableInteger mutableInteger = new MutableInteger();
 
                         if (sparseArrays.isEmpty()) {
@@ -171,9 +183,6 @@ public class SyncDatabase {
                                     final ContactDTO contact = new ContactDTO();
                                     contact.setNumber(telephoneNumber);
                                     contact.setUserName(contactName);
-                                    final String profileFileImage = dataSnapshot.child
-                                            ("profileImage").getValue(String.class);
-                                    contact.setProfileImagePath(profileFileImage);
                                     Log.d(TAG, "Contact onNext: " + contact);
                                     emitter.onNext(contact);
                                     Log.d(TAG, "mutableInteger.getValue(): " + mutableInteger
@@ -212,7 +221,7 @@ public class SyncDatabase {
                             .getProfileImage(contact
                                     .getNumber()).blockingGet();
                     Log.d(TAG, "contactProfileImagePath: " + contactProfileImagePath);
-                    if (contactProfileImagePath == null) {
+                    if (contactProfileImagePath == null || contact.getProfileImagePath() == null ) {
                         Log.d(TAG, "image is null, finish the process");
                         continue;
                     }
@@ -291,24 +300,32 @@ public class SyncDatabase {
     public Completable syncContacts() {
         Log.d(TAG, "Calling syncContacts");
         return Completable.create(emitter ->
-                getNewContacts().subscribeOn(Schedulers.computation()).subscribe(contact -> {
-                    final ContactDTO persistedContact = mContactRepository.getContactByNumber
-                            (contact.getNumber()).blockingGet();
-                    if (persistedContact == null) {
-                        Log.d(TAG, "Persisting new contact: " + contact);
-                        mContactRepository.persist(contact);
-                    } else {
-                        Log.d(TAG, "Updating new contact: " + contact);
-                        mContactRepository.updateContact(contact);
+                getNewContacts().subscribeOn(Schedulers.computation()).subscribe(new DisposableObserver<ContactDTO>() {
+                    @Override
+                    public void onNext(ContactDTO contact) {
+                        final ContactDTO persistedContact = mContactRepository.getContactByNumber
+                                (contact.getNumber()).blockingGet();
+                        if (persistedContact == null) {
+                            Log.d(TAG, "Persisting new contact: " + contact);
+                            mContactRepository.persist(contact);
+                        } else {
+                            contact.setId(persistedContact.getId());
+                            Log.d(TAG, "Updating new contact: " + contact);
+                            mContactRepository.updateContact(contact).blockingAwait();
+                        }
+
                     }
-                    if (contact.getProfileImagePath() != null && !contact.getProfileImagePath()
-                            .isEmpty()) {
-                        Log.d(TAG, "Downloading profile image");
-                        SyncDatabase.this.downloadProfileImage(contact.getProfileImagePath())
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe();
-                        updateContactsImage().subscribe(emitter::onComplete);
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, "Error while persisting and updating contacts, calling onError");
+                        emitter.onError(e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.d(TAG, "Finish persisting and updating contacts, calling onComplete");
+                        emitter.onComplete();
                     }
                 }));
     }

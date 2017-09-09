@@ -14,6 +14,7 @@ import com.edwin.android.chat_in.util.FileUtil;
 import com.edwin.android.chat_in.views.RoundedImageView;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.util.List;
 
 import butterknife.BindView;
@@ -51,7 +52,8 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactA
         if(contact.getProfileImagePath() == null || contact.getProfileImagePath().isEmpty()) {
             picasso.load(R.drawable.ic_faceless_man).fit().into(holder.mProfileImageView);
         } else {
-            picasso.load(FileUtil.getImageFile(mContext, contact.getProfileImagePath())).fit().into(holder.mProfileImageView);
+            final File imageFile = FileUtil.getImageFile(mContext, contact.getProfileImagePath());
+            picasso.load(imageFile).fit().into(holder.mProfileImageView);
         }
 
         holder.mContactNameTextView.setText(contact.getUserName());
