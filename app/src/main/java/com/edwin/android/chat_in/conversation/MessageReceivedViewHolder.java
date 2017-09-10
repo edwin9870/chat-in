@@ -19,6 +19,8 @@ public class MessageReceivedViewHolder extends RecyclerView.ViewHolder {
     RoundedImageView mProfileImageView;
     @BindView(R.id.text_message_sent)
     TextView mMessageReceivedTextView;
+    @BindView(R.id.text_message_received_date)
+    TextView mMessageReceivedDateTextView;
 
     public MessageReceivedViewHolder(View itemView) {
         super(itemView);

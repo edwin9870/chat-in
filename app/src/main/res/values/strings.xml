@@ -44,4 +44,5 @@
     <string name="button_resend_verification_code_text">Re-send</string>
     <string name="item_refresh_action_title">Refresh</string>
     <string name="refreshing_contact_message">Refreshing</string>
+    <string name="message_date">MMM dd \'AT\' h:m a</string>
 </resources>

@@ -2,6 +2,7 @@ package com.edwin.android.chat_in.conversation;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import com.edwin.android.chat_in.util.FileUtil;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -70,6 +72,11 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     .fit()
                     .into(holder.mProfileImageView);
         }
+
+        final Date messageDate = new Date(conversationWrapper.getConversation().getMessageDate());
+        String messageDateFormated = DateFormat.format(mContext.getString(R.string.message_date), messageDate).toString();
+        holder.mMessageReceivedDateTextView.setText(messageDateFormated);
+
     }
 
     private void bindSentMessage(MessageSentViewHolder holder, ConversationWrapper conversationWrapper) {

@@ -36,4 +36,7 @@
     <dimen name="fragment_auth_body_padding_top">48dp</dimen>
     <dimen name="fragment_auth_body_padding_right">16dp</dimen>
     <dimen name="fragment_auth_body_padding_bottom">8dp</dimen>
+
+    <!-- item_message_received.xml -->
+    <dimen name="frame_layout_message_received_margin_left">8dp</dimen>
 </resources>
