@@ -39,4 +39,7 @@
 
     <!-- item_message_received.xml -->
     <dimen name="frame_layout_message_received_margin_left">8dp</dimen>
+
+    <!-- item_message_sent.xml-->
+    <dimen name="linear_layout_message_margin_left">56dp</dimen>
 </resources>

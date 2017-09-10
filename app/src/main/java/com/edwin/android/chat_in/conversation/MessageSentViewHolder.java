@@ -17,10 +17,11 @@ public class MessageSentViewHolder extends RecyclerView.ViewHolder {
 
     @BindView(R.id.text_message_sent)
     TextView mMessageSentViewText;
+    @BindView(R.id.text_message_sent_date)
+    TextView mMessageSentDateTextView;
 
     public MessageSentViewHolder(View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);
-        itemView.findViewById(R.layout.item_message_sent);
     }
 }

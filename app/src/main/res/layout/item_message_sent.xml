@@ -6,20 +6,29 @@
               android:orientation="horizontal"
               android:padding="@dimen/linear_item_message_sent_padding">
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_marginStart="56dp"
-        android:layout_marginLeft="56dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:background="@drawable/ic_message_sent">
+        android:layout_marginLeft="@dimen/linear_layout_message_margin_left"
+        android:layout_marginStart="@dimen/linear_layout_message_margin_left"
+        android:background="@drawable/ic_message_sent"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/text_message_sent"
             android:layout_width="match_parent"
-            android:background="?attr/selectableItemBackground"
             android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
             tools:text="Holaaaaaaaaaaaa"/>
-    </FrameLayout>
+
+        <TextView
+            android:id="@+id/text_message_sent_date"
+            style="@style/TextAppearance.AppCompat.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            tools:text="AUG 21 AT 9:30 PM"/>
+    </LinearLayout>
 
 </LinearLayout>

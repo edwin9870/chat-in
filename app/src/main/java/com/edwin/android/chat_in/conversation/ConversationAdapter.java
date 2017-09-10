@@ -3,6 +3,7 @@ package com.edwin.android.chat_in.conversation;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -58,6 +59,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             bindSentMessage((MessageSentViewHolder) holder, conversationWrapper);
         }
 
+
     }
 
     private void bindReceivedMessage(MessageReceivedViewHolder holder, ConversationWrapper conversationWrapper) {
@@ -74,13 +76,29 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
 
         final Date messageDate = new Date(conversationWrapper.getConversation().getMessageDate());
-        String messageDateFormated = DateFormat.format(mContext.getString(R.string.message_date), messageDate).toString();
-        holder.mMessageReceivedDateTextView.setText(messageDateFormated);
+        CharSequence messageDateFormatted = formatToMessageDate(messageDate);
+        holder.mMessageReceivedDateTextView.setText(messageDateFormatted.toString().toUpperCase());
 
     }
 
     private void bindSentMessage(MessageSentViewHolder holder, ConversationWrapper conversationWrapper) {
         holder.mMessageSentViewText.setText(conversationWrapper.getConversation().getMessage());
+        final Date messageDate = new Date(conversationWrapper.getConversation().getMessageDate());
+        CharSequence messageDateFormatted = formatToMessageDate(messageDate);
+        holder.mMessageSentDateTextView.setText(messageDateFormatted.toString().toUpperCase());
+    }
+
+    private CharSequence formatToMessageDate(Date messageDate) {
+        final String format;
+        if(DateUtils.isToday(messageDate.getTime())) {
+            format = mContext.getString(R.string.time_format);
+        }else {
+            format = mContext.getString(R.string.message_date);
+
+        }
+        return DateFormat.format(format, messageDate);
+
+
     }
 
     @Override
