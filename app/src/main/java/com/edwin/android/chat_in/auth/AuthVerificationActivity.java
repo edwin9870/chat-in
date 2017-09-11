@@ -20,8 +20,8 @@ public class AuthVerificationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth_verification);
-        //final String phoneNumber = getIntent().getStringExtra(BUNDLE_PHONE_NUMBER);
-        final String phoneNumber = "18292779870";
+        final String phoneNumber = getIntent().getStringExtra(BUNDLE_PHONE_NUMBER);
+        //final String phoneNumber = "18292779870";
         Log.d(TAG, "Phone number received: "+ phoneNumber);
 
         AuthVerificationFragment fragment = (AuthVerificationFragment) getFragmentManager()

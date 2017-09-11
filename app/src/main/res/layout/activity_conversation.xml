@@ -5,9 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimaryLight"
     android:orientation="vertical"
-    tools:context="com.edwin.android.chat_in.conversationDTO.ConversationActivity">
+    tools:context=".conversation.ConversationActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar_settings_activity"
