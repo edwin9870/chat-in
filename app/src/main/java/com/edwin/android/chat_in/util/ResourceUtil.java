@@ -2,10 +2,14 @@ package com.edwin.android.chat_in.util;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
+import android.util.Log;
 
+import com.edwin.android.chat_in.auth.AuthVerificationFragment;
 import com.google.firebase.auth.FirebaseAuth;
 
 import javax.annotation.Nullable;
@@ -16,6 +20,8 @@ import javax.annotation.Nullable;
 
 public final class ResourceUtil {
 
+
+    public static final String TAG = ResourceUtil.class.getSimpleName();
 
     public static final int getResourceColor(Context context, int colorCode) {
         int color;
@@ -34,9 +40,15 @@ public final class ResourceUtil {
 
     @SuppressLint("MissingPermission")
     @Nullable
-    public static String getPhoneNumber() {
+    public static String getPhoneNumber(Context context) {
         //TODO: Change to firebase auth
-        return FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber().substring(2);
+        //return FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber().substring(2);
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences
+                (context);
+        final String phoneNumber = sharedPreferences.getString(AuthVerificationFragment
+                .PREF_PHONE_NUMBER, null);
+        Log.d(TAG, "phone number: " + phoneNumber);
+        return phoneNumber;
         //return "8292779870";// Edwin number
         //return "8295848089"; //Cindy number
     }

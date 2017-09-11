@@ -4,6 +4,7 @@ package com.edwin.android.chat_in.auth;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -90,9 +91,16 @@ public class AuthFragment extends Fragment implements AdapterView.OnItemSelected
             return;
         }
 
-        if (mPhoneNumberEditText.getText() == null || mPhoneNumberEditText.getText().length() < 2) {
+        if (mPhoneNumberEditText.getText() == null || mPhoneNumberEditText.getText().length() < 5) {
             Toast.makeText(getActivity(), R.string.phone_number_required, Toast.LENGTH_LONG).show();
+            return;
         }
+
+        if(!TextUtils.isDigitsOnly(mPhoneNumberEditText.getText())) {
+            Toast.makeText(getActivity(), R.string.only_digits_allowance, Toast.LENGTH_LONG).show();
+            return;
+        }
+
 
         final String phoneNumber = mCountryValueSelected + mPhoneNumberEditText.getText()
                 .toString();

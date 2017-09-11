@@ -87,7 +87,7 @@ public class SyncDatabase {
     public Completable persistOwnerContact() {
       return Completable.create(e -> {
           Log.d(TAG, "Calling persistOwnerContact");
-          final String phoneNumber = ResourceUtil.getPhoneNumber();
+          final String phoneNumber = ResourceUtil.getPhoneNumber(mContext);
           Log.d(TAG, "Phone number: "+ phoneNumber);
           mContactRepository.getContactByNumber(phoneNumber)
                   .isEmpty()
@@ -357,7 +357,7 @@ public class SyncDatabase {
     }
 
     public Observable<MessageWrapper> getNewConversations() {
-        String ownerTelephoneNumber = ResourceUtil.getPhoneNumber();
+        String ownerTelephoneNumber = ResourceUtil.getPhoneNumber(mContext);
         final Query conversationPath = mDatabase.child(CONVERSATION_ROOT_PATH);
         Observable<MessageWrapper> targetToMeObservable = Observable.create(e -> {
             Log.d(TAG, "getNewConversations");

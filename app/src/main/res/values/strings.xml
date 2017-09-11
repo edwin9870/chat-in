@@ -31,6 +31,7 @@
     <string name="button_next_step_phone_number">Next</string>
     <string name="country_code_required">Country code is required</string>
     <string name="phone_number_required">Phone number is required</string>
+    <string name="only_digits_allowance">Phone number must contains only digits</string>
 
     <!-- fragment_auth.xml -->
 
@@ -45,4 +46,5 @@
     <string name="button_resend_verification_code_text">Re-send</string>
     <string name="item_refresh_action_title">Refresh</string>
     <string name="refreshing_contact_message">Refreshing</string>
+
 </resources>

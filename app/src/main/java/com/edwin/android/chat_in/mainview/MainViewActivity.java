@@ -115,7 +115,8 @@ public class MainViewActivity extends AppCompatActivity {
     }
     private void setupActivity() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if(currentUser == null) {
+        String phoneNumber = ResourceUtil.getPhoneNumber(this);
+        if(phoneNumber == null || phoneNumber.isEmpty()) {
             final Intent intent = new Intent(this, AuthActivity.class);
             Log.d(TAG, "User is not logged, starting AuthActivity");
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -150,7 +151,7 @@ public class MainViewActivity extends AppCompatActivity {
 
         setupViewPager();
 
-        Log.d(TAG, "Phone number: "+ ResourceUtil.getPhoneNumber());
+        Log.d(TAG, "Phone number: "+ ResourceUtil.getPhoneNumber(this));
         mSyncDatabase.syncConversation();
 
     }

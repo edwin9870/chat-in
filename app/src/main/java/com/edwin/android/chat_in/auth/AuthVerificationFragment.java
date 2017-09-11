@@ -3,7 +3,9 @@ package com.edwin.android.chat_in.auth;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +34,7 @@ import butterknife.Unbinder;
 public class AuthVerificationFragment extends Fragment {
 
     public static final String TAG = AuthVerificationFragment.class.getSimpleName();
+    public static final String PREF_PHONE_NUMBER = "PREF_PHONE_NUMBER";
     @BindView(R.id.edit_text_verification_code)
     EditText mVerificationCodeEditText;
     Unbinder unbinder;
@@ -78,7 +81,7 @@ public class AuthVerificationFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            phoneNumber = getArguments().getString(AuthVerificationActivity.BUNDLE_PHONE_NUMBER);
+            phoneNumber = getArguments().getString(AuthVerificationActivity.BUNDLE_PHONE_NUMBER).substring(2);
         }
     }
 
@@ -88,8 +91,16 @@ public class AuthVerificationFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_auth_verification, container,
                 false);
         unbinder = ButterKnife.bind(this, view);
+        Log.d(TAG, "phoneNumber: "+ phoneNumber);
 
 
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences
+                (getActivity());
+        final SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(PREF_PHONE_NUMBER, phoneNumber);
+        editor.apply();
+        openMainActivity();
+        
         mCallbacksAuth = new
                 OnVerificationStateChangedCallbacks() {
                     @Override
@@ -191,9 +202,7 @@ public class AuthVerificationFragment extends Fragment {
                     if (task.isSuccessful()) {
                         // Sign in success, update UI with the signed-in user's information
                         Log.d(TAG, "signInWithCredential:success");
-                        final Intent intent = new Intent(getActivity(), MainViewActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        getActivity().startActivity(intent);
+                        openMainActivity();
                     } else {
 
                         Log.d(TAG, "signInWithCredential:unsuccessful");
@@ -207,6 +216,12 @@ public class AuthVerificationFragment extends Fragment {
                                 .getException());
                     }
                 });
+    }
+
+    private void openMainActivity() {
+        final Intent intent = new Intent(getActivity(), MainViewActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        getActivity().startActivity(intent);
     }
 
 }
