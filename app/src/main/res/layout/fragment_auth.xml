@@ -12,8 +12,11 @@
         android:layout_height="wrap_content"
         android:paddingBottom="@dimen/auth_app_bar_layout_padding_bottom"
         android:paddingLeft="@dimen/auth_app_bar_layout_padding_left"
+        android:paddingStart="@dimen/auth_app_bar_layout_padding_left"
         android:paddingRight="@dimen/auth_app_bar_layout_padding_right"
+        android:paddingEnd="@dimen/auth_app_bar_layout_padding_right"
         android:paddingTop="@dimen/auth_app_bar_layout_padding_top"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:contentScrim="?attr/colorPrimary">
 
         <LinearLayout
@@ -44,6 +47,7 @@
         android:layout_height="wrap_content"
         android:src="@drawable/ic_phone"
         app:layout_anchor="@id/auth_app_bar_layout"
+        app:backgroundTint="@color/colorPrimary"
         app:layout_anchorGravity="bottom|center"
         />
 
