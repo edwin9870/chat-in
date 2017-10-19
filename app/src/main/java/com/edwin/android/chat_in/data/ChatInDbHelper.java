@@ -9,18 +9,22 @@ import android.util.Log;
 import com.edwin.android.chat_in.data.ChatInContract.ContactEntry;
 import com.edwin.android.chat_in.data.ChatInContract.ConversationEntry;
 
+import java.io.File;
+
 /**
  * Created by Edwin Ramirez Ventura on 8/23/2017.
  */
 
 public class ChatInDbHelper extends SQLiteOpenHelper {
 
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
     public static final String DATABASE_NAME = "chat-in41.db";
     public static final String TAG = ChatInDbHelper.class.getSimpleName();
+    private final Context mContext;
 
     public ChatInDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        mContext = context;
         Log.d(TAG, "ChatInDbHelper constructor called");
     }
 
@@ -58,7 +62,10 @@ public class ChatInDbHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+        if(oldVersion < newVersion) {
+            sqLiteDatabase.close();
+            mContext.deleteDatabase(DATABASE_NAME);
+        }
     }
 }

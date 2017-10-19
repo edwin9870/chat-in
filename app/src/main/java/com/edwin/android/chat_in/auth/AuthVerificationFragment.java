@@ -34,7 +34,7 @@ import butterknife.Unbinder;
 public class AuthVerificationFragment extends Fragment {
 
     public static final String TAG = AuthVerificationFragment.class.getSimpleName();
-    public static final String PREF_PHONE_NUMBER = "PREF_PHONE_NUMBER";
+    public static final String PREF_PHONE_NUMBER = "PREFERENCE_PHONE_NUMBER";
     @BindView(R.id.edit_text_verification_code)
     EditText mVerificationCodeEditText;
     Unbinder unbinder;
@@ -139,10 +139,6 @@ public class AuthVerificationFragment extends Fragment {
                     }
 
                 };
-
-            PhoneAuthProvider.getInstance().verifyPhoneNumber(
-                    phoneNumber, 2, TimeUnit.MINUTES, getActivity(),
-                    mCallbacksAuth);
 
 
         return view;

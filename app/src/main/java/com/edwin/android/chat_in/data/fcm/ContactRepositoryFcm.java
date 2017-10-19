@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.edwin.android.chat_in.data.dto.ContactDTO;
-import com.edwin.android.chat_in.util.ResourceUtil;
+import com.edwin.android.chat_in.util.PhoneNumberUtil;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -18,8 +18,6 @@ import javax.inject.Singleton;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
 
 /**
  * Created by Edwin Ramirez Ventura on 9/1/2017.
@@ -111,7 +109,7 @@ public class ContactRepositoryFcm {
             }
             final HashMap<String, Object> profile = new HashMap<>();
             profile.put(USER_PROFILE_IMAGE_PATH, contact.getProfileImagePath());
-            mDatabaseReference.child("users").child(ResourceUtil.getPhoneNumber(mContext)).updateChildren(profile);
+            mDatabaseReference.child("users").child(PhoneNumberUtil.getPhoneNumber(mContext)).updateChildren(profile);
         });
     }
     public Maybe<String> getProfileImage(String phoneNumber) {

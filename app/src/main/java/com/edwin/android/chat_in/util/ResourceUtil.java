@@ -38,20 +38,5 @@ public final class ResourceUtil {
         return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
 
-    @SuppressLint("MissingPermission")
-    @Nullable
-    public static String getPhoneNumber(Context context) {
-        //TODO: Change to firebase auth
-        //return FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber().substring(2);
-        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences
-                (context);
-        final String phoneNumber = sharedPreferences.getString(AuthVerificationFragment
-                .PREF_PHONE_NUMBER, null);
-        Log.d(TAG, "phone number: " + phoneNumber);
-        return phoneNumber;
-        //return "8292779870";// Edwin number
-        //return "8295848089"; //Cindy number
-    }
-
 
 }

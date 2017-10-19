@@ -1,13 +1,10 @@
 package com.edwin.android.chat_in.data.sync;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
-import com.edwin.android.chat_in.configuration.MyApp;
 import com.edwin.android.chat_in.data.dto.ContactDTO;
 import com.edwin.android.chat_in.data.dto.ConversationDTO;
 import com.edwin.android.chat_in.data.fcm.ContactRepositoryFcm;
@@ -15,7 +12,7 @@ import com.edwin.android.chat_in.data.repositories.ContactRepository;
 import com.edwin.android.chat_in.data.repositories.ConversationRepository;
 import com.edwin.android.chat_in.util.FileUtil;
 import com.edwin.android.chat_in.util.MutableInteger;
-import com.edwin.android.chat_in.util.ResourceUtil;
+import com.edwin.android.chat_in.util.PhoneNumberUtil;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -38,15 +35,8 @@ import javax.inject.Singleton;
 
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Predicate;
-import io.reactivex.internal.observers.SubscriberCompletableObserver;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
@@ -87,7 +77,7 @@ public class SyncDatabase {
     public Completable persistOwnerContact() {
       return Completable.create(e -> {
           Log.d(TAG, "Calling persistOwnerContact");
-          final String phoneNumber = ResourceUtil.getPhoneNumber(mContext);
+          final String phoneNumber = PhoneNumberUtil.formatPhoneNumber(PhoneNumberUtil.getPhoneNumber(mContext));
           Log.d(TAG, "Phone number: "+ phoneNumber);
           mContactRepository.getContactByNumber(phoneNumber)
                   .isEmpty()
@@ -126,7 +116,7 @@ public class SyncDatabase {
                                         (ContactRepository.TELEPHONE_NUMBER);
 
                                 if (!numberProcessed.contains(telephoneNumber)) {
-                                    numberProcessed.add(telephoneNumber);
+                                    numberProcessed.add(PhoneNumberUtil.formatPhoneNumber(telephoneNumber));
                                     return true;
                                 }
                                 Log.d(TAG, "telephoneNumber has been processed previously, " +
@@ -159,7 +149,7 @@ public class SyncDatabase {
                             .filter(sparseArray -> {
                                 final String telephoneNumber = sparseArray.get
                                         (ContactRepository.TELEPHONE_NUMBER);
-                                return mContactRepositoryFcm.contactExist(telephoneNumber).blockingGet();
+                                return mContactRepositoryFcm.contactExist(PhoneNumberUtil.formatPhoneNumber(telephoneNumber)).blockingGet();
                             })
                             .toList().subscribe(sparseArrays -> {
                         Log.d(TAG, "Clear number processed contacts list");
@@ -173,8 +163,8 @@ public class SyncDatabase {
                         for (SparseArray<String> sparseArray : sparseArrays) {
                             final String contactName = sparseArray.get(ContactRepository
                                     .CONTACT_NAME);
-                            final String telephoneNumber = sparseArray.get(ContactRepository
-                                    .TELEPHONE_NUMBER);
+                            final String telephoneNumber = PhoneNumberUtil.formatPhoneNumber(sparseArray.get(ContactRepository
+                                    .TELEPHONE_NUMBER));
                             Log.d(TAG, "Contact name received: " + contactName + ", number: "
                                     + telephoneNumber);
                             mDatabase.child("/users/" + telephoneNumber)
@@ -357,7 +347,7 @@ public class SyncDatabase {
     }
 
     public Observable<MessageWrapper> getNewConversations() {
-        String ownerTelephoneNumber = ResourceUtil.getPhoneNumber(mContext);
+        String ownerTelephoneNumber = PhoneNumberUtil.getPhoneNumber(mContext);
         final Query conversationPath = mDatabase.child(CONVERSATION_ROOT_PATH);
         Observable<MessageWrapper> targetToMeObservable = Observable.create(e -> {
             Log.d(TAG, "getNewConversations");
@@ -479,4 +469,5 @@ public class SyncDatabase {
 
         );
     }
+
 }

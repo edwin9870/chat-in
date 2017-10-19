@@ -2,10 +2,8 @@ package com.edwin.android.chat_in.mainview;
 
 import android.Manifest;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v13.app.ActivityCompat;
@@ -13,7 +11,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.edwin.android.chat_in.R;
@@ -30,8 +27,7 @@ import com.edwin.android.chat_in.data.repositories.DatabaseModule;
 import com.edwin.android.chat_in.data.sync.DaggerSyncComponent;
 import com.edwin.android.chat_in.data.sync.SyncComponent;
 import com.edwin.android.chat_in.data.sync.SyncDatabase;
-import com.edwin.android.chat_in.settings.SettingsActivity;
-import com.edwin.android.chat_in.util.ResourceUtil;
+import com.edwin.android.chat_in.util.PhoneNumberUtil;
 import com.edwin.android.chat_in.util.SecurityUtil;
 import com.edwin.android.chat_in.views.WrapContentViewPager;
 import com.google.firebase.auth.FirebaseAuth;
@@ -39,7 +35,6 @@ import com.google.firebase.auth.FirebaseUser;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.reactivex.functions.Action;
 
 public class MainViewActivity extends AppCompatActivity {
 
@@ -115,7 +110,7 @@ public class MainViewActivity extends AppCompatActivity {
     }
     private void setupActivity() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        String phoneNumber = ResourceUtil.getPhoneNumber(this);
+        String phoneNumber = PhoneNumberUtil.getPhoneNumber(this);
         if(phoneNumber == null || phoneNumber.isEmpty()) {
             final Intent intent = new Intent(this, AuthActivity.class);
             Log.d(TAG, "User is not logged, starting AuthActivity");
@@ -151,7 +146,7 @@ public class MainViewActivity extends AppCompatActivity {
 
         setupViewPager();
 
-        Log.d(TAG, "Phone number: "+ ResourceUtil.getPhoneNumber(this));
+        Log.d(TAG, "Phone number: "+ PhoneNumberUtil.getPhoneNumber(this));
         mSyncDatabase.syncConversation();
 
     }
